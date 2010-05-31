@@ -1,0 +1,426 @@
+;; Globals
+
+(defn get-def
+  "flash.utils.getDefinitionByName"
+  [name]
+  (. com.las3r.runtime.RT (objectForName name)))
+
+(def get-timer (get-def "flash.utils.getTimer"))
+
+(def *psymacs* (. (get-def "Psymacs") instance)) ;; editor instance
+
+(def *mini-buffer* (. *psymacs* miniBuffer))
+(defn clear-mini-buffer! []
+  (set! (. *mini-buffer* text) ""))
+
+(def *highlighter-token-stream* nil)
+(def *parsed-tokens* nil) ;; vector for random access 
+(def *qp-last-input* "")
+(def *qp-last-output* nil)
+
+;; Utils
+
+(defn current-buffer
+  "Return the current buffer as a TextEditor object, or nil."
+  []
+  (let [tv (. *psymacs* tabView)
+	idx (. tv selectedIndex)]
+    (if (not (= idx -1))
+      (. tv (getItemAt idx))
+      (throw (new Error "There is no current buffer.")))))
+
+(defn buffer-string
+  "Returns the buffer's content as a string (defaults to current-buffer)."
+  ([buffer] (. buffer text))
+  ([]       (. (current-buffer) text)))
+
+(defn buffer-textfield
+  "Returns the buffer's TextField (defaults to current-buffer)."
+  ([buffer] buffer (. buffer textField))
+  ([]       (. (current-buffer) textField)))
+
+(defn buffers
+  "Returns a list of buffers (TextEditor objects)."
+  []
+  (map (fn [x] (. x content)) (seq (. (. *psymacs* tabView) items))))
+
+(defn point
+  "Return value of point, as an integer. Beginning of buffer is position 0."
+  []
+  (. (buffer-textfield) caretIndex))
+
+(defn char-at
+  "Returns the char at a position in a buffer (defaults to current-buffer and point)."
+  ([position buffer] (nth (buffer-string buffer) position))
+  ([position]        (nth (buffer-string (current-buffer)) position))
+  ([]                (nth (buffer-string (current-buffer)) (point))))
+
+;; Shared object (local storage)
+
+(def *psymacs-so* (. flash.net.SharedObject (getLocal "psymacsContent")))
+
+(defn save-to-lso!
+  "Save editor content to local storage. Returns the output of flush()."
+  []
+  (set! (. (. *psymacs-so* data) tabs)
+    (to-array (map (fn [tab]
+                     (let [tab-obj (new Object)]
+                       (set! (. tab-obj title) (. tab title))
+                       (set! (. tab-obj text) (. (. (. tab content) textField) text))
+                       tab-obj))
+                   (seq (. (. *psymacs* tabView) items))))) ; all tabs
+  (. *psymacs-so* (flush)))
+
+(defn load-from-lso!
+  "Load editor content from local storage."
+  []
+  (let [tab-view (. *psymacs* tabView)
+    saved-tabs (seq (. (. *psymacs-so* data) tabs))]
+    (if saved-tabs
+      (doseq tab saved-tabs
+    (. tab-view (addItemWithText (. tab text) (. tab title)))))))
+
+;; Bracket utils
+
+(defn paren?    [c] (contains? "()"     c))
+(defn square?   [c] (contains? "[]"     c))
+(defn curly?    [c] (contains? "{}"     c))
+(defn bracket?  [c] (contains? "([{}])" c))
+(defn lbracket? [c] (contains? "([{"    c))
+(defn rbracket? [c] (contains? "}])"    c))
+
+(defn matching-bracket
+  "Returns c's matching bracket or nil."
+  [c]
+  (get {"(" ")", ")" "(", "[" "]", "]" "[", "{" "}", "}" "{"} c))
+
+;; Regex helper
+
+(defn re-matches-with-index
+  "Like re-matches, but adds the match index to each match vector."
+  [#^RegExp r s]
+  (when-not (. r global) (throw-rte "RegExp supplied to re-matches-with-index must have global flag set."))
+  ((fn step []
+     (let [m (. r (exec s))]
+       (when m
+         (lazy-cons (conj (vec m) (. m index)) (step)))))))
+
+;; Parser
+
+(defn parse 
+  "Returns a lazy seq of tokens (re-matches)."
+  ([string] (parse string 0))
+  ([string idx]
+     (let [regex #"#(\"(?:\\?+.)*?\")[gismx]*|(\"(?:\\?+.)*?\")|([\(\[\{])|([\)\]\}])|(;[^\r]*)|([^\s\(\[\{\}\]\)\";,]+)|[\r\s,]+"gms]
+       (set! (. regex lastIndex) idx)
+       (re-matches-with-index regex string))))
+
+(defmacro token-index [x] `(last ~x))
+(defmacro token-match  [x] `(first ~x))
+(defmacro token-length [t] `(count (token-match ~t)))
+(defmacro token-end [t] `(+ (token-index ~t) (token-length ~t)))
+
+(defn advance-indices
+  "Adds n to the indices of tokens in parse results."
+  [n tokens]
+  (map (fn [t]
+         (conj (vec (butlast t)) (+ n (last t))))
+       tokens))
+
+(defn tokens-from-index
+  [index tokens]
+  (when (seq tokens)
+    (if (>= (token-index (first tokens)) index)
+      tokens
+      (recur index (rest tokens)))))
+
+(defn tokens-till-index
+  [index tokens]
+  (when (and (seq tokens) (< (token-index (first tokens)) index))
+    (lazy-cons (first tokens) (tokens-till-index index (rest tokens)))))
+
+(defn tokens-in-range [start end tokens]
+  (tokens-till-index end (tokens-from-index start tokens)))
+
+(defn merge-token-streams
+  [old-tokens new-tokens]
+  (when (seq new-tokens)
+    (let [new-token (first new-tokens)
+          relevant-old-tokens (tokens-from-index (token-index new-token) old-tokens)] ;; skip irrelevant old tokens
+      (if (= new-token (first relevant-old-tokens))
+        relevant-old-tokens
+        (lazy-cons new-token (merge-token-streams relevant-old-tokens (rest new-tokens)))))))
+
+(defn reparse 
+  "Returns a lazy seq of tokens, cpl and csl are the new and old strings' common prefix and suffix legnths."
+  ([old-string new-string cpl csl old-tokens]
+     (reparse old-string new-string cpl csl old-tokens nil))
+  ([old-string new-string cpl csl old-tokens new-tokens]
+     (if (empty? new-tokens)
+       (if (and (seq old-tokens) (< (token-end (first old-tokens)) cpl)) ;; are we still in the common prefix?
+         (lazy-cons (first old-tokens) (reparse old-string new-string cpl csl (rest old-tokens) nil))
+         (reparse old-string new-string cpl csl old-tokens (parse new-string (token-index (first old-tokens)))))
+       (let [new-token (first new-tokens)]
+         (if (< (token-end new-token) (- (count new-string) csl)) ;; are we still in the diff area of the strings?
+           (lazy-cons new-token (reparse old-string new-string cpl csl old-tokens (rest new-tokens))) ;; yes - keep going
+           (if (pos? csl) ;; no - is there a common suffix?
+	     (merge-token-streams (advance-indices (- (count new-string) (count old-string)) old-tokens) new-tokens) ;; yes - merge old and new streams
+	     new-tokens)))))) ;; no - return the new stream
+
+(defn get-common-part-lengths
+  "Returns [common-prefix-len common-suffix-len], uses psyark's StringComparator."
+  [s1 s2]
+  (let [buffer (current-buffer)]
+    (if buffer
+      (let [comp (. (current-buffer) comparator)]
+	(. comp (compare s1 s2))
+	[(. comp commonPrefixLength) (. comp commonSuffixLength)])
+      [0 0])))
+
+(defn quick-parse
+  "Applies a parsing regex to s, caches and returns the result (as a vector of matches)."
+  [s]
+  (if (= *qp-last-input* s)
+    *qp-last-output*
+    (do
+      (def *parsed-tokens* [])
+      (def *qp-last-output*
+	   (if *qp-last-output*
+	     (let [[pf sf] (get-common-part-lengths *qp-last-input* s)]
+	       (reparse *qp-last-input* s pf sf *qp-last-output*))
+	     (parse s)))
+      (def *qp-last-input* s)
+      *qp-last-output*)))
+
+;; Bracket matching
+
+(defn binary-search
+  "Takes data (should be a sorted vector), and an under-value? predicate function. Returns either the index of the match (or whatever is above where the match would be), or nil if given an empty vector."
+  [data under-value?]
+  (if (seq data) ;; skip if vector is empty
+    (loop [lo 0
+           hi (dec (count data))]
+      (if (< lo hi)
+        (let [mid (+ lo (bit-shr (- hi lo) 1))]
+          (if (under-value? (nth data mid))
+            (recur (inc mid) hi)
+            (recur lo mid)))
+        lo))))
+
+;; TODO: improve
+(defn match-index-for-point
+  "Returns the index of the match at position, matches should be the output of re-match-ex, position is the character index."
+  [matches position]
+  (max 0 (dec (binary-search matches (fn [x] (< (last x) (inc position)))))))
+
+(defn find-unmatched-bracket
+  "Starts searching right after token-idx, returns the index of the first unmatched opposite bracket."
+  [parsed-data token-idx bracket]
+  (let [[limit next] (if (lbracket? bracket) 
+		       [-1 dec]
+                       [(count parsed-data) inc])
+        opposite (matching-bracket bracket)]
+    (loop [idx (next token-idx)
+           nesting 0]
+      (if (= idx limit)
+        nil
+        (cond (= (first (nth parsed-data idx)) bracket)
+              (if (zero? nesting)
+                idx
+                (recur (next idx) (dec nesting)))
+
+              (= (first (nth parsed-data idx)) opposite)
+              (recur (next idx) (inc nesting))
+
+              :else (recur (next idx) nesting))))))
+
+;; Context doc
+
+(defn minibuff-print-doc 
+  "Like print-doc, with different formatting."
+  [v]
+  (println (str (ns-name (get ^v :ns)) "/" (get ^v :name) 
+        (if (get ^v :macro) " - Macro" "")))
+  (prn (get ^v :arglists))
+  (println " " (get ^v :doc)))
+
+(defn back-search-for-context-doc
+  "Returns the first token after the first preceding unmatched lparen."
+  []
+  (when (seq *parsed-tokens*)
+    (let [matches *parsed-tokens*
+          match-idx (match-index-for-point matches (point))
+          match (first (nth matches match-idx))
+          lparen-idx (inc (find-unmatched-bracket *parsed-tokens* match-idx "("))]
+      (when (> (count matches) lparen-idx)
+	(first (nth matches lparen-idx))))))
+
+(defn context-doc
+  "Shows the enclosing function's documentation in the minibuffer."
+  []
+  (when (current-buffer)
+    (let [name (back-search-for-context-doc)]
+      (if name 
+	(try
+	 (let [v (find-var (symbol (ns-name *ns*) name))
+	       arglists ((meta v) :arglists)]
+	   (minibuff-print-doc v))
+	 (catch Error e nil))))))
+
+(def *print-doc* false)
+
+(defn context-doc-frame-handler [e]
+  (if (and *print-doc* (not *highlighter-token-stream*))
+    (do (def *print-doc* false)
+        (clear-mini-buffer!)
+        (context-doc))))
+
+;; Syntax highlighter
+
+(def *plain-format*   (new flash.text.TextFormat nil nil 0xa0a0a0 true)) ;; used on whitespace (and commas)
+(def *regex-format*   (new flash.text.TextFormat nil nil 0x00aa22 true))
+(def *string-format*  (new flash.text.TextFormat nil nil 0xaa8800 true))
+(def *comment-format* (new flash.text.TextFormat nil nil 0xcc2200 true))
+(def *paren-format*   (new flash.text.TextFormat nil nil 0x005577 true))
+
+(def *token-format*   (new flash.text.TextFormat nil nil 0x000000 false)) ;; default token format
+(def *keyword-format* (new flash.text.TextFormat nil nil 0x008888 true))
+(def *int-format*     (new flash.text.TextFormat nil nil 0x440088 true))
+(def *float-format*   (new flash.text.TextFormat nil nil 0x8800cc true))
+(def *ratio-format*   (new flash.text.TextFormat nil nil 0xcc00ff true))
+
+(def *last-highlighting* 0)
+(def *refresh-highlighting* true)
+(def *highlighting-interval* 300)
+
+(defn token-format
+  "Returns a TextFormat object."
+  [token-string]
+  (let [reader (. *runtime* lispReader)] ;; use LispReader's number matching regexes
+    (cond (= (first token-string) ":") *keyword-format*
+          (re-match (. reader intPat)   token-string) *int-format*
+          (re-match (. reader floatPat) token-string) *float-format*
+          (re-match (. reader ratioPat) token-string) *ratio-format*
+          :else *token-format*)))
+
+(defn highlight-token!
+  "Highlight a single parsed token in the current buffer."
+  [token]
+  (when (current-buffer)
+    (let [tf (buffer-textfield)
+	  [match regex quoted open close comment token index] token]
+      (. tf (setTextFormat (cond (seq regex) *regex-format*
+				 (seq quoted) *string-format*
+				 (seq comment) *comment-format*
+				 (seq token) (token-format token)
+				 :else *paren-format*)
+			   index
+			   (+ index (count match)))))))
+
+;; TODO: remove?
+(defn highlight!
+  "Apply syntax highlighting to current buffer."
+  []
+  (def *highlighter-token-stream* (and (seq (buffers)) (quick-parse (buffer-string)))))
+
+(defn highlight-frame-handler [e]
+  "Check if buffer highlighting should be redone, and if enough time has passed since the last highlight call. Refresh highlighting if needed."
+  (if (and *refresh-highlighting*
+           (< (+ *last-highlighting* *highlighting-interval*) (get-timer)))
+    (do
+      (highlight!)
+      (def *last-highlighting* (get-timer))
+      (def *refresh-highlighting* false))))
+
+(defn highlight-change-handler [e]
+  (def *refresh-highlighting* true))
+
+;; Key handlers
+
+(defn eval-buffer
+  "Saves all code to local storage, evaluates the code in a buffer (by default the current one). Prints the result in the mini buffer."
+  ([] (eval-buffer (current-buffer)))
+  ([buffer]
+     (save-to-lso!) ;; prepare for impending doom
+     (clear-mini-buffer!)
+     (let [done-fn (fn [x]
+                     (pr x)
+                     (. *psymacs* (updateLayout)))]
+       (eval (. buffer text)
+             done-fn
+             done-fn))))
+
+;; Keyboard stuff
+
+(def *kb-map* {})
+
+(defmacro kb
+  "Shortcut for flash.ui.Keyboard constants"
+  [const]
+  `(. flash.ui.Keyboard ~const))
+
+(defn set-key-handler!
+  "Sets a function as the handler for a specific keypress. key can be either a character or a key-code, modifiers are a sequence which can contain :ctrl, :alt and :shift."
+  [key modifiers handler]
+    (def *kb-map*
+         (assoc *kb-map*
+           {:code (if (string? key)
+                    (. (. key (toUpperCase)) (charCodeAt 0))
+                    key)
+            :modifiers (into #{} modifiers)}
+           handler)))
+
+(defn event->keystroke [e]
+  "Converts a KEY_DOWN event to a {:code ... :modifiers ...} map."
+  (let [modifiers #{}
+    modifiers (if (. e ctrlKey) (conj modifiers :ctrl) modifiers)
+    modifiers (if (. e altKey) (conj modifiers :alt) modifiers)
+    modifiers (if (. e shiftKey) (conj modifiers :shift) modifiers)]
+    {:code (. e keyCode) :modifiers modifiers}))
+
+(defn key-down-handler [buffer event]
+  (let [cmd (*kb-map* (event->keystroke event))]
+    (if cmd
+      (do
+        (set! (. buffer trackChanges) false)
+        (cmd)
+        (set! (. buffer trackChanges) true)
+        (. buffer (dispatchChangeEvent)))
+      (def *print-doc* true))))
+
+;; Async
+
+;; TODO: better timing algo?
+(defn async-parse-driver
+  "Event handler, highlights 200 tokens, also stores them as a vector in *parsed-tokens*."
+  [e]
+  (if (and (seq (buffers)) (seq *highlighter-token-stream*))
+    (loop [cnt 20 ;; tokens to process per frame
+           tokens *highlighter-token-stream*]
+      (if (and (pos? cnt) (seq tokens))
+        (do (highlight-token! (first tokens))
+            (def *parsed-tokens* (conj *parsed-tokens* (first tokens)))
+            (recur (dec cnt) (rest tokens)))
+        (do (def *highlighter-token-stream* tokens)
+            (def *print-docs* (empty? *highlighter-token-stream*)))))))
+
+;; Setup event listeners and hooks
+
+(. *stage* (addEventListener "enterFrame" context-doc-frame-handler))
+(. *stage* (addEventListener "enterFrame" highlight-frame-handler))
+(. *stage* (addEventListener "enterFrame" async-parse-driver))
+(set! (. *psymacs* las3rHighlightHook) highlight-change-handler)
+(set! (. *psymacs* keyDownHook) key-down-handler)
+
+;; Setup key handlers
+
+(set-key-handler! (kb F5) [] eval-buffer)
+
+;; Load saved data from local storage
+
+(load-from-lso!)
+
+;; Say hello
+
+(println "Write code and hit F5 to run it.")
+(println "To close a tab double-click the x.")

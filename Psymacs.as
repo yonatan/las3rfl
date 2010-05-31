@@ -11,9 +11,15 @@ package {
     import flash.ui.Keyboard;
     import flash.utils.*;
     import net.hires.debug.Stats;
+	import com.las3r.io.OutputStream;
+	import com.las3r.runtime.RT;
     
     [SWF(width=465,height=465,backgroundColor=0xFFFFFF,frameRate=60)]
     public class Psymacs extends Sprite {
+        [Embed(source="psymacs.lsr", mimeType="application/octet-stream")]
+        protected const PsymacsLsr:Class;
+        protected var las3rCode:String
+
         public static var instance:Psymacs;
         public var keyDownHook:Function;
         public var las3rHighlightHook:Function;
@@ -24,20 +30,6 @@ package {
         
         public function Psymacs() {
             instance = this;
-            loadLas3rSwf(init);
-        }
-
-        private function loadLas3rSwf(completeHandler:Function):void {
-            Security.loadPolicyFile("http://zozuar.org/wonderfl/crossdomain.xml");
-            var loader:Loader;
-            var req:URLRequest = new URLRequest("http://zozuar.org/wonderfl/las3r.swf");
-            var ctx:LoaderContext = new LoaderContext(true, ApplicationDomain.currentDomain, SecurityDomain.currentDomain);
-            loader = new Loader();
-            loader.contentLoaderInfo.addEventListener(Event.COMPLETE, completeHandler);
-            loader.load(req, ctx);
-        }
-
-        private function init(e:Event):void {
             stage.scaleMode = StageScaleMode.NO_SCALE;
             stage.align = StageAlign.TOP_LEFT;
             
@@ -55,17 +47,25 @@ package {
             stage.addEventListener(Event.RESIZE, updateLayout);
             stage.addEventListener(Event.ENTER_FRAME, updateLayout);
             addChild(stats);
-			stats.visible = false;
+            stats.visible = false;
             updateLayout();
 
+            las3rCode = ByteArray(new PsymacsLsr).toString();
             initRuntime();
         }
 
-        private function initRuntime():void {
-            var RT:Class = getDefinitionByName("com.las3r.runtime.RT") as Class;
-            var OutputStream:Class = getDefinitionByName("com.las3r.io.OutputStream") as Class;
+        private function loadLas3rSwf(completeHandler:Function):void {
+            Security.loadPolicyFile("http://zozuar.org/wonderfl/crossdomain.xml");
+            var loader:Loader;
+            var req:URLRequest = new URLRequest("http://zozuar.org/wonderfl/las3r.swf");
+            var ctx:LoaderContext = new LoaderContext(true, ApplicationDomain.currentDomain, SecurityDomain.currentDomain);
+            loader = new Loader();
+            loader.contentLoaderInfo.addEventListener(Event.COMPLETE, completeHandler);
+            loader.load(req, ctx);
+        }
 
-            var stdout:* = new OutputStream(function(str:String):void {miniBuffer.textField.appendText(str);});
+        private function initRuntime():void {
+            var stdout:OutputStream = new OutputStream(function(str:String):void {miniBuffer.textField.appendText(str);});
             
             rt = new RT(stage, stdout, stdout);
 
@@ -73,7 +73,7 @@ package {
                 rt.loadStdLib(
                     function(val:*):void { 
                         miniBuffer.text = "Las3r runtime loaded.\n"; 
-                        rt.evalStr(las3rCode);
+                        rt.evalStr(las3rCode, null, null, miniBuffer.textField.appendText);
                     },
                     function(i:int, total:int):void{ miniBuffer.text += "."; },
                     function(error:*):void{ miniBuffer.text = error; },
@@ -84,7 +84,6 @@ package {
             catch(e:*){
                 miniBuffer.text = e;
             }
-            
         }
 
         public function updateLayout(event:Event=null):void {
@@ -96,345 +95,6 @@ package {
             stats.x = stage.stageWidth - stats.width;
         }
 
-        private var las3rCode:String = <![CDATA[
-;; Globals
-
-(defn get-def
-  "flash.utils.getDefinitionByName"
-  [name]
-  (. com.las3r.runtime.RT (objectForName name)))
-
-(def get-timer (get-def "flash.utils.getTimer"))
-
-(def *psymacs* (. (get-def "Psymacs") instance)) ;; editor instance
-
-(def *mini-buffer* (. *psymacs* miniBuffer))
-(defn clear-mini-buffer! []
-  (set! (. *mini-buffer* text) ""))
-
-;; Utils
-
-(defn current-buffer
-  "Return the current buffer as a TextEditor object."
-  []
-  (let [tv (. *psymacs* tabView)
-    idx (. tv selectedIndex)]
-    (. tv (getItemAt idx))))
-
-(defn buffer-string
-  "Returns the buffer's content as a string (defaults to current-buffer)."
-  ([buffer] (. buffer text))
-  ([]       (. (current-buffer) text)))
-
-(defn buffer-textfield
-  "Returns the buffer's TextField (defaults to current-buffer)."
-  ([buffer] (. buffer textField))
-  ([]       (. (current-buffer) textField)))
-
-(defn buffers
-  "Returns a list of buffers (TextEditor objects)."
-  []
-  (map (fn [x] (. x content)) (seq (. (. *psymacs* tabView) items))))
-
-(defn point
-  "Return value of point, as an integer. Beginning of buffer is position 0."
-  []
-  (. (buffer-textfield) caretIndex))
-
-(defn char-at
-  "Returns the char at a position in a buffer (defaults to current-buffer and point)."
-  ([position buffer] (nth (buffer-string buffer) position))
-  ([position]        (nth (buffer-string (current-buffer)) position))
-  ([]                (nth (buffer-string (current-buffer)) (point))))
-
-;; Shared object (local storage)
-
-(def *psymacs-so* (. flash.net.SharedObject (getLocal "psymacsContent")))
-
-(defn save-to-lso!
-  "Save editor content to local storage. Returns the output of flush()."
-  []
-  (set! (. (. *psymacs-so* data) tabs)
-    (to-array (map (fn [tab]
-                     (let [tab-obj (new Object)]
-                       (set! (. tab-obj title) (. tab title))
-                       (set! (. tab-obj text) (. (. (. tab content) textField) text))
-                       tab-obj))
-                   (seq (. (. *psymacs* tabView) items))))) ; all tabs
-  (. *psymacs-so* (flush)))
-
-(defn load-from-lso!
-  "Load editor content from local storage."
-  []
-  (let [tab-view (. *psymacs* tabView)
-    saved-tabs (seq (. (. *psymacs-so* data) tabs))]
-    (if saved-tabs
-      (doseq tab saved-tabs
-    (. tab-view (addItemWithText (. tab text) (. tab title)))))))
-
-;; Bracket utils
-
-(defn paren?    [c] (contains? "()"     c))
-(defn square?   [c] (contains? "[]"     c))
-(defn curly?    [c] (contains? "{}"     c))
-(defn bracket?  [c] (contains? "([{}])" c))
-(defn lbracket? [c] (contains? "([{"    c))
-(defn rbracket? [c] (contains? "}])"    c))
-
-(defn matching-bracket
-  "Returns c's matching bracket or nil."
-  [c]
-  (get {"(" ")", ")" "(", "[" "]", "]" "[", "{" "}", "}" "{"} c))
-
-;; Regex helper
-
-(defn re-matches-ex
-  "A bit like re-matches, but not lazy, and returns more info (including the offset of every match). Works by using RegExp.replace with a replacement function and collecting its arguments." 
-  [r s]
-  (let [ret (new Array)]
-    (. s (replace r (fn [& args]
-                      (. ret (push (butlast args))))))
-    (seq ret)))
-
-;; Parser
-
-(def *qp-last-input* nil)
-(def *qp-last-output* nil)
-
-(defn quick-parse
-  "Applies a parsing regex to s, caches and returns the result (as a vector of matches)."
-  [s]
-  (if (= *qp-last-input* s)
-    *qp-last-output*
-    (let [ret (vec (re-matches-ex #"#(\"(?:\\?+.)*?\")[gismx]*|(\"(?:\\?+.)*?\")|([\(\[\{])|([\)\]\}])|(;[^\r]*)|([^\s\(\[\{\}\]\)\";,]+)|[\r\s,]+"gms s))]
-      (def *qp-last-input* s)
-      (def *qp-last-output* ret)
-      ret)))
-
-;; Parse results search
-
-(defn match-index-for-point
-  "Returns the index of the match at position, matches should be the output of re-match-ex, position is the character index."
-  [matches position]
-  (if (seq matches) ;; bail if no matches
-    (loop [lo 0
-           hi (dec (count matches))]
-      (if (= hi lo)
-        lo
-        (let [mid (+ lo (bit-shr (- hi lo) 1))]
-          (if (< position (last (nth matches mid))) 
-            (recur lo (dec mid))
-            (if (>= position (last (nth matches (inc mid))))
-              (recur (inc mid) hi)
-              mid)))))))
-
-;; Bracket matching
-
-(defn find-unmatched-bracket
-  "Starts searching right after token-idx, returns the index of the first unmatched bracket."
-  [parsed-data token-idx bracket]
-  (let [[limit next] (if (lbracket? bracket) 
-                       [-1 dec]
-                       [(count parsed-data) inc])
-        opposite (matching-bracket bracket)]
-    (loop [idx (next token-idx)
-           nesting 0]
-      (if (= idx limit)
-        nil
-        (cond (= (first (nth parsed-data idx)) bracket)
-              (if (zero? nesting)
-                idx
-                (recur (next idx) (dec nesting)))
-
-              (= (first (nth parsed-data idx)) opposite)
-              (recur (next idx) (inc nesting))
-
-              :else (recur (next idx) nesting))))))
-
-(defn matching-bracket-position
-  "Returns the position of the bracket matching the one at position, or nil if not found or no bracket at position. String and position default to current buffer string and point."
-  ([] (matching-bracket-position (buffer-string) (point)))
-  ([string] (matching-bracket-position string (point)))
-  ([string position]
-    (if (bracket? (char-at))
-      (let [matches (quick-parse string)
-            match-idx (match-index-for-point matches position)
-            match (first (nth matches match-idx))]
-        (if (bracket? match)
-          (let [idx (find-unmatched-bracket matches match-idx (matching-bracket match))]
-            (and idx (last (nth matches idx)))))))))
-
-;; Context doc
-
-(defn minibuff-print-doc 
-  "Like print-doc, with different formatting."
-  [v]
-  (println (str (ns-name (get ^v :ns)) "/" (get ^v :name) 
-        (if (get ^v :macro) " - Macro" "")))
-  (prn (get ^v :arglists))
-  (println " " (get ^v :doc)))
-
-(defn back-search-for-context-doc
-  "Returns the first token after the first preceding unmatched lparen."
-  []
-  (let [matches (quick-parse (buffer-string))
-        match-idx (match-index-for-point matches (point))
-        lparen-idx (find-unmatched-bracket (quick-parse (buffer-string)) match-idx "(")]
-    (first (nth matches (inc lparen-idx)))))
-
-(defn context-doc
-  "Shows the enclosing function's documentation in the minibuffer."
-  []
-  (let [name (back-search-for-context-doc)]
-    (if name 
-      (try
-        (let [v (find-var (symbol (ns-name *ns*) name))
-              arglists ((meta v) :arglists)]
-          (minibuff-print-doc v))
-        (catch Error e nil)))))
-
-(def *print-doc* false)
-
-(defn context-doc-frame-handler [e]
-  (if *print-doc*
-    (do (def *print-doc* false)
-        (clear-mini-buffer!)
-        (context-doc))))
-
-;; Syntax highlighter
-
-(def *plain-format*   (new flash.text.TextFormat nil nil 0xa0a0a0 true)) ;; used on whitespace (and commas)
-(def *regex-format*   (new flash.text.TextFormat nil nil 0x00aa22 true))
-(def *string-format*  (new flash.text.TextFormat nil nil 0xaa8800 true))
-(def *comment-format* (new flash.text.TextFormat nil nil 0xcc2200 true))
-(def *paren-format*   (new flash.text.TextFormat nil nil 0x005577 true))
-
-(def *token-format*   (new flash.text.TextFormat nil nil 0x000000 false)) ;; default token format
-(def *keyword-format* (new flash.text.TextFormat nil nil 0x008888 true))
-(def *int-format*     (new flash.text.TextFormat nil nil 0x440088 true))
-(def *float-format*   (new flash.text.TextFormat nil nil 0x8800cc true))
-(def *ratio-format*   (new flash.text.TextFormat nil nil 0xcc00ff true))
-
-(def *last-highlighting* 0)
-(def *refresh-highlighting* true)
-(def *highlighting-interval* 300)
-
-(defn token-format
-  "Returns a TextFormat object."
-  [token-string]
-  (let [reader (. *runtime* lispReader)] ;; use LispReader's number matching regexes
-    (cond (= (first token-string) ":") *keyword-format*
-          (re-match (. reader intPat)   token-string) *int-format*
-          (re-match (. reader floatPat) token-string) *float-format*
-          (re-match (. reader ratioPat) token-string) *ratio-format*
-          :else *token-format*)))
-
-(defn highlight!
-  "Apply syntax highlighting to current buffer."
-  []
-  (let [tf (buffer-textfield)]
-    (. tf (setTextFormat *plain-format*))
-    (loop [matches (quick-parse (buffer-string))]
-      (if matches
-        (let [[match regex quoted open close comment token index] (first matches)]
-          (. tf (setTextFormat (cond (seq regex) *regex-format*
-                                     (seq quoted) *string-format*
-                                     (seq comment) *comment-format*
-                                     (seq token) (token-format token)
-                                     (or (seq open) (seq close)) *paren-format*
-                                     :else *plain-format*)
-                               index
-                               (+ index (count match))))
-          (recur (rest matches))))))
-  (def *last-highlighting* (get-timer))
-  (def *refresh-highlighting* false))
-
-(defn highlight-frame-handler [e]
-  "Check if buffer highlighting should be redone, and if enough time has passed since the last highlight call. Refresh highlighting if needed."
-  (if (and *refresh-highlighting*
-           (< (+ *last-highlighting* *highlighting-interval*) (get-timer)))
-    (do
-      (highlight!)
-      (def *last-highlighting* (get-timer))
-      (def *refresh-highlighting* false))))
-
-(defn highlight-change-handler [e]
-  (def *refresh-highlighting* true))
-
-;; Key handlers
-
-(defn eval-buffer
-  "Saves all code to local storage, evaluates the code in a buffer (by default the current one). Prints the result in the mini buffer."
-  ([] (eval-buffer (current-buffer)))
-  ([buffer]
-     (save-to-lso!) ;; prepare for impending doom
-     (clear-mini-buffer!)
-     (let [done-fn (fn [x]
-                     (pr x)
-                     (. *psymacs* (updateLayout)))]
-       (eval (. buffer text)
-             done-fn
-             done-fn))))
-
-;; Keyboard stuff
-
-(def *kb-map* {})
-
-(defmacro kb
-  "Shortcut for flash.ui.Keyboard constants"
-  [const]
-  `(. flash.ui.Keyboard ~const))
-
-(defn set-key-handler!
-  "Sets a function as the handler for a specific keypress. key can be either a character or a key-code, modifiers are a sequence which can contain :ctrl, :alt and :shift."
-  [key modifiers handler]
-    (def *kb-map*
-         (assoc *kb-map*
-           {:code (if (string? key)
-                    (. (. key (toUpperCase)) (charCodeAt 0))
-                    key)
-            :modifiers (into #{} modifiers)}
-           handler)))
-
-(defn event->keystroke [e]
-  "Converts a KEY_DOWN event to a {:code ... :modifiers ...} map."
-  (let [modifiers #{}
-    modifiers (if (. e ctrlKey) (conj modifiers :ctrl) modifiers)
-    modifiers (if (. e altKey) (conj modifiers :alt) modifiers)
-    modifiers (if (. e shiftKey) (conj modifiers :shift) modifiers)]
-    {:code (. e keyCode) :modifiers modifiers}))
-
-(defn key-down-handler [buffer event]
-  (let [cmd (*kb-map* (event->keystroke event))]
-    (if cmd
-      (do
-        (set! (. buffer trackChanges) false)
-        (cmd)
-        (set! (. buffer trackChanges) true)
-        (. buffer (dispatchChangeEvent)))
-      (def *print-doc* true))))
-
-;; Setup event listeners and hooks
-
-(. *stage* (addEventListener "enterFrame" context-doc-frame-handler false -20000))
-(. *stage* (addEventListener "enterFrame" highlight-frame-handler   false -20000))
-(set! (. *psymacs* las3rHighlightHook) highlight-change-handler)
-(set! (. *psymacs* keyDownHook) key-down-handler)
-
-;; Setup key handlers
-
-(set-key-handler! (kb F5) [] eval-buffer)
-
-;; Load saved data from local storage
-
-(load-from-lso!)
-
-;; Say hello
-
-(println "Write code and hit F5 to run it.")
-(println "To close a tab double-click the x.")
-
-]]>.toString();
     }
 }
 
@@ -443,15 +103,15 @@ jp/psyark/psycode/core/history/HistoryEntry.as
 */
 
 class HistoryEntry {
-public var index:int;
-public var oldText:String;
-public var newText:String;
+    public var index:int;
+    public var oldText:String;
+    public var newText:String;
 
-public function HistoryEntry(index:int=0, oldText:String="", newText:String="") {
-this.index   = index;
-this.oldText = oldText;
-this.newText = newText;
-}
+    public function HistoryEntry(index:int=0, oldText:String="", newText:String="") {
+        this.index   = index;
+        this.oldText = oldText;
+        this.newText = newText;
+    }
 }
 
 
@@ -464,75 +124,75 @@ jp/psyark/utils/StringComparator.as
 * 文字列の左右一致を数える
 */
 class StringComparator {
-/**
-* @private
-*/
-internal static function test():void {
-var sc:StringComparator = new StringComparator();
-var test:Function = function (a:String, b:String, l:int, r:int):void {
-sc.compare(a, b);
-if (sc.commonPrefixLength != l || sc.commonSuffixLength != r) {
-    throw new Error();
-}
-};
-test("Hello World", "Hello World", 11, 0);
-test("Hello World", "Hello! World", 5, 6);
-test("Hello World", "HelPIYOrld", 3, 3);
-test("a", "aB", 1, 0);
-test("aBC", "aBCD", 3, 0);
-test("Ba", "a", 0, 1);
-test("aBC", "DaBC", 0, 3);
-test("aXbXc", "aXc", 2, 1);
-test("aaaXccc", "aaaXbbbXccc", 4, 3);
-}
-
-/**
-* 左側の共通文字列長
-*/
-public var commonPrefixLength:int;
-
-/**
-* 右側の共通文字列長
-*/
-public var commonSuffixLength:int;
-
-/**
-* 2つの文字列を比較し、commonPrefixLengthとcommonSuffixLengthをセットする
-* 
-* @param str1 比較する文字列の一方
-* @param str2 比較する文字列の他方
-*/
-public function compare(str1:String, str2:String):void {
-    var minLength:int = Math.min(str1.length, str2.length);
-    var step:int, l:int, r:int;
-    
-    step = Math.pow(2, Math.floor(Math.log(minLength) / Math.log(2)));
-    for (l=0; l<minLength; ) {
-        if (str1.substr(0, l + step) != str2.substr(0, l + step)) {
-            if (step == 1) { break; }
-            step >>= 1;
-        } else {
-            l += step;
-        }
+    /**
+    * @private
+    */
+    internal static function test():void {
+        var sc:StringComparator = new StringComparator();
+        var test:Function = function (a:String, b:String, l:int, r:int):void {
+            sc.compare(a, b);
+            if (sc.commonPrefixLength != l || sc.commonSuffixLength != r) {
+                throw new Error();
+            }
+        };
+        test("Hello World", "Hello World", 11, 0);
+        test("Hello World", "Hello! World", 5, 6);
+        test("Hello World", "HelPIYOrld", 3, 3);
+        test("a", "aB", 1, 0);
+        test("aBC", "aBCD", 3, 0);
+        test("Ba", "a", 0, 1);
+        test("aBC", "DaBC", 0, 3);
+        test("aXbXc", "aXc", 2, 1);
+        test("aaaXccc", "aaaXbbbXccc", 4, 3);
     }
-    l = Math.min(l, minLength);
-    
-    minLength -= l;
-    
-    step = Math.pow(2, Math.floor(Math.log(minLength) / Math.log(2)));
-    for (r=0; r<minLength; ) {
-        if (str1.substr(-r - step) != str2.substr(-r - step)) {
-            if (step == 1) { break; }
-            step >>= 1;
-        } else {
-            r += step;
+
+    /**
+    * 左側の共通文字列長
+    */
+    public var commonPrefixLength:int;
+
+    /**
+    * 右側の共通文字列長
+    */
+    public var commonSuffixLength:int;
+
+    /**
+    * 2つの文字列を比較し、commonPrefixLengthとcommonSuffixLengthをセットする
+    * 
+    * @param str1 比較する文字列の一方
+    * @param str2 比較する文字列の他方
+    */
+    public function compare(str1:String, str2:String):void {
+        var minLength:int = Math.min(str1.length, str2.length);
+        var step:int, l:int, r:int;
+        
+        step = Math.pow(2, Math.floor(Math.log(minLength) / Math.log(2)));
+        for (l=0; l<minLength; ) {
+            if (str1.substr(0, l + step) != str2.substr(0, l + step)) {
+                if (step == 1) { break; }
+                step >>= 1;
+            } else {
+                l += step;
+            }
         }
+        l = Math.min(l, minLength);
+        
+        minLength -= l;
+        
+        step = Math.pow(2, Math.floor(Math.log(minLength) / Math.log(2)));
+        for (r=0; r<minLength; ) {
+            if (str1.substr(-r - step) != str2.substr(-r - step)) {
+                if (step == 1) { break; }
+                step >>= 1;
+            } else {
+                r += step;
+            }
+        }
+        r = Math.min(r, minLength);
+        
+        commonPrefixLength = l;
+        commonSuffixLength = r;
     }
-    r = Math.min(r, minLength);
-    
-    commonPrefixLength = l;
-    commonSuffixLength = r;
-}
 }
 
 
@@ -1592,10 +1252,10 @@ class TextEditorBase extends TextEditUI {
         public function addItemWithText(content:String, title:String):void {
             var editor:TextEditor = new TextEditor;
 
-                        editor.trackChanges = false;
+            editor.trackChanges = false;
             editor.textField.text = content;
             editor.prevText = content;
-                        editor.trackChanges = true;
+            editor.trackChanges = true;
             addItem(editor, title);
         }
 
@@ -1716,7 +1376,7 @@ class TextEditorBase extends TextEditUI {
             addChild(label);
             
             closeButton = createCloseButton();
-			closeButton.doubleClickEnabled = true;
+            closeButton.doubleClickEnabled = true;
             closeButton.addEventListener(MouseEvent.DOUBLE_CLICK, closeButtonClickHandler);
             addChild(closeButton);
             
@@ -1917,111 +1577,111 @@ class TextEditorBase extends TextEditUI {
             }
             
             // } : 自動アンインデント
-            if (event.charCode == 125) {
-                doRightbrace(event);
-                return;
-            }
-            
-            // Ctrl+Z : UNDO
-            if (event.keyCode == 90 && event.ctrlKey) {
-                undo();
-                event.preventDefault();
-                preventFollowingTextInput = true;
-                prevSBI = selectionBeginIndex;
-                prevSEI = selectionEndIndex;
-                return;
-            }
-            
-            // Ctrl+Y : REDO
-            if (event.keyCode == 89 && event.ctrlKey) {
-                redo();
-                event.preventDefault();
-                preventFollowingTextInput = true;
-                prevSBI = selectionBeginIndex;
-                prevSEI = selectionEndIndex;
-                return;
-            }
+        if (event.charCode == 125) {
+            doRightbrace(event);
+            return;
         }
         
+        // Ctrl+Z : UNDO
+        if (event.keyCode == 90 && event.ctrlKey) {
+            undo();
+            event.preventDefault();
+            preventFollowingTextInput = true;
+            prevSBI = selectionBeginIndex;
+            prevSEI = selectionEndIndex;
+            return;
+        }
         
-        /**
-        * 同じ文字グループを前方消去
-        */
-        private function deleteGroupBack():void {
-            if (selectionBeginIndex != selectionEndIndex) {
-                // 範囲選択中なら、範囲を削除
-                replaceSelectedText("");
-                dispatchChangeEvent();
-            } else if (selectionBeginIndex == 0) {
-                // カーソル位置が先頭なら、何もしない
+        // Ctrl+Y : REDO
+        if (event.keyCode == 89 && event.ctrlKey) {
+            redo();
+            event.preventDefault();
+            preventFollowingTextInput = true;
+            prevSBI = selectionBeginIndex;
+            prevSEI = selectionEndIndex;
+            return;
+        }
+    }
+    
+    
+    /**
+    * 同じ文字グループを前方消去
+    */
+    private function deleteGroupBack():void {
+        if (selectionBeginIndex != selectionEndIndex) {
+            // 範囲選択中なら、範囲を削除
+            replaceSelectedText("");
+            dispatchChangeEvent();
+        } else if (selectionBeginIndex == 0) {
+            // カーソル位置が先頭なら、何もしない
+        } else {
+            var len:int;
+            var c:String = text.charAt(selectionBeginIndex - 1);
+            if (c == "\r" || c == "\n") {
+                // 改行の直後なら、それを消去
+                len = 1;
             } else {
-                var len:int;
-                var c:String = text.charAt(selectionBeginIndex - 1);
+                // それ以外なら、同じ文字グループ（単語構成文字・空白・それ以外）を前方消去
+                var match:Array = beforeSelection.match(/(?:\w+|[ \t]+|[^\w \t\r\n]+)$/i);
+                len = match[0].length;
+            }
+            var newIndex:int = selectionBeginIndex - len;
+            replaceText(selectionBeginIndex - len, selectionEndIndex, "");
+            setSelection(newIndex, newIndex);
+            dispatchChangeEvent();
+        }
+    }
+    
+    
+    
+    
+    /**
+    * Tab : タブ挿入とインデント
+    */
+    private function doTab(event:KeyboardEvent):void {
+        if (selectionBeginIndex != selectionEndIndex) {
+            var b:int, e:int, c:String;
+            for (b=selectionBeginIndex; b>0; b--) {
+                c = text.charAt(b - 1);
                 if (c == "\r" || c == "\n") {
-                    // 改行の直後なら、それを消去
-                    len = 1;
-                } else {
-                    // それ以外なら、同じ文字グループ（単語構成文字・空白・それ以外）を前方消去
-                    var match:Array = beforeSelection.match(/(?:\w+|[ \t]+|[^\w \t\r\n]+)$/i);
-                    len = match[0].length;
+                    break;
                 }
-                var newIndex:int = selectionBeginIndex - len;
-                replaceText(selectionBeginIndex - len, selectionEndIndex, "");
-                setSelection(newIndex, newIndex);
-                dispatchChangeEvent();
             }
-        }
-        
-        
-        
-        
-        /**
-        * Tab : タブ挿入とインデント
-        */
-        private function doTab(event:KeyboardEvent):void {
-            if (selectionBeginIndex != selectionEndIndex) {
-                var b:int, e:int, c:String;
-                for (b=selectionBeginIndex; b>0; b--) {
-                    c = text.charAt(b - 1);
-                    if (c == "\r" || c == "\n") {
-                        break;
-                    }
+            for (e=selectionEndIndex; e<text.length; e++) {
+                c = text.charAt(e);
+                if (c == "\r" || c == "\n") {
+                    break;
                 }
-                for (e=selectionEndIndex; e<text.length; e++) {
-                    c = text.charAt(e);
-                    if (c == "\r" || c == "\n") {
-                        break;
-                    }
-                }
-                var replacement:String = text.substring(b, e);
-                if (event.shiftKey) {
-                    replacement = replacement.replace(/^\t/mg, "");
-                } else {
-                    replacement = replacement.replace(/^(.?)/mg, "\t$1");
-                }
-                replaceText(b, e, replacement);
-                setSelection(b, b + replacement.length);
-                dispatchChangeEvent();
-                event.preventDefault();
-                preventFollowingTextInput = true;
+            }
+            var replacement:String = text.substring(b, e);
+            if (event.shiftKey) {
+                replacement = replacement.replace(/^\t/mg, "");
             } else {
-                // 選択してなければタブ挿入
-                replaceSelectedText("\t");
-                setSelection(selectionEndIndex, selectionEndIndex);
-                dispatchChangeEvent();
-                event.preventDefault();
-                preventFollowingTextInput = true;
+                replacement = replacement.replace(/^(.?)/mg, "\t$1");
             }
+            replaceText(b, e, replacement);
+            setSelection(b, b + replacement.length);
+            dispatchChangeEvent();
+            event.preventDefault();
+            preventFollowingTextInput = true;
+        } else {
+            // 選択してなければタブ挿入
+            replaceSelectedText("\t");
+            setSelection(selectionEndIndex, selectionEndIndex);
+            dispatchChangeEvent();
+            event.preventDefault();
+            preventFollowingTextInput = true;
         }
-        
-        /**
-        * Enter : 自動インデント
-        */
-        private function doEnter(event:KeyboardEvent):void {
-            var before:String = beforeSelection;
-            var match:Array = before.match(/(?:^|\n|\r)([ \t]*).*$/);
-            var ins:String = "\n" + match[1];
-            if (before.charAt(before.length - 1) == "{") {
+    }
+    
+    /**
+    * Enter : 自動インデント
+    */
+    private function doEnter(event:KeyboardEvent):void {
+        var before:String = beforeSelection;
+        var match:Array = before.match(/(?:^|\n|\r)([ \t]*).*$/);
+        var ins:String = "\n" + match[1];
+        if (before.charAt(before.length - 1) == "{") {
                 ins += "\t";
             }
             replaceSelectedText(ins);
@@ -2033,15 +1693,15 @@ class TextEditorBase extends TextEditUI {
         
         /**
         * } : 自動アンインデント
-        */
-        private function doRightbrace(event:KeyboardEvent):void {
-            var match:Array = beforeSelection.match(/[\r\n]([ \t]*)$/);
-            if (match) {
-                var preCursorWhite:String = match[1];
-                var nest:int = 1;
-                for (var i:int=selectionBeginIndex-1; i>=0; i--) {
-                    var c:String = text.charAt(i);
-                    if (c == "{") {
+    */
+    private function doRightbrace(event:KeyboardEvent):void {
+        var match:Array = beforeSelection.match(/[\r\n]([ \t]*)$/);
+        if (match) {
+            var preCursorWhite:String = match[1];
+            var nest:int = 1;
+            for (var i:int=selectionBeginIndex-1; i>=0; i--) {
+                var c:String = text.charAt(i);
+                if (c == "{") {
                         nest--;
                         if (nest == 0) {
                             match = text.substr(0, i).match(/(?:^|[\r\n])([ \t]*)[^\r\n]*$/);
@@ -2050,71 +1710,71 @@ class TextEditorBase extends TextEditUI {
                                 selectionBeginIndex - preCursorWhite.length,
                                 selectionEndIndex,
                                 replaceWhite + "}"
-                            );
-                            dispatchChangeEvent();
-                            event.preventDefault();
-                            preventFollowingTextInput = true;
-                            break;
-                        }
-                    } else if (c == "}") {
-                        nest++;
+                        );
+                        dispatchChangeEvent();
+                        event.preventDefault();
+                        preventFollowingTextInput = true;
+                        break;
                     }
-                }
+                } else if (c == "}") {
+                nest++;
             }
         }
+    }
+}
 
-        /**
-        * 元に戻す
-        */
-        public function undo():void {
-            if (historyManager.canBack) {
-                var entry:HistoryEntry = historyManager.back();
-                replaceText(entry.index, entry.index + entry.newText.length, entry.oldText);
-                setSelection(entry.index + entry.oldText.length, entry.index + entry.oldText.length);
-                dispatchIgnorableChangeEvent();
-            }
+/**
+* 元に戻す
+*/
+public function undo():void {
+    if (historyManager.canBack) {
+        var entry:HistoryEntry = historyManager.back();
+        replaceText(entry.index, entry.index + entry.newText.length, entry.oldText);
+        setSelection(entry.index + entry.oldText.length, entry.index + entry.oldText.length);
+        dispatchIgnorableChangeEvent();
+        }
         }
 
         /**
         * やり直し
         */
         public function redo():void {
-            if (historyManager.canForward) {
-                var entry:HistoryEntry = historyManager.forward();
-                replaceText(entry.index, entry.index + entry.oldText.length, entry.newText);
-                setSelection(entry.index + entry.newText.length, entry.index + entry.newText.length);
-                dispatchIgnorableChangeEvent();
-            }
+        if (historyManager.canForward) {
+        var entry:HistoryEntry = historyManager.forward();
+        replaceText(entry.index, entry.index + entry.oldText.length, entry.newText);
+        setSelection(entry.index + entry.newText.length, entry.index + entry.newText.length);
+        dispatchIgnorableChangeEvent();
+        }
         }
 
         /**
         * 選択範囲の前の文字列
         */
         private function get beforeSelection():String {
-            return text.substr(0, selectionBeginIndex);
+        return text.substr(0, selectionBeginIndex);
         }
-    }
+        }
 
-    class MiniBuffer extends TextEditUI {
+        class MiniBuffer extends TextEditUI {
         public function MiniBuffer() {
-            linumField.visible = false;
-            textField.type = "dynamic";
-            textField.wordWrap = true;
+        linumField.visible = false;
+        textField.type = "dynamic";
+        textField.wordWrap = true;
         }
 
         protected override function updateSize():void {
-            textField.y = linumField.y = scrollBarV.y = scrollBarH.height;
-            linumField.height = height - scrollBarH.height;
-            textField.x = scrollBarV.width;
-            textField.width = width - scrollBarV.width * 2;
-            textField.height = height - scrollBarH.height * 2;
-            scrollBarV.x = width - scrollBarV.width;
-            scrollBarV.height = height - scrollBarH.height * 2;
-            scrollBarH.x = scrollBarV.width;
-            scrollBarH.y = height - scrollBarH.height;
-            scrollBarH.width = width - scrollBarV.width * 2;
-            graphics.clear();
-            graphics.beginFill(0xEEEEEE);
-            graphics.drawRect(0, 0, width, height);
+        textField.y = linumField.y = scrollBarV.y = scrollBarH.height;
+        linumField.height = height - scrollBarH.height;
+        textField.x = scrollBarV.width;
+        textField.width = width - scrollBarV.width * 2;
+        textField.height = height - scrollBarH.height * 2;
+        scrollBarV.x = width - scrollBarV.width;
+        scrollBarV.height = height - scrollBarH.height * 2;
+        scrollBarH.x = scrollBarV.width;
+        scrollBarH.y = height - scrollBarH.height;
+        scrollBarH.width = width - scrollBarV.width * 2;
+        graphics.clear();
+        graphics.beginFill(0xEEEEEE);
+        graphics.drawRect(0, 0, width, height);
         }
-    }
+        }
