@@ -1,3 +1,4 @@
+
 ;; Globals
 
 (defn get-def
@@ -13,6 +14,7 @@
 (defn clear-mini-buffer! []
   (set! (. *mini-buffer* text) ""))
 
+(def *async-tokens-per-frame* 50)
 (def *highlighter-token-stream* nil)
 (def *parsed-tokens* nil) ;; vector for random access 
 (def *qp-last-input* "")
@@ -111,6 +113,7 @@
   "Returns a lazy seq of tokens (re-matches)."
   ([string] (parse string 0))
   ([string idx]
+     (trace "parse" string idx)
      (let [regex #"#(\"(?:\\?+.)*?\")[gismx]*|(\"(?:\\?+.)*?\")|([\(\[\{])|([\)\]\}])|(;[^\r]*)|([^\s\(\[\{\}\]\)\";,]+)|[\r\s,]+"gms]
        (set! (. regex lastIndex) idx)
        (re-matches-with-index regex string))))
@@ -156,26 +159,25 @@
   ([old-string new-string cpl csl old-tokens]
      (reparse old-string new-string cpl csl old-tokens nil))
   ([old-string new-string cpl csl old-tokens new-tokens]
-     (if (empty? new-tokens)
-       (if (and (seq old-tokens) (< (token-end (first old-tokens)) cpl)) ;; are we still in the common prefix?
-         (lazy-cons (first old-tokens) (reparse old-string new-string cpl csl (rest old-tokens) nil))
-         (reparse old-string new-string cpl csl old-tokens (parse new-string (token-index (first old-tokens)))))
-       (let [new-token (first new-tokens)]
-         (if (< (token-end new-token) (- (count new-string) csl)) ;; are we still in the diff area of the strings?
-           (lazy-cons new-token (reparse old-string new-string cpl csl old-tokens (rest new-tokens))) ;; yes - keep going
-           (if (pos? csl) ;; no - is there a common suffix?
-	     (merge-token-streams (advance-indices (- (count new-string) (count old-string)) old-tokens) new-tokens) ;; yes - merge old and new streams
-	     new-tokens)))))) ;; no - return the new stream
+     (when (seq new-string)
+       (if (empty? new-tokens)
+	 (if (and (seq old-tokens) (< (token-end (first old-tokens)) cpl)) ;; are we still in the common prefix?
+	   (lazy-cons (first old-tokens) (reparse old-string new-string cpl csl (rest old-tokens) nil))
+	   (let [parsed (parse new-string (token-index (first old-tokens)))]
+	     (and parsed (reparse old-string new-string cpl csl old-tokens parsed))))
+	 (let [new-token (first new-tokens)]
+	   (if (< (token-end new-token) (- (count new-string) csl)) ;; are we still in the diff area of the strings?
+	     (lazy-cons new-token (reparse old-string new-string cpl csl old-tokens (rest new-tokens))) ;; yes - keep going
+	     (if (pos? csl) ;; no - is there a common suffix?
+	       (merge-token-streams (advance-indices (- (count new-string) (count old-string)) old-tokens) new-tokens) ;; yes - merge old and new streams
+	       new-tokens))))))) ;; no - return the new stream
 
 (defn get-common-part-lengths
   "Returns [common-prefix-len common-suffix-len], uses psyark's StringComparator."
   [s1 s2]
-  (let [buffer (current-buffer)]
-    (if buffer
-      (let [comp (. (current-buffer) comparator)]
-	(. comp (compare s1 s2))
-	[(. comp commonPrefixLength) (. comp commonSuffixLength)])
-      [0 0])))
+  (let [comp (. (current-buffer) comparator)]
+    (. comp (compare s1 s2))
+    [(. comp commonPrefixLength) (. comp commonSuffixLength)]))
 
 (defn quick-parse
   "Applies a parsing regex to s, caches and returns the result (as a vector of matches)."
@@ -258,14 +260,13 @@
 (defn context-doc
   "Shows the enclosing function's documentation in the minibuffer."
   []
-  (when (current-buffer)
-    (let [name (back-search-for-context-doc)]
-      (if name 
-	(try
-	 (let [v (find-var (symbol (ns-name *ns*) name))
-	       arglists ((meta v) :arglists)]
-	   (minibuff-print-doc v))
-	 (catch Error e nil))))))
+  (let [name (back-search-for-context-doc)]
+    (if name 
+      (try
+       (let [v (find-var (symbol (ns-name *ns*) name))
+	     arglists ((meta v) :arglists)]
+	 (minibuff-print-doc v))
+       (catch Error e nil)))))
 
 (def *print-doc* false)
 
@@ -306,16 +307,15 @@
 (defn highlight-token!
   "Highlight a single parsed token in the current buffer."
   [token]
-  (when (current-buffer)
-    (let [tf (buffer-textfield)
-	  [match regex quoted open close comment token index] token]
-      (. tf (setTextFormat (cond (seq regex) *regex-format*
-				 (seq quoted) *string-format*
-				 (seq comment) *comment-format*
-				 (seq token) (token-format token)
-				 :else *paren-format*)
-			   index
-			   (+ index (count match)))))))
+  (let [tf (buffer-textfield)
+	[match regex quoted open close comment token index] token]
+    (. tf (setTextFormat (cond (seq regex) *regex-format*
+			       (seq quoted) *string-format*
+			       (seq comment) *comment-format*
+			       (seq token) (token-format token)
+			       :else *paren-format*)
+			 index
+			 (+ index (count match))))))
 
 ;; TODO: remove?
 (defn highlight!
@@ -395,14 +395,17 @@
   "Event handler, highlights 200 tokens, also stores them as a vector in *parsed-tokens*."
   [e]
   (if (and (seq (buffers)) (seq *highlighter-token-stream*))
-    (loop [cnt 20 ;; tokens to process per frame
-           tokens *highlighter-token-stream*]
+    (loop [cnt *async-tokens-per-frame* ;; tokens to process per frame
+           tokens *highlighter-token-stream*
+	   parsed-vec *parsed-tokens*]
       (if (and (pos? cnt) (seq tokens))
         (do (highlight-token! (first tokens))
-            (def *parsed-tokens* (conj *parsed-tokens* (first tokens)))
-            (recur (dec cnt) (rest tokens)))
+            (recur (dec cnt) (rest tokens) (conj parsed-vec (first tokens))))
         (do (def *highlighter-token-stream* tokens)
-            (def *print-docs* (empty? *highlighter-token-stream*)))))))
+	    (def *parsed-tokens* parsed-vec)
+            (def *print-docs* (empty? *highlighter-token-stream*))
+	    (if (empty? *highlighter-token-stream*) (trace *parsed-tokens*))
+	    )))))
 
 ;; Setup event listeners and hooks
 
