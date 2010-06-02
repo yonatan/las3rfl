@@ -113,7 +113,6 @@
   "Returns a lazy seq of tokens (re-matches)."
   ([string] (parse string 0))
   ([string idx]
-     (trace "parse" string idx)
      (let [regex #"#(\"(?:\\?+.)*?\")[gismx]*|(\"(?:\\?+.)*?\")|([\(\[\{])|([\)\]\}])|(;[^\r]*)|([^\s\(\[\{\}\]\)\";,]+)|[\r\s,]+"gms]
        (set! (. regex lastIndex) idx)
        (re-matches-with-index regex string))))
@@ -392,7 +391,7 @@
 
 ;; TODO: better timing algo?
 (defn async-parse-driver
-  "Event handler, highlights 200 tokens, also stores them as a vector in *parsed-tokens*."
+  "Event handler, highlights tokens, also stores them as a vector in *parsed-tokens*."
   [e]
   (if (and (seq (buffers)) (seq *highlighter-token-stream*))
     (loop [cnt *async-tokens-per-frame* ;; tokens to process per frame
@@ -404,7 +403,6 @@
         (do (def *highlighter-token-stream* tokens)
 	    (def *parsed-tokens* parsed-vec)
             (def *print-docs* (empty? *highlighter-token-stream*))
-	    (if (empty? *highlighter-token-stream*) (trace *parsed-tokens*))
 	    )))))
 
 ;; Setup event listeners and hooks

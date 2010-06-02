@@ -45,7 +45,6 @@ package {
             addChild(miniBuffer);
             
             stage.addEventListener(Event.RESIZE, updateLayout);
-            stage.addEventListener(Event.ENTER_FRAME, updateLayout);
             addChild(stats);
             stats.visible = false;
             updateLayout();
@@ -54,18 +53,11 @@ package {
             initRuntime();
         }
 
-        private function loadLas3rSwf(completeHandler:Function):void {
-            Security.loadPolicyFile("http://zozuar.org/wonderfl/crossdomain.xml");
-            var loader:Loader;
-            var req:URLRequest = new URLRequest("http://zozuar.org/wonderfl/las3r.swf");
-            var ctx:LoaderContext = new LoaderContext(true, ApplicationDomain.currentDomain, SecurityDomain.currentDomain);
-            loader = new Loader();
-            loader.contentLoaderInfo.addEventListener(Event.COMPLETE, completeHandler);
-            loader.load(req, ctx);
-        }
-
         private function initRuntime():void {
-            var stdout:OutputStream = new OutputStream(function(str:String):void {miniBuffer.textField.appendText(str);});
+            var stdout:OutputStream = new OutputStream(function(str:String):void {
+					miniBuffer.textField.appendText(str);
+					callLater(updateLayout);
+				});
             
             rt = new RT(stage, stdout, stdout);
 
@@ -979,790 +971,594 @@ class TextEditorBase extends TextEditUI {
     private function autoImport(qname:String):void {
         var regex:String = "";
         regex += "(package\\s*(?:[_a-zA-Z]\\w*(?:\\.[_a-zA-Z]\\w*)*)?\\s*{)"; // package
-            regex += "(\\s*(?:import\\s*(?:[_a-zA-Z]\\w*(?:\\.[_a-zA-Z]\\w*)*(?:\\.\\*)?[\\s;]+))*$)"; // import 
-            regex += "(.*?public\\s+(?:class|interface|function|namespace))"; // def
-            var match:Array = text.match(new RegExp(regex, "sm"));
-            if (match) {
-                var importTable:Object = {};
-                match[2].replace(/import\s*([_a-zA-Z]\w*(?:\.[_a-zA-Z]\w*)*(?:\.\*)?)/g, function (match:String, cap1:String, index:int, source:String):void {
-                        importTable[cap1] = true;
-                    });
-                importTable[qname] = true;
-                var importList:Array = [];
-                for (var i:String in importTable) {
-                    importList.push("\timport " + i + ";");
-                }
-                var importStr:String = importList.sort().join("\n");
-                var newStr:String = "\n" + importStr + "\n" + match[3];
-                var index:int = selectionBeginIndex;
-                replaceText(
-                    match.index + match[1].length,
-                    match.index + match[1].length + match[2].length + match[3].length,
-                    newStr
-                );
-                
-                if (index > match.index + match[1].length) {
-                    var newSel:int = index + newStr.length - match[2].length - match[3].length;
-                    setSelection(newSel, newSel);
-                }
-                dispatchChangeEvent();
-            }
-        }
-    }
-
-
-
-    /*
-    jp/psyark/psycode/controls/ScrollBarHandle.as
-    */
-
-    import flash.display.GradientType;
-    import flash.display.Graphics;
-    import flash.display.Shape;
-    import flash.display.SimpleButton;
-    import flash.geom.ColorTransform;
-    import flash.geom.Matrix;
-
-
-    class ScrollBarHandle extends SimpleButton {
-        protected static var handleColors:Array = [0xF7F7F7, 0xECECEC, 0xD8D8D8, 0xCCCCCC, 0xEDEDED];
-        protected static var handleAlphas:Array = [1, 1, 1, 1, 1];
-        protected static var handleRatios:Array = [0x00, 0x66, 0x80, 0xDD, 0xFF];
-        protected static var iconColors:Array = [0x000000, 0xFFFFFF];
-        protected static var iconAlphas:Array = [1, 1];
-        protected static var iconRatios:Array = [0x00, 0xFF];
-        
-        private var direction:String;
-        private var upFace:Shape;
-        private var overFace:Shape;
-        
-        public function ScrollBarHandle(direction:String="vertical") {
-            this.direction = direction;
-            cacheAsBitmap = true;
-            useHandCursor = false;
-            
-            upFace = new Shape();
-            overFace = new Shape();
-            overFace.transform.colorTransform = new ColorTransform(0.95, 1.3, 1.5, 1, 0x00, -0x33, -0x44);
-            
-            upState = upFace;
-            overState = overFace;
-            downState = overFace;
-            hitTestState = upFace;
-        }
-        
-        public function setSize(w:Number, h:Number):void {
-            drawFace(upFace.graphics, w, h);
-            drawFace(overFace.graphics, w, h);
-        }
-        
-        protected function drawFace(graphics:Graphics, w:Number, h:Number):void {
-            var mtx:Matrix = new Matrix();
-            mtx.createGradientBox(w, h, direction == ScrollBar.VERTICAL ? 0 : Math.PI / 2);
-            
-            graphics.clear();
-            graphics.beginFill(0x999999);
-            graphics.drawRoundRect(0, 0, w, h, 2);
-            graphics.beginGradientFill(GradientType.LINEAR, handleColors, handleAlphas, handleRatios, mtx);
-            graphics.drawRect(1, 1, w - 2, h - 2);
-            
-            graphics.lineStyle(-1, 0xEEEEEE);
-            graphics.beginGradientFill(GradientType.LINEAR, iconColors, iconAlphas, iconRatios, mtx);
-            for (var i:int=-1; i<2; i++) {
-                if (direction == ScrollBar.VERTICAL) {
-                    graphics.drawRoundRect((w - 8) / 2, (h - 3) / 2 + i * 3, 8, 3, 2);
-                } else {
-                    graphics.drawRoundRect((w - 3) / 2 + i * 3, (h - 8) / 2, 3, 8, 2);
-                }
-            }
-        }
-    }
-
-
-
-    /*
-    jp/psyark/psycode/controls/ListItemRenderer.as
-    */
-
-    import flash.events.MouseEvent;
-    import flash.text.TextField;
-    import flash.text.TextFormat;
-
-    class ListItemRenderer extends UIControl {
-        private var _data:Object;
-        private var _labelField:String;
-        private var label:TextField;
-        
-        public function ListItemRenderer() {
-            label = new TextField();
-            label.selectable = false;
-            label.defaultTextFormat = new TextFormat("Courier New", 13, 0x000000);
-            label.backgroundColor = 0xE8F8FF;
-            addChild(label);
-            updateView();
-            
-            addEventListener(MouseEvent.ROLL_OVER, rollOverHandler);
-            addEventListener(MouseEvent.ROLL_OUT, rollOutHandler);
-        }
-        
-        public function get data():Object {
-            return _data;
-        }
-        
-        public function set data(value:Object):void {
-            if (_data != value) {
-                _data = value;
-                updateView();
-            }
-        }
-        
-        /**
-        * ラベルとして使うプロパティ名を取得または設定します。
-        */
-        public function get labelField():String {
-            return _labelField;
-        }
-        
-        /**
-        * @private
-        */
-        public function set labelField(value:String):void {
-            if (_labelField != value) {
-                _labelField = value;
-                updateView();
-            }
-        }
-        
-        protected function updateView():void {
-            if (data) {
-                try {
-                    label.text = data[labelField];
-                } catch (e:*) {
-                    label.text = "";
-                }
-                label.visible = true;
-            } else {
-                label.visible = false;
-            }
-        }
-        
-        protected override function updateSize():void {
-            label.width = width;
-            label.height = height;
-        }
-        
-        protected function rollOverHandler(event:MouseEvent):void {
-            label.background = true;
-        }
-        
-        protected function rollOutHandler(event:MouseEvent):void {
-            label.background = false;
-        }
-    }
-
-
-    /*
-    jp/psyark/psycode/controls/TabView.as
-    */
-
-    import flash.display.DisplayObject;
-    import flash.display.GradientType;
-    import flash.display.Shape;
-    import flash.display.SimpleButton;
-    import flash.events.Event;
-    import flash.events.MouseEvent;
-    import flash.geom.Matrix;
-    import flash.utils.Dictionary;
-
-    class TabView extends UIControl {
-        private var contentItemTable:Dictionary;
-        public var items:Array;
-        private var addButton:SimpleButton;
-        
-        private var _currentItem:TabViewItem;
-        private function get currentItem():TabViewItem {
-            return _currentItem;
-        }
-        private function set currentItem(value:TabViewItem):void {
-            if (_currentItem != value) {
-                if (_currentItem) {
-                    removeChild(_currentItem.content);
-                }
-                _currentItem = value;
-                if (_currentItem) {
-                    addChild(_currentItem.content);
-                    updateView();
-                }
-                if(Psymacs.instance.las3rHighlightHook != null) {
-                    Psymacs.instance.las3rHighlightHook(null);
-                }
-            }
-        }
-        
-        public function get selectedIndex():int {
-            return items.indexOf(currentItem);
-        }
-        
-        public function TabView() {
-            contentItemTable = new Dictionary();
-            items = new Array();
-            addButton = createAddButton();
-            addButton.addEventListener(MouseEvent.CLICK, addButtonClickHandler);
-            addChild(addButton);
-        }
-        
-        private function createAddButton():SimpleButton {
-            var u:Shape = new Shape();
-            var o:Shape = new Shape();
-            
-            o.graphics.beginFill(0x666666);
-            o.graphics.drawRoundRect(0, 0, 18, 18, 8);
-            o.graphics.beginFill(0xFFFFFF);
-            o.graphics.drawRoundRect(1, 1, 16, 16, 6);
-            for each (var shape:Shape in [u, o]) {
-                shape.graphics.beginFill(0x666666);
-                shape.graphics.drawRect(7, 4, 4, 10);
-                shape.graphics.beginFill(0x666666);
-                shape.graphics.drawRect(4, 7, 10, 4);
-                shape.graphics.beginFill(0xFFFFFF);
-                shape.graphics.drawRect(8, 5, 2, 8);
-                shape.graphics.beginFill(0xFFFFFF);
-                shape.graphics.drawRect(5, 8, 8, 2);
-            }
-            
-            var btn:SimpleButton = new SimpleButton();
-            btn.upState = u;
-            btn.overState = o;
-            btn.downState = o;
-            btn.hitTestState = o;
-            return btn;
-        }
-        
-        public function addItem(content:DisplayObject, title:String):void {
-            var item:TabViewItem = new TabViewItem(content, title);
-            item.addEventListener(Event.CLOSE, itemCloseHandler);
-            item.addEventListener(MouseEvent.CLICK, itemClickHandler);
-            items.push(item);
-            addChild(item);
-            contentItemTable[content] = item;
-            currentItem = item;
-            updateView();
-        }
-        
-        public function addItemWithText(content:String, title:String):void {
-            var editor:TextEditor = new TextEditor;
-
-            editor.trackChanges = false;
-            editor.textField.text = content;
-            editor.prevText = content;
-            editor.trackChanges = true;
-            addItem(editor, title);
-        }
-
-        public function setTitle(content:DisplayObject, title:String):void {
-            TabViewItem(contentItemTable[content]).title = title;
-            updateView();
-        }
-        
-        public function removeItem(content:DisplayObject):void {
-            var item:TabViewItem = contentItemTable[content];
-            items.splice(items.indexOf(item), 1);
-            removeChild(item);
-            delete contentItemTable[content];
-            if (currentItem == item) {
-                currentItem = items[0];
-            }
-            updateView();
-        }
-        
-        public function get count():int {
-            return items.length;
-        }
-        
-        public function getItemAt(index:int):DisplayObject {
-            return TabViewItem(items[index]).content;
-        }
-        
-        private function itemClickHandler(event:MouseEvent):void {
-            currentItem = TabViewItem(event.currentTarget);
-        }
-        
-        private function itemCloseHandler(event:Event):void {
-            removeItem(TabViewItem(event.currentTarget).content);
-        }
-        
-        private function addButtonClickHandler(event:MouseEvent):void {
-            dispatchEvent(new Event(Event.OPEN));
-        }
-        
-        public function updateView():void {
-            graphics.clear();
-            graphics.beginFill(0x999999);
-            graphics.drawRoundRect(0, 0, width, height, 8);
-            graphics.beginFill(0xEEEEEE);
-            graphics.drawRoundRect(1, 1, width - 2, height - 2, 6);
-            graphics.beginFill(0x999999);
-            graphics.drawRect(0, 22, width, height - 22);
-            graphics.beginFill(0xC1CFDD);
-            graphics.drawRect(1, 23, width - 2, height - 24);
-            graphics.beginFill(0xFFFFFF);
-            graphics.drawRect(4, 26, width - 8, height - 30);
-            
-            var left:Number = 1;
-            for each (var item:TabViewItem in items) {
-                item.x = left;
-                item.y = 1;
-                left += item.width;
-            }
-            addButton.x = left + 3;
-            addButton.y = 2;
-            
-            if (currentItem) {
-                var mtx:Matrix = new Matrix();
-                mtx.createGradientBox(10, 20, Math.PI / 2);
-                graphics.beginGradientFill(GradientType.LINEAR, [0xD3DFEE, 0xC1CFDD], [1, 1], [0x00, 0xFF], mtx);
-                graphics.drawRect(currentItem.x, currentItem.y, currentItem.width, currentItem.height);
-                
-                currentItem.content.x = 4;
-                currentItem.content.y = 26;
-                if (currentItem.content is UIControl) {
-                    UIControl(currentItem.content).setSize(width - 8, height - 30);
-                }
-            }
-        }
-        
-        protected override function updateSize():void {
-            super.updateSize();
-            updateView();
-        }
-    }
-
-    import flash.display.Sprite;
-    import flash.display.DisplayObject;
-    import flash.text.TextField;
-    import flash.text.TextFormat;
-    import flash.display.Shape;
-    import flash.display.SimpleButton;
-    import flash.events.MouseEvent;
-    import flash.events.Event;  
-
-    class TabViewItem extends Sprite {
-        private var label:TextField;
-        private var closeButton:SimpleButton;
-        public var content:DisplayObject;
-        
-        public function get title():String {
-            return label.text;
-        }
-        public function set title(value:String):void {
-            label.text = value;
-            updateView();
-        }
-        
-        public function TabViewItem(content:DisplayObject, title:String):void {
-            var fmt:TextFormat = new TextFormat("_sans");
-            fmt.leftMargin = 4;
-            fmt.rightMargin = 4;
-            
-            label = new TextField();
-            label.selectable = true;
-            label.type = TextFieldType.INPUT;
-            label.defaultTextFormat = fmt;
-            label.addEventListener(Event.CHANGE, 
-                function(e:Event):void { 
-                    updateView();
-                    Psymacs.instance.tabView.updateView();
-                });
-            addChild(label);
-            
-            closeButton = createCloseButton();
-            closeButton.doubleClickEnabled = true;
-            closeButton.addEventListener(MouseEvent.DOUBLE_CLICK, closeButtonClickHandler);
-            addChild(closeButton);
-            
-            this.title = title;
-            this.content = content;
-        }
-        
-        private function updateView():void {
-            label.width = Math.max(60, Math.min(140, label.textWidth + 30));
-            label.height = label.textHeight + 4;
-            label.y = (20 - label.height) / 2;
-            graphics.clear();
-            graphics.lineStyle(-1, 0x999999);
-            graphics.moveTo(label.width, 0);
-            graphics.lineTo(label.width, 22);
-            
-            closeButton.rotation = 45;
-            closeButton.x = label.width - 11;
-            closeButton.y = 11;
-        }
-        
-        private function createCloseButton():SimpleButton {
-            var u:Shape = new Shape();
-            var o:Shape = new Shape();
-            
-            //o.graphics.beginFill(0xEEEEEE);
-            o.graphics.drawCircle(0, 0, 10);
-            for each (var shape:Shape in [u, o]) {
-                shape.graphics.beginFill(0x666666);
-                shape.graphics.drawRect(-2, -6, 4, 12);
-                shape.graphics.beginFill(0x666666);
-                shape.graphics.drawRect(-6, -2, 12, 4);
-                shape.graphics.beginFill(0xFFFFFF);
-                shape.graphics.drawRect(-1, -5, 2, 10);
-                shape.graphics.beginFill(0xFFFFFF);
-                shape.graphics.drawRect(-5, -1, 10, 2);
-            }
-            
-            var btn:SimpleButton = new SimpleButton();
-            btn.upState = u;
-            btn.overState = o;
-            btn.downState = u;
-            btn.hitTestState = o;
-            return btn;
-        }
-        
-        private function closeButtonClickHandler(event:MouseEvent):void {
-            dispatchEvent(new Event(Event.CLOSE));
-            event.stopPropagation();
-        }
-    }
-
-
-    /*
-    jp/psyark/psycode/TextEditor.as
-    */
-
-    import flash.events.ContextMenuEvent;
-    import flash.events.Event;
-    import flash.events.KeyboardEvent;
-    import flash.net.FileReference;
-    import flash.ui.ContextMenu;
-    import flash.ui.ContextMenuItem;
-    import flash.ui.Keyboard;
-    import flash.utils.clearTimeout;
-    import flash.utils.setTimeout;
-
-    /**
-    * TextEditorクラス
-    */
-    class TextEditor extends TextEditorBase {
-        private var highlightAllTimer:int;
-        
-        /**
-        * コンストラクタ
-        */
-        public function TextEditor() {
-            comparator = new StringComparator();
-            historyManager = new HistoryManager();
-            
-            contextMenu = createDebugMenu();
-            
-            addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
-            addEventListener(Event.CHANGE, function (event:Event):void {
-                    clearTimeout(highlightAllTimer);
-                    highlightAllTimer = setTimeout(highlightAll, 1000);
-                });
-        }
-        
-        private function highlightAll():void {
-            //syntaxHighlighter.update(0, text.length);
-        }
-        
-        
-        private function createDebugMenu():ContextMenu {
-            var menu:ContextMenu = new ContextMenu();
-            menu.hideBuiltInItems();
-            createMenuItem("ファイルを開く(&O)...", open);
-            createMenuItem("ファイルを保存(&S)...", save);
-            createMenuItem("元に戻す(&Z)", undo, function ():Boolean { return historyManager.canBack; }, true);
-            createMenuItem("やり直し(&Y)", redo, function ():Boolean { return historyManager.canForward; });
-            createMenuItem("文字サイズ : &64", function ():void { setFontSize(64); }, null, true);
-            createMenuItem("文字サイズ : &48", function ():void { setFontSize(48); });
-            createMenuItem("文字サイズ : &32", function ():void { setFontSize(32); });
-            createMenuItem("文字サイズ : &24", function ():void { setFontSize(24); });
-            createMenuItem("文字サイズ : &13", function ():void { setFontSize(13); });
-            return menu;
-            
-            function createMenuItem(caption:String, func:Function, enabler:Function=null, separator:Boolean=false):void {
-                var item:ContextMenuItem = new ContextMenuItem(caption, separator);
-                item.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, function (event:ContextMenuEvent):void {
-                        func();
-                    });
-                if (enabler != null) {
-                    menu.addEventListener(ContextMenuEvent.MENU_SELECT, function (event:ContextMenuEvent):void {
-                            item.enabled = enabler();
-                        });
-                }
-                menu.customItems.push(item);
-            }
-        }
-        
-        
-        /**
-        * 履歴を消去
-        */
-        public function clearHistory():void {
-            historyManager.clear();
-            prevText = text;
-        }
-        
-        
-        /**
-        * キー押下イベントハンドラ
-        */
-        private function keyDownHandler(event:KeyboardEvent):void {
-            preventFollowingTextInput = false;
-
-            if (event.keyCode == 90 && event.ctrlKey && !event.altKey) {
-                if(event.shiftKey) {
-                    // Ctrl+Shift+Z : REDO
-                    redo();
-                } else {
-                    // Ctrl+Z : UNDO
-                    undo();
-                }
-                event.preventDefault();
-                preventFollowingTextInput = true;
-                prevSBI = selectionBeginIndex;
-                prevSEI = selectionEndIndex;
-                return;
-            }
-
-            if(null != Psymacs.instance.keyDownHook) Psymacs.instance.keyDownHook(this, event);
-            return;
-
-            
-            // Ctrl+O : ファイルを開く
-            if (event.charCode == "o".charCodeAt(0) && event.ctrlKey) {
-                open();
-                event.preventDefault();
-                preventFollowingTextInput = true;
-                prevSBI = selectionBeginIndex;
-                prevSEI = selectionEndIndex;
-                return;
-            }
-            
-            // Ctrl+S : ファイルを保存
-            if (event.charCode == "s".charCodeAt(0) && event.ctrlKey) {
-                save();
-                event.preventDefault();
-                preventFollowingTextInput = true;
-                prevSBI = selectionBeginIndex;
-                prevSEI = selectionEndIndex;
-                return;
-            }
-            
-            // Ctrl+Backspace : 文字グループを前方消去
-            if (event.keyCode == Keyboard.BACKSPACE && event.ctrlKey) {
-                deleteGroupBack();
-                event.preventDefault();
-                preventFollowingTextInput = true;
-                prevSBI = selectionBeginIndex;
-                prevSEI = selectionEndIndex;
-                return;
-            }
-            
-            // Tab : タブ挿入とインデント
-            if (event.keyCode == Keyboard.TAB) {
-                doTab(event);
-                return;
-            }
-            
-            // Enter : 自動インデント
-            if (event.keyCode == Keyboard.ENTER) {
-                doEnter(event);
-                return;
-            }
-            
-            // } : 自動アンインデント
-        if (event.charCode == 125) {
-            doRightbrace(event);
-            return;
-        }
-        
-        // Ctrl+Z : UNDO
-        if (event.keyCode == 90 && event.ctrlKey) {
-            undo();
-            event.preventDefault();
-            preventFollowingTextInput = true;
-            prevSBI = selectionBeginIndex;
-            prevSEI = selectionEndIndex;
-            return;
-        }
-        
-        // Ctrl+Y : REDO
-        if (event.keyCode == 89 && event.ctrlKey) {
-            redo();
-            event.preventDefault();
-            preventFollowingTextInput = true;
-            prevSBI = selectionBeginIndex;
-            prevSEI = selectionEndIndex;
-            return;
-        }
-    }
-    
-    
-    /**
-    * 同じ文字グループを前方消去
-    */
-    private function deleteGroupBack():void {
-        if (selectionBeginIndex != selectionEndIndex) {
-            // 範囲選択中なら、範囲を削除
-            replaceSelectedText("");
-            dispatchChangeEvent();
-        } else if (selectionBeginIndex == 0) {
-            // カーソル位置が先頭なら、何もしない
-        } else {
-            var len:int;
-            var c:String = text.charAt(selectionBeginIndex - 1);
-            if (c == "\r" || c == "\n") {
-                // 改行の直後なら、それを消去
-                len = 1;
-            } else {
-                // それ以外なら、同じ文字グループ（単語構成文字・空白・それ以外）を前方消去
-                var match:Array = beforeSelection.match(/(?:\w+|[ \t]+|[^\w \t\r\n]+)$/i);
-                len = match[0].length;
-            }
-            var newIndex:int = selectionBeginIndex - len;
-            replaceText(selectionBeginIndex - len, selectionEndIndex, "");
-            setSelection(newIndex, newIndex);
-            dispatchChangeEvent();
-        }
-    }
-    
-    
-    
-    
-    /**
-    * Tab : タブ挿入とインデント
-    */
-    private function doTab(event:KeyboardEvent):void {
-        if (selectionBeginIndex != selectionEndIndex) {
-            var b:int, e:int, c:String;
-            for (b=selectionBeginIndex; b>0; b--) {
-                c = text.charAt(b - 1);
-                if (c == "\r" || c == "\n") {
-                    break;
-                }
-            }
-            for (e=selectionEndIndex; e<text.length; e++) {
-                c = text.charAt(e);
-                if (c == "\r" || c == "\n") {
-                    break;
-                }
-            }
-            var replacement:String = text.substring(b, e);
-            if (event.shiftKey) {
-                replacement = replacement.replace(/^\t/mg, "");
-            } else {
-                replacement = replacement.replace(/^(.?)/mg, "\t$1");
-            }
-            replaceText(b, e, replacement);
-            setSelection(b, b + replacement.length);
-            dispatchChangeEvent();
-            event.preventDefault();
-            preventFollowingTextInput = true;
-        } else {
-            // 選択してなければタブ挿入
-            replaceSelectedText("\t");
-            setSelection(selectionEndIndex, selectionEndIndex);
-            dispatchChangeEvent();
-            event.preventDefault();
-            preventFollowingTextInput = true;
-        }
-    }
-    
-    /**
-    * Enter : 自動インデント
-    */
-    private function doEnter(event:KeyboardEvent):void {
-        var before:String = beforeSelection;
-        var match:Array = before.match(/(?:^|\n|\r)([ \t]*).*$/);
-        var ins:String = "\n" + match[1];
-        if (before.charAt(before.length - 1) == "{") {
-                ins += "\t";
-            }
-            replaceSelectedText(ins);
-            setSelection(selectionEndIndex, selectionEndIndex);
-            dispatchChangeEvent();
-            event.preventDefault();
-            preventFollowingTextInput = true;
-        }
-        
-        /**
-        * } : 自動アンインデント
-    */
-    private function doRightbrace(event:KeyboardEvent):void {
-        var match:Array = beforeSelection.match(/[\r\n]([ \t]*)$/);
+        regex += "(\\s*(?:import\\s*(?:[_a-zA-Z]\\w*(?:\\.[_a-zA-Z]\\w*)*(?:\\.\\*)?[\\s;]+))*$)"; // import 
+        regex += "(.*?public\\s+(?:class|interface|function|namespace))"; // def
+        var match:Array = text.match(new RegExp(regex, "sm"));
         if (match) {
-            var preCursorWhite:String = match[1];
-            var nest:int = 1;
-            for (var i:int=selectionBeginIndex-1; i>=0; i--) {
-                var c:String = text.charAt(i);
-                if (c == "{") {
-                        nest--;
-                        if (nest == 0) {
-                            match = text.substr(0, i).match(/(?:^|[\r\n])([ \t]*)[^\r\n]*$/);
-                            var replaceWhite:String = match ? match[1] : "";
-                            replaceText(
-                                selectionBeginIndex - preCursorWhite.length,
-                                selectionEndIndex,
-                                replaceWhite + "}"
-                        );
-                        dispatchChangeEvent();
-                        event.preventDefault();
-                        preventFollowingTextInput = true;
-                        break;
-                    }
-                } else if (c == "}") {
-                nest++;
+            var importTable:Object = {};
+            match[2].replace(/import\s*([_a-zA-Z]\w*(?:\.[_a-zA-Z]\w*)*(?:\.\*)?)/g, function (match:String, cap1:String, index:int, source:String):void {
+                    importTable[cap1] = true;
+                });
+            importTable[qname] = true;
+            var importList:Array = [];
+            for (var i:String in importTable) {
+                importList.push("\timport " + i + ";");
+            }
+            var importStr:String = importList.sort().join("\n");
+            var newStr:String = "\n" + importStr + "\n" + match[3];
+            var index:int = selectionBeginIndex;
+            replaceText(
+                match.index + match[1].length,
+                match.index + match[1].length + match[2].length + match[3].length,
+                newStr
+            );
+            
+            if (index > match.index + match[1].length) {
+                var newSel:int = index + newStr.length - match[2].length - match[3].length;
+                setSelection(newSel, newSel);
+            }
+            dispatchChangeEvent();
+        }
+    }
+}
+
+
+
+/*
+jp/psyark/psycode/controls/ScrollBarHandle.as
+*/
+
+import flash.display.GradientType;
+import flash.display.Graphics;
+import flash.display.Shape;
+import flash.display.SimpleButton;
+import flash.geom.ColorTransform;
+import flash.geom.Matrix;
+
+
+class ScrollBarHandle extends SimpleButton {
+    protected static var handleColors:Array = [0xF7F7F7, 0xECECEC, 0xD8D8D8, 0xCCCCCC, 0xEDEDED];
+    protected static var handleAlphas:Array = [1, 1, 1, 1, 1];
+    protected static var handleRatios:Array = [0x00, 0x66, 0x80, 0xDD, 0xFF];
+    protected static var iconColors:Array = [0x000000, 0xFFFFFF];
+    protected static var iconAlphas:Array = [1, 1];
+    protected static var iconRatios:Array = [0x00, 0xFF];
+    
+    private var direction:String;
+    private var upFace:Shape;
+    private var overFace:Shape;
+    
+    public function ScrollBarHandle(direction:String="vertical") {
+        this.direction = direction;
+        cacheAsBitmap = true;
+        useHandCursor = false;
+        
+        upFace = new Shape();
+        overFace = new Shape();
+        overFace.transform.colorTransform = new ColorTransform(0.95, 1.3, 1.5, 1, 0x00, -0x33, -0x44);
+        
+        upState = upFace;
+        overState = overFace;
+        downState = overFace;
+        hitTestState = upFace;
+    }
+    
+    public function setSize(w:Number, h:Number):void {
+        drawFace(upFace.graphics, w, h);
+        drawFace(overFace.graphics, w, h);
+    }
+    
+    protected function drawFace(graphics:Graphics, w:Number, h:Number):void {
+        var mtx:Matrix = new Matrix();
+        mtx.createGradientBox(w, h, direction == ScrollBar.VERTICAL ? 0 : Math.PI / 2);
+        
+        graphics.clear();
+        graphics.beginFill(0x999999);
+        graphics.drawRoundRect(0, 0, w, h, 2);
+        graphics.beginGradientFill(GradientType.LINEAR, handleColors, handleAlphas, handleRatios, mtx);
+        graphics.drawRect(1, 1, w - 2, h - 2);
+        
+        graphics.lineStyle(-1, 0xEEEEEE);
+        graphics.beginGradientFill(GradientType.LINEAR, iconColors, iconAlphas, iconRatios, mtx);
+        for (var i:int=-1; i<2; i++) {
+            if (direction == ScrollBar.VERTICAL) {
+                graphics.drawRoundRect((w - 8) / 2, (h - 3) / 2 + i * 3, 8, 3, 2);
+            } else {
+                graphics.drawRoundRect((w - 3) / 2 + i * 3, (h - 8) / 2, 3, 8, 2);
             }
         }
     }
 }
 
-/**
-* 元に戻す
+
+
+/*
+jp/psyark/psycode/controls/ListItemRenderer.as
 */
-public function undo():void {
-    if (historyManager.canBack) {
-        var entry:HistoryEntry = historyManager.back();
-        replaceText(entry.index, entry.index + entry.newText.length, entry.oldText);
-        setSelection(entry.index + entry.oldText.length, entry.index + entry.oldText.length);
-        dispatchIgnorableChangeEvent();
+
+import flash.events.MouseEvent;
+import flash.text.TextField;
+import flash.text.TextFormat;
+
+class ListItemRenderer extends UIControl {
+    private var _data:Object;
+    private var _labelField:String;
+    private var label:TextField;
+    
+    public function ListItemRenderer() {
+        label = new TextField();
+        label.selectable = false;
+        label.defaultTextFormat = new TextFormat("Courier New", 13, 0x000000);
+        label.backgroundColor = 0xE8F8FF;
+        addChild(label);
+        updateView();
+        
+        addEventListener(MouseEvent.ROLL_OVER, rollOverHandler);
+        addEventListener(MouseEvent.ROLL_OUT, rollOutHandler);
+    }
+    
+    public function get data():Object {
+        return _data;
+    }
+    
+    public function set data(value:Object):void {
+        if (_data != value) {
+            _data = value;
+            updateView();
         }
+    }
+    
+    /**
+    * ラベルとして使うプロパティ名を取得または設定します。
+    */
+    public function get labelField():String {
+        return _labelField;
+    }
+    
+    /**
+    * @private
+    */
+    public function set labelField(value:String):void {
+        if (_labelField != value) {
+            _labelField = value;
+            updateView();
+        }
+    }
+    
+    protected function updateView():void {
+        if (data) {
+            try {
+                label.text = data[labelField];
+            } catch (e:*) {
+                label.text = "";
+            }
+            label.visible = true;
+        } else {
+            label.visible = false;
+        }
+    }
+    
+    protected override function updateSize():void {
+        label.width = width;
+        label.height = height;
+    }
+    
+    protected function rollOverHandler(event:MouseEvent):void {
+        label.background = true;
+    }
+    
+    protected function rollOutHandler(event:MouseEvent):void {
+        label.background = false;
+    }
+}
+
+
+/*
+jp/psyark/psycode/controls/TabView.as
+*/
+
+import flash.display.DisplayObject;
+import flash.display.GradientType;
+import flash.display.Shape;
+import flash.display.SimpleButton;
+import flash.events.Event;
+import flash.events.MouseEvent;
+import flash.geom.Matrix;
+import flash.utils.Dictionary;
+
+class TabView extends UIControl {
+    private var contentItemTable:Dictionary;
+    public var items:Array;
+    private var addButton:SimpleButton;
+    
+    private var _currentItem:TabViewItem;
+    private function get currentItem():TabViewItem {
+        return _currentItem;
+    }
+    private function set currentItem(value:TabViewItem):void {
+        if (_currentItem != value) {
+            if (_currentItem) {
+                removeChild(_currentItem.content);
+            }
+            _currentItem = value;
+            if (_currentItem) {
+                addChild(_currentItem.content);
+                updateView();
+            }
+            if(Psymacs.instance.las3rHighlightHook != null) {
+                Psymacs.instance.las3rHighlightHook(null);
+            }
+        }
+    }
+    
+    public function get selectedIndex():int {
+        return items.indexOf(currentItem);
+    }
+    
+    public function TabView() {
+        contentItemTable = new Dictionary();
+        items = new Array();
+        addButton = createAddButton();
+        addButton.addEventListener(MouseEvent.CLICK, addButtonClickHandler);
+        addChild(addButton);
+    }
+    
+    private function createAddButton():SimpleButton {
+        var u:Shape = new Shape();
+        var o:Shape = new Shape();
+        
+        o.graphics.beginFill(0x666666);
+        o.graphics.drawRoundRect(0, 0, 18, 18, 8);
+        o.graphics.beginFill(0xFFFFFF);
+        o.graphics.drawRoundRect(1, 1, 16, 16, 6);
+        for each (var shape:Shape in [u, o]) {
+            shape.graphics.beginFill(0x666666);
+            shape.graphics.drawRect(7, 4, 4, 10);
+            shape.graphics.beginFill(0x666666);
+            shape.graphics.drawRect(4, 7, 10, 4);
+            shape.graphics.beginFill(0xFFFFFF);
+            shape.graphics.drawRect(8, 5, 2, 8);
+            shape.graphics.beginFill(0xFFFFFF);
+            shape.graphics.drawRect(5, 8, 8, 2);
+        }
+        
+        var btn:SimpleButton = new SimpleButton();
+        btn.upState = u;
+        btn.overState = o;
+        btn.downState = o;
+        btn.hitTestState = o;
+        return btn;
+    }
+    
+    public function addItem(content:DisplayObject, title:String):void {
+        var item:TabViewItem = new TabViewItem(content, title);
+        item.addEventListener(Event.CLOSE, itemCloseHandler);
+        item.addEventListener(MouseEvent.CLICK, itemClickHandler);
+        items.push(item);
+        addChild(item);
+        contentItemTable[content] = item;
+        currentItem = item;
+        updateView();
+    }
+    
+    public function addItemWithText(content:String, title:String):void {
+        var editor:TextEditor = new TextEditor;
+
+        editor.trackChanges = false;
+        editor.textField.text = content;
+        editor.prevText = content;
+        editor.trackChanges = true;
+        addItem(editor, title);
+    }
+
+    public function setTitle(content:DisplayObject, title:String):void {
+        TabViewItem(contentItemTable[content]).title = title;
+        updateView();
+    }
+    
+    public function removeItem(content:DisplayObject):void {
+        var item:TabViewItem = contentItemTable[content];
+        items.splice(items.indexOf(item), 1);
+        removeChild(item);
+        delete contentItemTable[content];
+        if (currentItem == item) {
+            currentItem = items[0];
+        }
+        updateView();
+    }
+    
+    public function get count():int {
+        return items.length;
+    }
+    
+    public function getItemAt(index:int):DisplayObject {
+        return TabViewItem(items[index]).content;
+    }
+    
+    private function itemClickHandler(event:MouseEvent):void {
+        currentItem = TabViewItem(event.currentTarget);
+    }
+    
+    private function itemCloseHandler(event:Event):void {
+        removeItem(TabViewItem(event.currentTarget).content);
+    }
+    
+    private function addButtonClickHandler(event:MouseEvent):void {
+        dispatchEvent(new Event(Event.OPEN));
+    }
+    
+    public function updateView():void {
+        graphics.clear();
+        graphics.beginFill(0x999999);
+        graphics.drawRoundRect(0, 0, width, height, 8);
+        graphics.beginFill(0xEEEEEE);
+        graphics.drawRoundRect(1, 1, width - 2, height - 2, 6);
+        graphics.beginFill(0x999999);
+        graphics.drawRect(0, 22, width, height - 22);
+        graphics.beginFill(0xC1CFDD);
+        graphics.drawRect(1, 23, width - 2, height - 24);
+        graphics.beginFill(0xFFFFFF);
+        graphics.drawRect(4, 26, width - 8, height - 30);
+        
+        var left:Number = 1;
+        for each (var item:TabViewItem in items) {
+            item.x = left;
+            item.y = 1;
+            left += item.width;
+        }
+        addButton.x = left + 3;
+        addButton.y = 2;
+        
+        if (currentItem) {
+            var mtx:Matrix = new Matrix();
+            mtx.createGradientBox(10, 20, Math.PI / 2);
+            graphics.beginGradientFill(GradientType.LINEAR, [0xD3DFEE, 0xC1CFDD], [1, 1], [0x00, 0xFF], mtx);
+            graphics.drawRect(currentItem.x, currentItem.y, currentItem.width, currentItem.height);
+            
+            currentItem.content.x = 4;
+            currentItem.content.y = 26;
+            if (currentItem.content is UIControl) {
+                UIControl(currentItem.content).setSize(width - 8, height - 30);
+            }
+        }
+    }
+    
+    protected override function updateSize():void {
+        super.updateSize();
+        updateView();
+    }
+}
+
+import flash.display.Sprite;
+import flash.display.DisplayObject;
+import flash.text.TextField;
+import flash.text.TextFormat;
+import flash.display.Shape;
+import flash.display.SimpleButton;
+import flash.events.MouseEvent;
+import flash.events.Event;  
+
+class TabViewItem extends Sprite {
+    private var label:TextField;
+    private var closeButton:SimpleButton;
+    public var content:DisplayObject;
+    
+    public function get title():String {
+        return label.text;
+    }
+    public function set title(value:String):void {
+        label.text = value;
+        updateView();
+    }
+    
+    public function TabViewItem(content:DisplayObject, title:String):void {
+        var fmt:TextFormat = new TextFormat("_sans");
+        fmt.leftMargin = 4;
+        fmt.rightMargin = 4;
+        
+        label = new TextField();
+        label.selectable = true;
+        label.type = TextFieldType.INPUT;
+        label.defaultTextFormat = fmt;
+        label.addEventListener(Event.CHANGE, 
+            function(e:Event):void { 
+                updateView();
+                Psymacs.instance.tabView.updateView();
+            });
+        addChild(label);
+        
+        closeButton = createCloseButton();
+        closeButton.doubleClickEnabled = true;
+        closeButton.addEventListener(MouseEvent.DOUBLE_CLICK, closeButtonClickHandler);
+        addChild(closeButton);
+        
+        this.title = title;
+        this.content = content;
+    }
+    
+    private function updateView():void {
+        label.width = Math.max(60, Math.min(140, label.textWidth + 30));
+        label.height = label.textHeight + 4;
+        label.y = (20 - label.height) / 2;
+        graphics.clear();
+        graphics.lineStyle(-1, 0x999999);
+        graphics.moveTo(label.width, 0);
+        graphics.lineTo(label.width, 22);
+        
+        closeButton.rotation = 45;
+        closeButton.x = label.width - 11;
+        closeButton.y = 11;
+    }
+    
+    private function createCloseButton():SimpleButton {
+        var u:Shape = new Shape();
+        var o:Shape = new Shape();
+        
+        //o.graphics.beginFill(0xEEEEEE);
+        o.graphics.drawCircle(0, 0, 10);
+        for each (var shape:Shape in [u, o]) {
+            shape.graphics.beginFill(0x666666);
+            shape.graphics.drawRect(-2, -6, 4, 12);
+            shape.graphics.beginFill(0x666666);
+            shape.graphics.drawRect(-6, -2, 12, 4);
+            shape.graphics.beginFill(0xFFFFFF);
+            shape.graphics.drawRect(-1, -5, 2, 10);
+            shape.graphics.beginFill(0xFFFFFF);
+            shape.graphics.drawRect(-5, -1, 10, 2);
+        }
+        
+        var btn:SimpleButton = new SimpleButton();
+        btn.upState = u;
+        btn.overState = o;
+        btn.downState = u;
+        btn.hitTestState = o;
+        return btn;
+    }
+    
+    private function closeButtonClickHandler(event:MouseEvent):void {
+        dispatchEvent(new Event(Event.CLOSE));
+        event.stopPropagation();
+    }
+}
+
+
+/*
+jp/psyark/psycode/TextEditor.as
+*/
+
+import flash.events.ContextMenuEvent;
+import flash.events.Event;
+import flash.events.KeyboardEvent;
+import flash.net.FileReference;
+import flash.ui.ContextMenu;
+import flash.ui.ContextMenuItem;
+import flash.ui.Keyboard;
+import flash.utils.clearTimeout;
+import flash.utils.setTimeout;
+
+/**
+* TextEditorクラス
+*/
+class TextEditor extends TextEditorBase {
+    private var highlightAllTimer:int;
+    
+    /**
+    * コンストラクタ
+    */
+    public function TextEditor() {
+        comparator = new StringComparator();
+        historyManager = new HistoryManager();
+        
+        contextMenu = createDebugMenu();
+        
+        addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
+        addEventListener(Event.CHANGE, function (event:Event):void {
+                clearTimeout(highlightAllTimer);
+                highlightAllTimer = setTimeout(highlightAll, 1000);
+            });
+    }
+    
+    private function highlightAll():void {
+        //syntaxHighlighter.update(0, text.length);
+    }
+    
+    
+    private function createDebugMenu():ContextMenu {
+        var menu:ContextMenu = new ContextMenu();
+        menu.hideBuiltInItems();
+        createMenuItem("ファイルを開く(&O)...", open);
+        createMenuItem("ファイルを保存(&S)...", save);
+        createMenuItem("元に戻す(&Z)", undo, function ():Boolean { return historyManager.canBack; }, true);
+        createMenuItem("やり直し(&Y)", redo, function ():Boolean { return historyManager.canForward; });
+        createMenuItem("文字サイズ : &64", function ():void { setFontSize(64); }, null, true);
+        createMenuItem("文字サイズ : &48", function ():void { setFontSize(48); });
+        createMenuItem("文字サイズ : &32", function ():void { setFontSize(32); });
+        createMenuItem("文字サイズ : &24", function ():void { setFontSize(24); });
+        createMenuItem("文字サイズ : &13", function ():void { setFontSize(13); });
+        return menu;
+        
+        function createMenuItem(caption:String, func:Function, enabler:Function=null, separator:Boolean=false):void {
+            var item:ContextMenuItem = new ContextMenuItem(caption, separator);
+            item.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, function (event:ContextMenuEvent):void {
+                    func();
+                });
+            if (enabler != null) {
+                menu.addEventListener(ContextMenuEvent.MENU_SELECT, function (event:ContextMenuEvent):void {
+                        item.enabled = enabler();
+                    });
+            }
+            menu.customItems.push(item);
+        }
+    }
+    
+    
+    /**
+    * 履歴を消去
+    */
+    public function clearHistory():void {
+        historyManager.clear();
+        prevText = text;
+    }
+    
+    
+    /**
+    * キー押下イベントハンドラ
+    */
+    private function keyDownHandler(event:KeyboardEvent):void {
+        preventFollowingTextInput = false;
+
+        if (event.keyCode == 90 && event.ctrlKey && !event.altKey) {
+            if(event.shiftKey) {
+                // Ctrl+Shift+Z : REDO
+                redo();
+            } else {
+                // Ctrl+Z : UNDO
+                undo();
+            }
+            event.preventDefault();
+            preventFollowingTextInput = true;
+            prevSBI = selectionBeginIndex;
+            prevSEI = selectionEndIndex;
+            return;
         }
 
-        /**
-        * やり直し
-        */
-        public function redo():void {
-        if (historyManager.canForward) {
-        var entry:HistoryEntry = historyManager.forward();
-        replaceText(entry.index, entry.index + entry.oldText.length, entry.newText);
-        setSelection(entry.index + entry.newText.length, entry.index + entry.newText.length);
-        dispatchIgnorableChangeEvent();
-        }
-        }
+        if(null != Psymacs.instance.keyDownHook) Psymacs.instance.keyDownHook(this, event);
+	}
 
-        /**
-        * 選択範囲の前の文字列
-        */
-        private function get beforeSelection():String {
-        return text.substr(0, selectionBeginIndex);
-        }
-        }
 
-        class MiniBuffer extends TextEditUI {
-        public function MiniBuffer() {
+	/**
+	* 元に戻す
+	*/
+	public function undo():void {
+		if (historyManager.canBack) {
+			var entry:HistoryEntry = historyManager.back();
+			replaceText(entry.index, entry.index + entry.newText.length, entry.oldText);
+			setSelection(entry.index + entry.oldText.length, entry.index + entry.oldText.length);
+			dispatchIgnorableChangeEvent();
+		}
+	}
+
+	/**
+	* やり直し
+	*/
+	public function redo():void {
+		if (historyManager.canForward) {
+			var entry:HistoryEntry = historyManager.forward();
+			replaceText(entry.index, entry.index + entry.oldText.length, entry.newText);
+			setSelection(entry.index + entry.newText.length, entry.index + entry.newText.length);
+			dispatchIgnorableChangeEvent();
+		}
+	}
+}
+
+class MiniBuffer extends TextEditUI {
+    public function MiniBuffer() {
         linumField.visible = false;
         textField.type = "dynamic";
         textField.wordWrap = true;
-        }
+    }
 
-        protected override function updateSize():void {
+    protected override function updateSize():void {
         textField.y = linumField.y = scrollBarV.y = scrollBarH.height;
         linumField.height = height - scrollBarH.height;
         textField.x = scrollBarV.width;
@@ -1776,5 +1572,5 @@ public function undo():void {
         graphics.clear();
         graphics.beginFill(0xEEEEEE);
         graphics.drawRect(0, 0, width, height);
-        }
-        }
+    }
+}
