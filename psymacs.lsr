@@ -14,7 +14,7 @@
 (defn clear-mini-buffer! []
   (set! (. *mini-buffer* text) ""))
 
-(def *async-tokens-per-frame* 50)
+(def *async-parse-ms-per-frame* 100)
 (def *highlighter-token-stream* nil)
 (def *parsed-tokens* nil) ;; vector for random access 
 (def *qp-last-input* "")
@@ -65,22 +65,22 @@
   "Save editor content to local storage. Returns the output of flush()."
   []
   (set! (. (. *psymacs-so* data) tabs)
-    (to-array (map (fn [tab]
-                     (let [tab-obj (new Object)]
-                       (set! (. tab-obj title) (. tab title))
-                       (set! (. tab-obj text) (. (. (. tab content) textField) text))
-                       tab-obj))
-                   (seq (. (. *psymacs* tabView) items))))) ; all tabs
+	(to-array (map (fn [tab]
+			 (let [tab-obj (new Object)]
+			   (set! (. tab-obj title) (. tab title))
+			   (set! (. tab-obj text) (. (. (. tab content) textField) text))
+			   tab-obj))
+		       (seq (. (. *psymacs* tabView) items))))) ; all tabs
   (. *psymacs-so* (flush)))
 
 (defn load-from-lso!
   "Load editor content from local storage."
   []
   (let [tab-view (. *psymacs* tabView)
-    saved-tabs (seq (. (. *psymacs-so* data) tabs))]
+	saved-tabs (seq (. (. *psymacs-so* data) tabs))]
     (if saved-tabs
       (doseq tab saved-tabs
-    (. tab-view (addItemWithText (. tab text) (. tab title)))))))
+	(. tab-view (addItemWithText (. tab text) (. tab title)))))))
 
 ;; Bracket utils
 
@@ -151,7 +151,7 @@
           relevant-old-tokens (tokens-from-index (token-index new-token) old-tokens)] ;; skip irrelevant old tokens
       (if (= new-token (first relevant-old-tokens))
         relevant-old-tokens
-        (lazy-cons new-token (merge-token-streams relevant-old-tokens (rest new-tokens)))))))
+        new-tokens))))
 
 (defn reparse 
   "Returns a lazy seq of tokens, cpl and csl are the new and old strings' common prefix and suffix legnths."
@@ -241,7 +241,7 @@
   "Like print-doc, with different formatting."
   [v]
   (println (str (ns-name (get ^v :ns)) "/" (get ^v :name) 
-        (if (get ^v :macro) " - Macro" "")))
+		(if (get ^v :macro) " - Macro" "")))
   (prn (get ^v :arglists))
   (println " " (get ^v :doc)))
 
@@ -361,20 +361,20 @@
 (defn set-key-handler!
   "Sets a function as the handler for a specific keypress. key can be either a character or a key-code, modifiers are a sequence which can contain :ctrl, :alt and :shift."
   [key modifiers handler]
-    (def *kb-map*
-         (assoc *kb-map*
-           {:code (if (string? key)
-                    (. (. key (toUpperCase)) (charCodeAt 0))
-                    key)
-            :modifiers (into #{} modifiers)}
-           handler)))
+  (def *kb-map*
+       (assoc *kb-map*
+	 {:code (if (string? key)
+		  (. (. key (toUpperCase)) (charCodeAt 0))
+		  key)
+	  :modifiers (into #{} modifiers)}
+	 handler)))
 
 (defn event->keystroke [e]
   "Converts a KEY_DOWN event to a {:code ... :modifiers ...} map."
   (let [modifiers #{}
-    modifiers (if (. e ctrlKey) (conj modifiers :ctrl) modifiers)
-    modifiers (if (. e altKey) (conj modifiers :alt) modifiers)
-    modifiers (if (. e shiftKey) (conj modifiers :shift) modifiers)]
+	modifiers (if (. e ctrlKey) (conj modifiers :ctrl) modifiers)
+	modifiers (if (. e altKey) (conj modifiers :alt) modifiers)
+	modifiers (if (. e shiftKey) (conj modifiers :shift) modifiers)]
     {:code (. e keyCode) :modifiers modifiers}))
 
 (defn key-down-handler [buffer event]
@@ -394,16 +394,17 @@
   "Event handler, highlights tokens, also stores them as a vector in *parsed-tokens*."
   [e]
   (if (and (seq (buffers)) (seq *highlighter-token-stream*))
-    (loop [cnt *async-tokens-per-frame* ;; tokens to process per frame
-           tokens *highlighter-token-stream*
-	   parsed-vec *parsed-tokens*]
-      (if (and (pos? cnt) (seq tokens))
-        (do (highlight-token! (first tokens))
-            (recur (dec cnt) (rest tokens) (conj parsed-vec (first tokens))))
-        (do (def *highlighter-token-stream* tokens)
-	    (def *parsed-tokens* parsed-vec)
-            (def *print-docs* (empty? *highlighter-token-stream*))
-	    )))))
+    (let [start (get-timer)
+	  end (+ start *async-parse-ms-per-frame*)]
+      (loop [tokens *highlighter-token-stream*
+	     parsed-vec *parsed-tokens*]
+	(if (and (seq tokens) (< (get-timer) end))
+	  (do (highlight-token! (first tokens))
+	      (recur (rest tokens) (conj parsed-vec (first tokens))))
+	  (do (def *highlighter-token-stream* tokens)
+	      (def *parsed-tokens* parsed-vec)
+	      (def *print-docs* (empty? *highlighter-token-stream*))
+	      ))))))
 
 ;; Setup event listeners and hooks
 
