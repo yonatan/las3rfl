@@ -57,6 +57,12 @@
   ([position]        (nth (buffer-string (current-buffer)) position))
   ([]                (nth (buffer-string (current-buffer)) (point))))
 
+(defn insert!
+  "Replaces the currently selected text in the current buffer with string, moves point to end of string."
+  [string]
+  (. (buffer-textfield) (replaceSelectedText string))
+  (. (current-buffer) (dispatchChangeEvent)))
+
 ;; Shared object (local storage)
 
 (def *psymacs-so* (. flash.net.SharedObject (getLocal "psymacsContent")))
@@ -208,7 +214,7 @@
             (recur lo mid)))
         lo))))
 
-;; TODO: improve
+;; TODO: improve (this is very slow, might be better to grab prev/next/parent sexpr positions during the async parse stage).
 (defn match-index-for-point
   "Returns the index of the match at position, matches should be the output of re-match-ex, position is the character index."
   [matches position]
