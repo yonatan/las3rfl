@@ -295,9 +295,7 @@
 (def *float-format*   (new flash.text.TextFormat nil nil 0x8800cc true))
 (def *ratio-format*   (new flash.text.TextFormat nil nil 0xcc00ff true))
 
-(def *last-highlighting* 0)
 (def *refresh-highlighting* true)
-(def *highlighting-interval* 300)
 
 (defn token-format
   "Returns a TextFormat object."
@@ -330,12 +328,9 @@
 
 (defn highlight-frame-handler [e]
   "Check if buffer highlighting should be redone, and if enough time has passed since the last highlight call. Refresh highlighting if needed."
-  (if (and *refresh-highlighting*
-           (< (+ *last-highlighting* *highlighting-interval*) (get-timer)))
-    (do
-      (highlight!)
-      (def *last-highlighting* (get-timer))
-      (def *refresh-highlighting* false))))
+  (when *refresh-highlighting*
+    (highlight!)
+    (def *refresh-highlighting* false)))
 
 (defn highlight-change-handler [e]
   (def *refresh-highlighting* true))
