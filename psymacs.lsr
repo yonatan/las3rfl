@@ -395,17 +395,17 @@
   "Event handler, highlights tokens, also stores them as a vector in *parsed-tokens*."
   [e]
   (if (and (seq (buffers)) (seq *highlighter-token-stream*))
-    (let [start (get-timer)
-	  end (+ start *async-parse-ms-per-frame*)]
-      (loop [tokens *highlighter-token-stream*
-	     parsed-vec *parsed-tokens*]
-	(if (and (seq tokens) (< (get-timer) end))
-	  (do (highlight-token! (first tokens))
-	      (recur (rest tokens) (conj parsed-vec (first tokens))))
-	  (do (def *highlighter-token-stream* tokens)
-	      (def *parsed-tokens* parsed-vec)
-	      (def *print-docs* (empty? *highlighter-token-stream*))
-	      ))))))
+    (when (seq *highlighter-token-stream*)
+      (let [start (get-timer)
+	    end (+ start *async-parse-ms-per-frame*)]
+	(loop []
+	  (when (and (seq *highlighter-token-stream*) (< (get-timer) end))
+	    (let [token (first *highlighter-token-stream*)]
+	      (highlight-token! token)
+	      (def *parsed-tokens* (conj *parsed-tokens* token))
+	      (def *highlighter-token-stream* (rest *highlighter-token-stream*))
+	      (recur))))
+	(def *print-docs* (empty? *highlighter-token-stream*))))))
 
 ;; Setup event listeners and hooks
 
