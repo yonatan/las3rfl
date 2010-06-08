@@ -16,9 +16,10 @@
 
 (def *async-parse-done?* false)
 (def *async-parse-ms-per-frame* 100)
-(def *async-token-stream* nil)
+(def *async-token-stream* nil) ;; input for the async parser
+(def *async-tmp-lbrackets* nil) ;; stores a list of previous lbrackets, used during parsing
 (def *parsed-tokens* nil) ;; vector for random access 
-(def *lbracket-indices* []) ;; holds the (token) index of the previous open bracket for every token
+(def *lbracket-indices* nil) ;; holds the (token) index of the previous open bracket for every token
 (def *last-parse-input* "")
 (def *last-parse-output* nil)
 
@@ -193,6 +194,7 @@
     (do
       (def *async-parse-done?* false)
       (def *lbracket-indices* [])
+      (def *async-tmp-lbrackets* nil)
       (def *parsed-tokens* [])
       (def *async-token-stream*
 	   (if *last-parse-output*
@@ -216,32 +218,10 @@
             (recur lo mid)))
         lo))))
 
-;; TODO: improve (this is very slow, might be better to grab prev/next/parent sexpr positions during the async parse stage).
 (defn match-index-for-point
   "Returns the index of the match at position, matches should be the output of re-match-ex, position is the character index."
   [matches position]
   (max 0 (dec (binary-search matches (fn [x] (< (last x) (inc position)))))))
-
-(defn find-unmatched-bracket
-  "Starts searching right after token-idx, returns the index of the first unmatched opposite bracket."
-  [parsed-data token-idx bracket]
-  (let [[limit next] (if (lbracket? bracket) 
-		       [-1 dec]
-                       [(count parsed-data) inc])
-        opposite (matching-bracket bracket)]
-    (loop [idx (next token-idx)
-           nesting 0]
-      (if (= idx limit)
-        nil
-        (cond (= (first (nth parsed-data idx)) bracket)
-              (if (zero? nesting)
-                idx
-                (recur (next idx) (dec nesting)))
-
-              (= (first (nth parsed-data idx)) opposite)
-              (recur (next idx) (inc nesting))
-
-              :else (recur (next idx) nesting))))))
 
 ;; Context doc
 
@@ -256,13 +236,14 @@
 (defn back-search-for-context-doc
   "Returns the first token after the first preceding unmatched lparen."
   []
-  (when (seq *parsed-tokens*)
-    (let [matches *parsed-tokens*
-          match-idx (match-index-for-point matches (point))
-          match (first (nth matches match-idx))
-          lparen-idx (inc (find-unmatched-bracket *parsed-tokens* match-idx "("))]
-      (when (> (count matches) lparen-idx)
-	(first (nth matches lparen-idx))))))
+  (when *async-parse-done?*
+    (let [tokens *parsed-tokens*
+          token-idx (match-index-for-point tokens (point))]
+      (loop [bracket-idx (nth *lbracket-indices* token-idx)]
+        (when bracket-idx
+          (if (= "(" (token-match (nth tokens bracket-idx)))
+            (token-match (nth tokens (inc bracket-idx)))
+            (recur (nth *lbracket-indices* bracket-idx))))))))
 
 (defn context-doc
   "Shows the enclosing function's documentation in the minibuffer."
@@ -392,7 +373,6 @@
       (def *print-doc* true))))
 
 ;; Async
-(def *tmp-lbrackets* nil)
 (defn async-parse-driver
   "Event handler, highlights tokens, also stores them as a vector in *parsed-tokens*."
   [e]
@@ -404,6 +384,11 @@
 	  (when (and (seq *async-token-stream*) (< (get-timer) end))
 	    (let [token (first *async-token-stream*)]
 	      (highlight-token! token)
+	      (def *lbracket-indices* (conj *lbracket-indices* (first *async-tmp-lbrackets*)))
+	      (cond (lbracket? (token-match token))
+		    (def *async-tmp-lbrackets* (cons (count *parsed-tokens*) *async-tmp-lbrackets*))
+		    (rbracket? (token-match token))
+		    (def *async-tmp-lbrackets* (rest *async-tmp-lbrackets*)))
 	      (def *parsed-tokens* (conj *parsed-tokens* token))
 	      (def *async-token-stream* (rest *async-token-stream*))
 	      (recur))))
