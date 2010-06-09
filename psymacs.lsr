@@ -126,10 +126,10 @@
        (set! (. regex lastIndex) idx)
        (re-matches-with-index regex string))))
 
-(defmacro token-index [x] `(last ~x))
+(defmacro token-position [x] `(last ~x))
 (defmacro token-match  [x] `(first ~x))
 (defmacro token-length [t] `(count (token-match ~t)))
-(defmacro token-end [t] `(+ (token-index ~t) (token-length ~t)))
+(defmacro token-end [t] `(+ (token-position ~t) (token-length ~t)))
 
 (defn advance-indices
   "Adds n to the indices of tokens in parse results."
@@ -141,13 +141,13 @@
 (defn tokens-from-index
   [index tokens]
   (when (seq tokens)
-    (if (>= (token-index (first tokens)) index)
+    (if (>= (token-position (first tokens)) index)
       tokens
       (recur index (rest tokens)))))
 
 (defn tokens-till-index
   [index tokens]
-  (when (and (seq tokens) (< (token-index (first tokens)) index))
+  (when (and (seq tokens) (< (token-position (first tokens)) index))
     (lazy-cons (first tokens) (tokens-till-index index (rest tokens)))))
 
 (defn tokens-in-range [start end tokens]
@@ -157,7 +157,7 @@
   [old-tokens new-tokens]
   (when (seq new-tokens)
     (let [new-token (first new-tokens)
-          relevant-old-tokens (tokens-from-index (token-index new-token) old-tokens)] ;; skip irrelevant old tokens
+          relevant-old-tokens (tokens-from-index (token-position new-token) old-tokens)] ;; skip irrelevant old tokens
       (if (= new-token (first relevant-old-tokens))
         relevant-old-tokens
         new-tokens))))
@@ -171,7 +171,7 @@
        (if (empty? new-tokens)
 	 (if (and (seq old-tokens) (< (token-end (first old-tokens)) cpl)) ;; are we still in the common prefix?
 	   (lazy-cons (first old-tokens) (reparse old-string new-string cpl csl (rest old-tokens) nil))
-	   (let [parsed (parse new-string (token-index (first old-tokens)))]
+	   (let [parsed (parse new-string (token-position (first old-tokens)))]
 	     (and parsed (reparse old-string new-string cpl csl old-tokens parsed))))
 	 (let [new-token (first new-tokens)]
 	   (if (< (token-end new-token) (- (count new-string) csl)) ;; are we still in the diff area of the strings?
