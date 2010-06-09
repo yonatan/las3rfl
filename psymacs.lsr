@@ -405,7 +405,7 @@
 
 ;; Setup key handlers
 
-(set-key-handler! (kb F5) [] eval-buffer)
+(set-key-handler! (kb ENTER) [:ctrl] eval-buffer)
 
 ;; Load saved data from local storage
 
@@ -413,5 +413,5 @@
 
 ;; Say hello
 
-(println "Write code and hit F5 to run it.")
+(println "Write code and hit Ctrl+Enter to run it.")
 (println "To close a tab double-click the x.")
