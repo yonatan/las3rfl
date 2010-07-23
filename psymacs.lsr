@@ -372,28 +372,36 @@
         (. buffer (dispatchChangeEvent)))
       (def *print-doc* true))))
 
-;; Async
+;; Async parsing
+
+(defn parse-until
+  "Parses tokens while (pred) is true."
+  [pred]
+  (when (and (seq (buffers))
+	     (not *async-parse-done?*))
+    (loop []
+      (when (and (seq *async-token-stream*)
+		 (not (pred)))
+	(let [token (first *async-token-stream*)]
+	  (highlight-token! token)
+	  (def *lbracket-indices* (conj *lbracket-indices* (first *async-tmp-lbrackets*)))
+	  (cond (lbracket? (token-match token))
+		(def *async-tmp-lbrackets* (cons (count *parsed-tokens*) *async-tmp-lbrackets*))
+		(rbracket? (token-match token))
+		(def *async-tmp-lbrackets* (rest *async-tmp-lbrackets*)))
+	  (def *parsed-tokens* (conj *parsed-tokens* token))
+	  (def *async-token-stream* (rest *async-token-stream*))
+	  (recur))))
+    (def *print-docs* (empty? *async-token-stream*))
+    (def *async-parse-done?* (empty? *async-token-stream*))))
+
 (defn async-parse-driver
   "Event handler, highlights tokens, also stores them as a vector in *parsed-tokens*."
   [e]
-  (if (and (seq (buffers)) (not *async-parse-done?*))
-    (when (seq *async-token-stream*)
-      (let [start (get-timer)
-	    end (+ start *async-parse-ms-per-frame*)]
-	(loop []
-	  (when (and (seq *async-token-stream*) (< (get-timer) end))
-	    (let [token (first *async-token-stream*)]
-	      (highlight-token! token)
-	      (def *lbracket-indices* (conj *lbracket-indices* (first *async-tmp-lbrackets*)))
-	      (cond (lbracket? (token-match token))
-		    (def *async-tmp-lbrackets* (cons (count *parsed-tokens*) *async-tmp-lbrackets*))
-		    (rbracket? (token-match token))
-		    (def *async-tmp-lbrackets* (rest *async-tmp-lbrackets*)))
-	      (def *parsed-tokens* (conj *parsed-tokens* token))
-	      (def *async-token-stream* (rest *async-token-stream*))
-	      (recur))))
-	(def *print-docs* (empty? *async-token-stream*))
-	(def *async-parse-done?* (empty? *async-token-stream*))))))
+  (let [start (get-timer)
+	end (+ start *async-parse-ms-per-frame*)
+	time-is-up (fn [] (> (get-timer) end))]
+    (parse-until time-is-up)))
 
 ;; Setup event listeners and hooks
 
