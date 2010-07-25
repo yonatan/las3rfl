@@ -1,3 +1,7 @@
+(las3r.core/in-ns 'psymacs)
+
+(las3r.core/refer 'las3r.core)
+(las3r.core/refer 'las3r.flash)
 
 ;; Globals
 
@@ -375,13 +379,13 @@
 ;; Async parsing
 
 (defn parse-until
-  "Parses tokens while (pred) is true."
-  [pred]
+  "Parses tokens while (stop?) is true."
+  [stop?]
   (when (and (seq (buffers))
 	     (not *async-parse-done?*))
     (loop []
       (when (and (seq *async-token-stream*)
-		 (not (pred)))
+		 (not (stop?)))
 	(let [token (first *async-token-stream*)]
 	  (highlight-token! token)
 	  (def *lbracket-indices* (conj *lbracket-indices* (first *async-tmp-lbrackets*)))
