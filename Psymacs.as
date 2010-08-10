@@ -964,42 +964,6 @@ class TextEditorBase extends TextEditUI {
         dispatchChangeEvent();
         ignoreChange = false; 
     }
-    
-    /**
-    * インポート文の自動追加
-    */
-    private function autoImport(qname:String):void {
-        var regex:String = "";
-        regex += "(package\\s*(?:[_a-zA-Z]\\w*(?:\\.[_a-zA-Z]\\w*)*)?\\s*{)"; // package
-        regex += "(\\s*(?:import\\s*(?:[_a-zA-Z]\\w*(?:\\.[_a-zA-Z]\\w*)*(?:\\.\\*)?[\\s;]+))*$)"; // import 
-        regex += "(.*?public\\s+(?:class|interface|function|namespace))"; // def
-        var match:Array = text.match(new RegExp(regex, "sm"));
-        if (match) {
-            var importTable:Object = {};
-            match[2].replace(/import\s*([_a-zA-Z]\w*(?:\.[_a-zA-Z]\w*)*(?:\.\*)?)/g, function (match:String, cap1:String, index:int, source:String):void {
-                    importTable[cap1] = true;
-                });
-            importTable[qname] = true;
-            var importList:Array = [];
-            for (var i:String in importTable) {
-                importList.push("\timport " + i + ";");
-            }
-            var importStr:String = importList.sort().join("\n");
-            var newStr:String = "\n" + importStr + "\n" + match[3];
-            var index:int = selectionBeginIndex;
-            replaceText(
-                match.index + match[1].length,
-                match.index + match[1].length + match[2].length + match[3].length,
-                newStr
-            );
-            
-            if (index > match.index + match[1].length) {
-                var newSel:int = index + newStr.length - match[2].length - match[3].length;
-                setSelection(newSel, newSel);
-            }
-            dispatchChangeEvent();
-        }
-    }
 }
 
 
