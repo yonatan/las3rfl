@@ -1227,6 +1227,7 @@ class TabView extends UIControl {
         var item:TabViewItem = contentItemTable[content];
         items.splice(items.indexOf(item), 1);
         removeChild(item);
+		Psymacs.instance.removeTabHook(item);
         delete contentItemTable[content];
         if (currentItem == item) {
             currentItem = items[0];

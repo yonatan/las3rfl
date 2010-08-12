@@ -13,6 +13,8 @@
 (def get-timer (get-def "flash.utils.getTimer"))
 
 (def *psymacs* (. (get-def "Psymacs") instance)) ;; editor instance
+(def *buffers* {})
+(def *current-buffer* nil)
 
 (def *mini-buffer* (. *psymacs* miniBuffer))
 (defn clear-mini-buffer! []
@@ -240,7 +242,7 @@
 (defn back-search-for-context-doc
   "Returns the first token after the first preceding unmatched lparen."
   []
-  (when *async-parse-done?*
+  (when (and *async-parse-done?* (seq *parsed-tokens*))
     (let [tokens *parsed-tokens*
           token-idx (match-index-for-point tokens (point))]
       (loop [bracket-idx (nth *lbracket-indices* token-idx)]
@@ -249,15 +251,17 @@
             (token-match (nth tokens (inc bracket-idx)))
             (recur (nth *lbracket-indices* bracket-idx))))))))
 
+;; TODO: search all namespaces?
 (defn context-doc
-  "Shows the enclosing function's documentation in the minibuffer."
+  "Shows the enclosing function's documentation in the minibuffer, searches in current *ns* and 'las3r.core."
   []
   (let [name (back-search-for-context-doc)]
     (if name 
       (try
-       (let [v (find-var (symbol (ns-name *ns*) name))
-	     arglists ((meta v) :arglists)]
-	 (minibuff-print-doc v))
+       (let [v (or (find-var (symbol (ns-name *ns*) name))
+		   (find-var (symbol 'las3r.core name)))
+       	     arglists ((meta v) :arglists)]
+       	 (minibuff-print-doc v))
        (catch Error e nil)))))
 
 (def *print-doc* false)
@@ -311,7 +315,7 @@
 (defn highlight!
   "Apply syntax highlighting to current buffer."
   []
-  (when (seq (buffers)) ;; ensure that a current buffer exists
+  (when (seq *buffers*) ;; ensure that a current buffer exists
     (restart-async-parser (buffer-string))))
 
 (defn highlight-frame-handler [e]
@@ -319,9 +323,6 @@
   (when *refresh-highlighting*
     (highlight!)
     (def *refresh-highlighting* false)))
-
-(defn highlight-change-handler [e]
-  (def *refresh-highlighting* true))
 
 ;; Key handlers
 
@@ -413,8 +414,26 @@
 (. *stage* (addEventListener "enterFrame" highlight-frame-handler))
 (. *stage* (addEventListener "enterFrame" async-parse-driver))
 
-(set! (. *psymacs* tabChangedHook) highlight-change-handler)
-(set! (. *psymacs* textChangeHook) highlight-change-handler)
+;; TODO: replace with better handlers.
+(set! (. *psymacs* textChangeHook)
+      (fn [buffer e]
+	(println "text change")
+	(def *refresh-highlighting* true)))
+
+(set! (. *psymacs* tabAddedHook)
+      (fn [tab]
+	(def *buffers* (assoc *buffers* tab {}))
+	(def *current-buffer* tab)))
+
+(set! (. *psymacs* removeTabHook)
+      (fn [tab]
+	(def *buffers* (dissoc *buffers* tab))))
+
+(set! (. *psymacs* tabChangedHook)
+      (fn [tab]
+	(def *current-buffer* tab)
+	(def *refresh-highlighting* true) ;; TODO: don't just do this, highlighting might be ok.
+	))
 
 (set! (. *psymacs* keyDownHook) key-down-handler)
 
