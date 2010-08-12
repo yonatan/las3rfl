@@ -412,7 +412,10 @@
 (. *stage* (addEventListener "enterFrame" context-doc-frame-handler))
 (. *stage* (addEventListener "enterFrame" highlight-frame-handler))
 (. *stage* (addEventListener "enterFrame" async-parse-driver))
-(set! (. *psymacs* las3rHighlightHook) highlight-change-handler)
+
+(set! (. *psymacs* tabChangedHook) highlight-change-handler)
+(set! (. *psymacs* textChangeHook) highlight-change-handler)
+
 (set! (. *psymacs* keyDownHook) key-down-handler)
 
 ;; Setup key handlers

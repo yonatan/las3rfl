@@ -21,8 +21,14 @@ package {
         protected var las3rCode:String
 
         public static var instance:Psymacs;
-        public var keyDownHook:Function;
-        public var las3rHighlightHook:Function;
+
+		private function nop(..._):void {};
+        public var keyDownHook:Function = nop;
+		public var tabChangedHook:Function = nop;
+		public var tabAddedHook:Function = nop;
+		public var removeTabHook:Function = nop;
+		public var textChangeHook:Function = nop;
+
         public var tabView:TabView;
         public var miniBuffer:MiniBuffer;
         public var stats:Stats = new Stats;
@@ -916,9 +922,7 @@ class TextEditorBase extends TextEditUI {
     * テキストが変更された
     */
     private function changeHandler(event:Event):void {
-        if(Psymacs.instance.las3rHighlightHook != null) {
-            Psymacs.instance.las3rHighlightHook(event);
-        }
+        Psymacs.instance.textChangeHook(this, event);
         //trace("change", "changed=" + (prevText != text), "ignore=" + ignoreChange, "prevent=" + preventFollowingTextInput);
         //trace("{" + escapeText(prevText) + "} => {" + escapeText(text) + "}");
         if (prevText != text) {
@@ -1149,9 +1153,7 @@ class TabView extends UIControl {
                 addChild(_currentItem.content);
                 updateView();
             }
-            if(Psymacs.instance.las3rHighlightHook != null) {
-                Psymacs.instance.las3rHighlightHook(null);
-            }
+            Psymacs.instance.tabChangedHook(_currentItem);
         }
     }
     
@@ -1203,6 +1205,7 @@ class TabView extends UIControl {
         contentItemTable[content] = item;
         currentItem = item;
         updateView();
+		Psymacs.instance.tabAddedHook(item);
     }
     
     public function addItemWithText(content:String, title:String):void {
