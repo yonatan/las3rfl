@@ -415,10 +415,8 @@
 (. *stage* (addEventListener "enterFrame" highlight-frame-handler))
 (. *stage* (addEventListener "enterFrame" async-parse-driver))
 
-;; TODO: replace with better handlers.
 (set! (. *psymacs* textChangeHook)
       (fn [buffer e]
-	(println "text change")
 	(def *refresh-highlighting* true)))
 
 (set! (. *psymacs* tabAddedHook)

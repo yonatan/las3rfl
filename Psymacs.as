@@ -14,7 +14,7 @@ package {
 	import com.las3r.io.OutputStream;
 	import com.las3r.runtime.RT;
     
-    [SWF(width=465,height=465,backgroundColor=0xFFFFFF,frameRate=30)]
+    [SWF(width=800,height=600,backgroundColor=0xFFFFFF,frameRate=30)]
     public class Psymacs extends Sprite {
         [Embed(source="psymacs.lsr", mimeType="application/octet-stream")]
         protected const PsymacsLsr:Class;
