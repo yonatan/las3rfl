@@ -274,11 +274,11 @@
 
 ;; Syntax highlighter
 
-(def *plain-format*   (new flash.text.TextFormat nil nil 0xa0a0a0 true)) ;; used on whitespace (and commas)
+(def *whitespace-format*   (new flash.text.TextFormat nil nil 0xa0a0a0 true)) ;; used on whitespace (and commas)
 (def *regex-format*   (new flash.text.TextFormat nil nil 0x00aa22 true))
 (def *string-format*  (new flash.text.TextFormat nil nil 0xaa8800 true))
 (def *comment-format* (new flash.text.TextFormat nil nil 0xcc2200 true))
-(def *paren-format*   (new flash.text.TextFormat nil nil 0x005577 true))
+(def *bracket-format*   (new flash.text.TextFormat nil nil 0x005577 true))
 
 (def *token-format*   (new flash.text.TextFormat nil nil 0x000000 false)) ;; default token format
 (def *keyword-format* (new flash.text.TextFormat nil nil 0x008888 true))
@@ -307,7 +307,8 @@
 			       (seq quoted) *string-format*
 			       (seq comment) *comment-format*
 			       (seq token) (token-format token)
-			       :else *paren-format*)
+			       (or (seq close) (seq open)) *bracket-format*
+			       :else *whitespace-format*)
 			 index
 			 (+ index (count match))))))
 
