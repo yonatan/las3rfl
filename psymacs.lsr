@@ -29,7 +29,19 @@
 (def *last-parse-input* "")
 (def *last-parse-output* nil)
 
+(def *todo* []) ;; thunks for the next frame
+
 ;; Utils
+
+(defmacro later
+  "Execute body in the next enterFrame event."
+  [& body]
+  `(def *todo* (conj *todo* (fn [] ~@body))))
+
+(. *stage* (addEventListener "enterFrame"
+			     (fn [_] 
+			       (doseq thunk *todo* (thunk))
+			       (def *todo* []))))
 
 (defn current-buffer
   "Return the current buffer as a TextEditor object, or nil."
@@ -267,10 +279,10 @@
 (def *print-doc* false)
 
 (defn context-doc-frame-handler [e]
-  (if (and *print-doc* *async-parse-done?*)
-    (do (def *print-doc* false)
-        (clear-mini-buffer!)
-        (context-doc))))
+  (when (and *print-doc* *async-parse-done?*)
+    (def *print-doc* false)
+    (later (clear-mini-buffer!)
+	   (context-doc))))
 
 ;; Syntax highlighter
 
