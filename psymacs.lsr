@@ -13,8 +13,8 @@
 (def get-timer (get-def "flash.utils.getTimer"))
 
 (def *psymacs* (. (get-def "Psymacs") instance)) ;; editor instance
-(def *buffers* {})
-(def *current-buffer* nil)
+(def *tabs* {})
+(def *current-tab* nil)
 
 (def *mini-buffer* (. *psymacs* miniBuffer))
 (defn clear-mini-buffer! []
@@ -35,7 +35,7 @@
   "Return the current buffer as a TextEditor object, or nil."
   []
   (let [tv (. *psymacs* tabView)
-	idx (. tv selectedIndex)]
+  	idx (. tv selectedIndex)]
     (if (not (= idx -1))
       (. tv (getItemAt idx))
       (throw (new Error "There is no current buffer.")))))
@@ -315,7 +315,7 @@
 (defn highlight!
   "Apply syntax highlighting to current buffer."
   []
-  (when (seq *buffers*) ;; ensure that a current buffer exists
+  (when (seq (buffers)) ;; ensure that a current buffer exists
     (restart-async-parser (buffer-string))))
 
 (defn highlight-frame-handler [e]
@@ -422,16 +422,16 @@
 
 (set! (. *psymacs* tabAddedHook)
       (fn [tab]
-	(def *buffers* (assoc *buffers* tab {}))
-	(def *current-buffer* tab)))
+	(def *tabs* (assoc *tabs* tab {}))
+	(def *current-tab* tab)))
 
 (set! (. *psymacs* removeTabHook)
       (fn [tab]
-	(def *buffers* (dissoc *buffers* tab))))
+	(def *tabs* (dissoc *tabs* tab))))
 
 (set! (. *psymacs* tabChangedHook)
       (fn [tab]
-	(def *current-buffer* tab)
+	(def *current-tab* tab)
 	(def *refresh-highlighting* true) ;; TODO: don't just do this, highlighting might be ok.
 	))
 
