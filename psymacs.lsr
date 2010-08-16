@@ -3,6 +3,15 @@
 (las3r.core/refer 'las3r.core)
 (las3r.core/refer 'las3r.flash)
 
+;; Terminology:
+
+;; AS3             Las3r
+;; --------------  ----------
+;; TabViewItem     tab
+;; TextEditor      editor
+;; TextField       textfield
+
+
 ;; Globals
 
 (defn get-def
@@ -43,46 +52,46 @@
 			       (doseq thunk *todo* (thunk))
 			       (def *todo* []))))
 
-(defn current-buffer
-  "Return the current buffer as a TextEditor object, or nil."
+(defn current-editor
+  "Return the current editor as a TextEditor object, or nil."
   []
   (let [tv (. *psymacs* tabView)
   	idx (. tv selectedIndex)]
     (if (not (= idx -1))
       (. tv (getItemAt idx))
-      (throw (new Error "There is no current buffer.")))))
+      (throw (new Error "There is no current editor.")))))
 
-(defn buffer-string
-  "Returns the buffer's content as a string (defaults to current-buffer)."
-  ([buffer] (. buffer text))
-  ([]       (. (current-buffer) text)))
+(defn editor-string
+  "Returns the editor's content as a string (defaults to current-editor)."
+  ([editor] (. editor text))
+  ([]       (. (current-editor) text)))
 
-(defn buffer-textfield
-  "Returns the buffer's TextField (defaults to current-buffer)."
-  ([buffer] buffer (. buffer textField))
-  ([]       (. (current-buffer) textField)))
+(defn editor-textfield
+  "Returns the editor's TextField (defaults to current-editor)."
+  ([editor] editor (. editor textField))
+  ([]       (. (current-editor) textField)))
 
-(defn buffers
-  "Returns a list of buffers (TextEditor objects)."
+(defn editors
+  "Returns a list of editors (TextEditor objects)."
   []
   (map (fn [x] (. x content)) (seq (. (. *psymacs* tabView) items))))
 
 (defn point
-  "Return value of point, as an integer. Beginning of buffer is position 0."
+  "Return value of point, as an integer. Beginning of editor is position 0."
   []
-  (. (buffer-textfield) caretIndex))
+  (. (editor-textfield) caretIndex))
 
 (defn char-at
-  "Returns the char at a position in a buffer (defaults to current-buffer and point)."
-  ([position buffer] (nth (buffer-string buffer) position))
-  ([position]        (nth (buffer-string (current-buffer)) position))
-  ([]                (nth (buffer-string (current-buffer)) (point))))
+  "Returns the char at a position in a editor (defaults to current-editor and point)."
+  ([position editor] (nth (editor-string editor) position))
+  ([position]        (nth (editor-string (current-editor)) position))
+  ([]                (nth (editor-string (current-editor)) (point))))
 
 (defn insert!
-  "Replaces the currently selected text in the current buffer with string, moves point to end of string."
+  "Replaces the currently selected text in the current editor with string, moves point to end of string."
   [string]
-  (. (buffer-textfield) (replaceSelectedText string))
-  (. (current-buffer) (dispatchChangeEvent)))
+  (. (editor-textfield) (replaceSelectedText string))
+  (. (current-editor) (dispatchChangeEvent)))
 
 ;; Shared object (local storage)
 
@@ -201,7 +210,7 @@
 (defn get-common-part-lengths
   "Returns [common-prefix-len common-suffix-len], uses psyark's StringComparator."
   [s1 s2]
-  (let [comp (. (current-buffer) comparator)]
+  (let [comp (. (current-editor) comparator)]
     (. comp (compare s1 s2))
     [(. comp commonPrefixLength) (. comp commonSuffixLength)]))
 
@@ -311,9 +320,9 @@
           :else *token-format*)))
 
 (defn highlight-token!
-  "Highlight a single parsed token in the current buffer."
+  "Highlight a single parsed token in the current editor."
   [token]
-  (let [tf (buffer-textfield)
+  (let [tf (editor-textfield)
 	[match regex quoted open close comment token index] token]
     (. tf (setTextFormat (cond (seq regex) *regex-format*
 			       (seq quoted) *string-format*
@@ -326,29 +335,29 @@
 
 ;; TODO: remove?
 (defn highlight!
-  "Apply syntax highlighting to current buffer."
+  "Apply syntax highlighting to current editor."
   []
-  (when (seq (buffers)) ;; ensure that a current buffer exists
-    (restart-async-parser (buffer-string))))
+  (when (seq (editors)) ;; ensure that a current editor exists
+    (restart-async-parser (editor-string))))
 
 (defn highlight-frame-handler [e]
-  "Check if buffer highlighting should be redone, and if enough time has passed since the last highlight call. Refresh highlighting if needed."
+  "Check if editor highlighting should be redone, and if enough time has passed since the last highlight call. Refresh highlighting if needed."
   (when *refresh-highlighting*
     (highlight!)
     (def *refresh-highlighting* false)))
 
 ;; Key handlers
 
-(defn eval-buffer
-  "Saves all code to local storage, evaluates the code in a buffer (by default the current one). Prints the result in the mini buffer."
-  ([] (eval-buffer (current-buffer)))
-  ([buffer]
+(defn eval-editor
+  "Saves all code to local storage, evaluates the code in a editor (by default the current one). Prints the result in the mini editor."
+  ([] (eval-editor (current-editor)))
+  ([editor]
      (save-to-lso!) ;; prepare for impending doom
      (clear-mini-buffer!)
      (let [done-fn (fn [x]
                      (pr x)
                      (. *psymacs* (updateLayout)))]
-       (eval (. buffer text)
+       (eval (. editor text)
              done-fn
              done-fn))))
 
@@ -380,14 +389,14 @@
 	modifiers (if (. e shiftKey) (conj modifiers :shift) modifiers)]
     {:code (. e keyCode) :modifiers modifiers}))
 
-(defn key-down-handler [buffer event]
+(defn key-down-handler [editor event]
   (let [cmd (*kb-map* (event->keystroke event))]
     (if cmd
       (do
-        (set! (. buffer trackChanges) false)
+        (set! (. editor trackChanges) false)
         (cmd)
-        (set! (. buffer trackChanges) true)
-        (. buffer (dispatchChangeEvent)))
+        (set! (. editor trackChanges) true)
+        (. editor (dispatchChangeEvent)))
       (def *print-doc* true))))
 
 ;; Async parsing
@@ -395,7 +404,7 @@
 (defn parse-until
   "Parses tokens while (stop?) is true."
   [stop?]
-  (when (and (seq (buffers))
+  (when (and (seq (editors))
 	     (not *async-parse-done?*))
     (loop []
       (when (and (seq *async-token-stream*)
@@ -428,7 +437,7 @@
 (. *stage* (addEventListener "enterFrame" async-parse-driver))
 
 (set! (. *psymacs* textChangeHook)
-      (fn [buffer e]
+      (fn [editor e]
 	(def *refresh-highlighting* true)))
 
 (set! (. *psymacs* tabAddedHook)
@@ -450,7 +459,7 @@
 
 ;; Setup key handlers
 
-(set-key-handler! (kb ENTER) [:ctrl] eval-buffer)
+(set-key-handler! (kb ENTER) [:ctrl] eval-editor)
 
 ;; Load saved data from local storage
 
