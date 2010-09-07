@@ -1,0 +1,114 @@
+(las3r.core/in-ns 'psymacs.parser)
+(las3r.core/refer 'las3r.core)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def #^{:private true}
+     parser-regex #"#(\"(?:\\?+.)*?\")[gismx]*|(\"(?:\\?+.)*?\")|([\(\[\{])|([\)\]\}])|(;[^\r]*)|([^\s\(\[\{\}\]\)\";,]+)|([\r\s,]+)"gms)
+
+(def #^{:private true}
+     basic-token-types [:regex :string :lbracket :rbracket :comment :other :whitespace])
+
+(defn- basic-parse
+  "Initial token parser, helper for the parse fn."
+  [s idx]
+  (set! (. parser-regex lastIndex) idx)
+  (let [m (. parser-regex (exec s))]
+    (when m
+      {:type (some identity (map (fn [x y] (and x y))
+                                 (rest m)
+                                 basic-token-types))
+       :string (first m)
+       :index idx
+       :next-index (. parser-regex lastIndex)})))
+
+(defn- parse
+  [s idx]
+  (let [token (basic-parse s idx)]
+    (when token
+      (if (= (token :type) :other) ;; handle numbers and keywords
+        (let [reader (. *runtime* lispReader) ;; use LispReader's number matching regexes
+              ts (token :string)]
+          (assoc token :type
+                 (cond (= (first ts) ":") :keyword
+                       (re-match (. reader intPat)   ts) :int
+                       (re-match (. reader floatPat) ts) :float
+                       (re-match (. reader ratioPat) ts) :ratio
+                       :else :other)))
+        token))))
+
+;; highlighting
+
+(def formats
+     {:other      (new flash.text.TextFormat nil nil 0x000000 false) ;; default token format
+      :whitespace (new flash.text.TextFormat nil nil 0xa0a0a0 true) ;; used on whitespace (and commas)
+      :regex      (new flash.text.TextFormat nil nil 0x00aa22 true)
+      :string     (new flash.text.TextFormat nil nil 0xaa8800 true)
+      :comment    (new flash.text.TextFormat nil nil 0xcc2200 true)
+      :lbracket   (new flash.text.TextFormat nil nil 0x005577 true)
+      :rbracket   (new flash.text.TextFormat nil nil 0x005577 true)
+      :keyword    (new flash.text.TextFormat nil nil 0x008888 true)
+      :int        (new flash.text.TextFormat nil nil 0x440088 true)
+      :float      (new flash.text.TextFormat nil nil 0x8800cc true)
+      :ratio      (new flash.text.TextFormat nil nil 0xcc00ff true)})
+
+;; textfield stuff
+
+(defn textfield-parser [tf]
+  {:textfield tf
+   :text (. tf text)
+   :parse-index 0
+   :tokens []})
+
+(defn content-changed? 
+  "Returns true if the textfield's content has been updated since the last call to parse-and-highlight-next!."
+  [tfp]
+  (not (= (tfp :text) (. (tfp :textfield) text))))
+
+(defn parse-and-highlight-next! 
+  "Returns a new parser state."
+  [tfp]
+  (let [tfp (if (content-changed? tfp)
+              (textfield-parser (tfp :textfield)) ;; TODO - reuse viable data
+              tfp)]
+    (if (tfp :done?)
+      tfp
+      (let [next-idx (tfp :parse-index)
+            token (parse (tfp :text) next-idx)]
+        (if token
+          (do
+            (. (tfp :textfield) (setTextFormat (formats (token :type))
+                                               (token :index)
+                                               next-idx))
+            (merge tfp
+                   {:parse-index (token :next-index)
+                    :tokens (conj (tfp :tokens) token)}))
+          (assoc tfp :done? true))))))
+
+
+;; testing
+
+(def tf nil)
+(def tfp nil)
+
+(defn test-tfp []
+  (def tf (new flash.text.TextField))
+  (def tfp (textfield-parser tf))
+  (set! (. tf width) 300)
+  (set! (. tf height) 300)
+  (set! (. tf x) 500)
+  (set! (. tf y) 100)
+  (set! (. tf background) true)
+  (set! (. tf backgroundColor) 0xeeeeee)
+  (set! (. tf multiline) true)
+  (set! (. tf type) "input")
+  (set! (. tf defaultTextFormat) (new flash.text.TextFormat "Courier New", 13, 0x000000))
+  
+  (. *stage* (addEventListener "enterFrame" 
+                               (fn [_] 
+                                 (def tfp (parse-and-highlight-next! tfp))
+                                 (psymacs/clear-mini-buffer!)
+                                 (prn "tfp:" tfp))))
+  (. *stage* (addChild tf)))
+
+(test-tfp)
