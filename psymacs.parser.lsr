@@ -37,7 +37,7 @@
                        :else :other)))
         token))))
 
-;; highlighting
+;; highlighting and textfield connectors
 
 (def formats
      {:other      (new flash.text.TextFormat nil nil 0x000000 false) ;; default token format
@@ -52,13 +52,14 @@
       :float      (new flash.text.TextFormat nil nil 0x8800cc true)
       :ratio      (new flash.text.TextFormat nil nil 0xcc00ff true)})
 
-;; textfield stuff
-
-(defn textfield-parser [tf]
-  {:textfield tf
-   :text (. tf text)
+(defn string-parser [s]
+  {:text s
    :parse-index 0
-   :tokens []})
+   :tokens []
+   :lbracket-indices '()})
+   
+(defn textfield-parser [tf]
+  (assoc (string-parser (. tf text)) :textfield tf))
 
 (defn content-changed? 
   "Returns true if the textfield's content has been updated since the last call to parse-and-highlight-next!."
@@ -71,19 +72,29 @@
   (let [tfp (if (content-changed? tfp)
               (textfield-parser (tfp :textfield)) ;; TODO - reuse viable data
               tfp)]
-    (if (tfp :done?)
+    (if (tfp :done)
       tfp
-      (let [next-idx (tfp :parse-index)
-            token (parse (tfp :text) next-idx)]
+      (let [token (parse (tfp :text) (tfp :parse-index))]
         (if token
-          (do
+          (let [next-idx (token :next-index)]
             (. (tfp :textfield) (setTextFormat (formats (token :type))
                                                (token :index)
                                                next-idx))
-            (merge tfp
-                   {:parse-index (token :next-index)
-                    :tokens (conj (tfp :tokens) token)}))
-          (assoc tfp :done? true))))))
+	    (merge tfp
+		   {:parse-index next-idx
+		    :tokens (conj (tfp :tokens) token)
+
+		    :lbracket-indices
+		    (cond (= (token :type) :lbracket)
+			  (cons (count (tfp :tokens)) (tfp :lbracket-indices))
+			  
+			  (= (token :type) :rbracket)
+			  (rest (tfp :lbracket-indices))
+
+			  :else
+			  (tfp :lbracket-indices))
+		    }))
+          (assoc tfp :done true))))))
 
 
 ;; testing
