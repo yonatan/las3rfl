@@ -133,8 +133,7 @@
 
 (defn highlight-last! [tfp]
   "Highlights the last parsed token."
-  (let [tfp (parse-next tfp)
-	token (last (tfp :tokens))]
+  (let [token (last (tfp :tokens))]
     (when token
       (. (tfp :textfield) (setTextFormat (formats (token :type))
 					 (token :index)
@@ -144,7 +143,8 @@
   "Returns a new parser state."
   [tfp]
     (let [tfp (parse-next (update-tfp tfp))]
-      (highlight-last! tfp)
+      (if (not (tfp :done))
+	(highlight-last! tfp))
       tfp))
 
 ;; testing
@@ -168,8 +168,8 @@
   (. *stage* (addEventListener "enterFrame" 
                                (fn [_] 
                                  (def tfp (parse-and-highlight-next! tfp))
-                                 (psymacs/clear-mini-buffer!)
-                                 (prn "tfp:" tfp))))
+                                 #_ (psymacs/clear-mini-buffer!)
+                                 #_ (prn "tfp:" tfp))))
   (. *stage* (addChild tf)))
 
 (test-tfp)
