@@ -1,3 +1,26 @@
+;; This is a parser/highlighter for las3r syntax. 
+
+;; Since paring a large string can be slow, the parser is designed to work on a token-by-token basis. The parse-next function takes a parser-state parses a single token, and returns an updated parser state (which contains a vector of all parsed tokens). It should be called several times per frame, to simulate a background thread.
+
+;; Parser structures (maps) come in two flavors, a string parser and a textfield parser. Textfield parsers are string parsers with a :textfield key linking them to a textfield object.
+
+;; A parser map contains these keys:
+;;   :text             - the string being parsed.
+;;   :parse-index      - index of the first unparsed char.
+;;   :tokens           - a vector of parsed tokens (more details below).
+;;   :lbracket-indices - a list of all *open* lbrackets for the current parse-index.
+;;   :bracket-pairs    - a vector of token indices pairs {:l int, :r int}, contains all the matching brackets found so far, ordered by the token index of the closing rbracket.
+;;   :textfield        - a textfield object (textfield-parsers only).
+;;   :done             - set to true when parser is finished.
+
+;; :lbracket-indices and :bracket-pairs exist to speed up paren-matching and context-sensitive help in the editor.
+
+;; A parsed token (also a map) looks like this:
+;;   :type       - token type (keyword).
+;;   :string     - the actual content of the token.
+;;   :index      - char index of the token in the parser's string.
+;;   :next-index - char index of the next token (might not exist, or be parsed yet).
+
 (las3r.core/in-ns 'psymacs.parser)
 (las3r.core/refer 'las3r.core)
 
@@ -56,7 +79,8 @@
   {:text s
    :parse-index 0
    :tokens []
-   :lbracket-indices '()})
+   :lbracket-indices '()
+   :bracket-pairs []})
    
 (defn textfield-parser [tf]
   (assoc (string-parser (. tf text)) :textfield tf))
@@ -66,36 +90,62 @@
   [tfp]
   (not (= (tfp :text) (. (tfp :textfield) text))))
 
+(defn update-tfp
+  "Returns an up-to-date parser (in case the textfield's content has changed)."
+  [tfp]
+  (if (content-changed? tfp)
+    (textfield-parser (tfp :textfield)) ;; TODO - reuse viable data
+    tfp))
+
+(defn parse-next [parser]
+  "Parses the next token, returns updated parser."
+  (if (parser :done)
+    parser
+    (let [token (parse (parser :text) (parser :parse-index))]
+      (if token
+	(merge parser
+	       {:parse-index 
+		(token :next-index)
+		
+		:tokens 
+		(conj (parser :tokens) (assoc token :prev-lbracket ;; save prev-labracket in token
+					      (first (parser :lbracket-indices))))
+
+		:lbracket-indices
+		(cond (= (token :type) :lbracket)
+		      (cons (count (parser :tokens)) (parser :lbracket-indices))
+		      
+		      (= (token :type) :rbracket)
+		      (rest (parser :lbracket-indices))
+
+		      :else
+		      (parser :lbracket-indices))
+
+		:bracket-pairs
+		(if (and (= (token :type) :rbracket) ;; if we're at an rbracket,
+			 (seq (parser :lbracket-indices))) ;; and an open lbracket exists -
+		  ;; insert their indices into the bracket-pairs vector
+		  (conj (parser :bracket-pairs) 
+			{:l (first (parser :lbracket-indices))
+			 :r (count (parser :tokens))})
+		  (parser :bracket-pairs))})
+	(assoc parser :done true)))))
+
+(defn highlight-last! [tfp]
+  "Highlights the last parsed token."
+  (let [tfp (parse-next tfp)
+	token (last (tfp :tokens))]
+    (when token
+      (. (tfp :textfield) (setTextFormat (formats (token :type))
+					 (token :index)
+					 (token :next-index))))))
+
 (defn parse-and-highlight-next! 
   "Returns a new parser state."
   [tfp]
-  (let [tfp (if (content-changed? tfp)
-              (textfield-parser (tfp :textfield)) ;; TODO - reuse viable data
-              tfp)]
-    (if (tfp :done)
-      tfp
-      (let [token (parse (tfp :text) (tfp :parse-index))]
-        (if token
-          (let [next-idx (token :next-index)]
-            (. (tfp :textfield) (setTextFormat (formats (token :type))
-                                               (token :index)
-                                               next-idx))
-	    (merge tfp
-		   {:parse-index next-idx
-		    :tokens (conj (tfp :tokens) token)
-
-		    :lbracket-indices
-		    (cond (= (token :type) :lbracket)
-			  (cons (count (tfp :tokens)) (tfp :lbracket-indices))
-			  
-			  (= (token :type) :rbracket)
-			  (rest (tfp :lbracket-indices))
-
-			  :else
-			  (tfp :lbracket-indices))
-		    }))
-          (assoc tfp :done true))))))
-
+    (let [tfp (parse-next (update-tfp tfp))]
+      (highlight-last! tfp)
+      tfp))
 
 ;; testing
 
