@@ -1,28 +1,73 @@
-;; This is a parser/highlighter for las3r syntax. 
+;; TODO: seperate files, compiler, etc...
 
-;; Since paring a large string can be slow, the parser is designed to work on a token-by-token basis. The parse-next function takes a parser-state parses a single token, and returns an updated parser state (which contains a vector of all parsed tokens). It should be called several times per frame, to simulate a background thread.
+(las3r.core/in-ns 'psymacs.utils)
+(las3r.core/refer 'las3r.core :exclude '(run-tests))
 
-;; Parser structures (maps) come in two flavors, a string parser and a textfield parser. Textfield parsers are string parsers with a :textfield key linking them to a textfield object.
+(def #^{:private true} log-div (. Math (log 2)))
+
+(defmacro #^{:private true} log2 [x] `(/ (. Math (log ~x)) log-div))
+
+(defn common-prefix-length [s1 s2]
+  (let [min-length (min (count s1) (count s2))]
+    (min (loop [step (. Math (pow 2 (. Math (floor (log2 min-length)))))
+		l 0]
+	   (if (< l min-length)
+	     (if (= (. s1 (substr 0 (+ l step))) (. s2 (substr 0 (+ l step))))
+	       (recur step (+ l step))
+	       (if (= step 1)
+		 l
+		 (recur (bit-shr step 1) l)))
+	     l))
+	 min-length)))
+
+(defn run-tests []
+  ;; common-prefix-length tests
+  (assert-true (= (common-prefix-length "Hello World", "Hello World") 11))
+  (assert-true (= (common-prefix-length "Hello World", "Hello! World") 5))
+  (assert-true (= (common-prefix-length "Hello World", "HelPIYOrld") 3))
+  (assert-true (= (common-prefix-length "a", "aB") 1))
+  (assert-true (= (common-prefix-length "aBC", "aBCD") 3))
+  (assert-true (= (common-prefix-length "Ba", "a") 0))
+  (assert-true (= (common-prefix-length "aBC", "DaBC") 0))
+  (assert-true (= (common-prefix-length "aXbXc", "aXc") 2))
+  (assert-true (= (common-prefix-length "aaaXccc", "aaaXbbbXccc") 4)))
+
+;; This is a parser/highlighter for las3r syntax.
+
+;; Since paring a large string can be slow, the parser is designed to
+;; work on a token-by-token basis. The parse-next function takes a
+;; parser-state, parses a single token, and returns an updated parser
+;; state (which contains a vector of all parsed tokens). It should be
+;; called several times per frame, to simulate a background thread.
+
+;; Parser structures (maps) come in two flavors, a string parser and a
+;; textfield parser. Textfield parsers are string parsers with a
+;; :textfield key linking them to a textfield object.
 
 ;; A parser map contains these keys:
 ;;   :text             - the string being parsed.
 ;;   :parse-index      - index of the first unparsed char.
 ;;   :tokens           - a vector of parsed tokens (more details below).
 ;;   :lbracket-indices - a list of all *open* lbrackets for the current parse-index.
-;;   :bracket-pairs    - a vector of token indices pairs {:l int, :r int}, contains all the matching brackets found so far, ordered by the token index of the closing rbracket.
+;;   :bracket-pairs    - a vector of token indices pairs {:l int, :r int}, 
+;;                       contains all the matching brackets found so far, 
+;;                       ordered by the token index of the closing rbracket.
 ;;   :textfield        - a textfield object (textfield-parsers only).
 ;;   :done             - set to true when parser is finished.
 
-;; :lbracket-indices and :bracket-pairs exist to speed up paren-matching and context-sensitive help in the editor.
+;; :bracket-pairs exists to speed up paren-matching and
+;; context-sensitive help in the editor.
 
 ;; A parsed token (also a map) looks like this:
-;;   :type       - token type (keyword).
-;;   :string     - the actual content of the token.
-;;   :index      - char index of the token in the parser's string.
-;;   :next-index - char index of the next token (might not exist, or be parsed yet).
+;;   :type          - token type (keyword).
+;;   :string        - the actual content of the token.
+;;   :index         - char index of the token in the parser's string.
+;;   :next-index    - char index of the next token (might not exist, or be parsed yet).
+;;   :prev-lbracket - token index of the previous *open* lbracket.
 
 (las3r.core/in-ns 'psymacs.parser)
-(las3r.core/refer 'las3r.core)
+(las3r.core/refer 'psymacs.utils :exclude '(run-tests))
+(las3r.core/refer 'las3r.core :exclude '(run-tests))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
