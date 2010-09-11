@@ -97,7 +97,7 @@
 ;; big hairy parsing regex
 (def #^{:private true}
      parser-regex #"#(\"(?:\\?+.)*?\")[gismx]*|([^\s\(\[\{\}\]\)\";,]+)|([\r\s,]+)|([\(\[\{])|([\)\]\}])|(\"(?:\\?+.)*?\")|(;[^\r]*)|\\(newline|tab|space|formfeed|return|u[0-9]+|[0-6]+|.)|(#?\".*)"gms)
-;     parser-regex #"#(\"(?:\\?+.)*?\")[gismx]*|(\"(?:\\?+.)*?\")|(\\newline|\\tab|\\space|\\formfeed|\\return|\\u[0-9]+|\\[0-6]+|\\.)|([\(\[\{])|([\)\]\}])|(;[^\r]*)|([^\s\(\[\{\}\]\)\";,]+)|([\r\s,]+)|(#?\".*)"gms)
+;;     parser-regex #"#(\"(?:\\?+.)*?\")[gismx]*|(\"(?:\\?+.)*?\")|(\\newline|\\tab|\\space|\\formfeed|\\return|\\u[0-9]+|\\[0-6]+|\\.)|([\(\[\{])|([\)\]\}])|(;[^\r]*)|([^\s\(\[\{\}\]\)\";,]+)|([\r\s,]+)|(#?\".*)"gms)
 
 ;; these map to the big hairy regex matches
 (def #^{:private true}
@@ -161,7 +161,7 @@
    :tokens []
    :lbracket-indices '()
    :bracket-pairs []})
-   
+
 (defn textfield-parser [tf]
   (assoc (string-parser (. tf text)) :textfield tf))
 
@@ -192,20 +192,22 @@
   "Returns an up-to-date parser (in case the textfield's content has changed)."
   [tfp]
   (if (content-changed? tfp)
-    (let [cpl (common-prefix-length (. (tfp :textfield) text) (tfp :text))
-          last-good-token-idx (dec (char->token-index tfp cpl))]
-      #_ (psymacs/clear-mini-buffer!)
-      #_ (prn "changed - cpl, token-idx:" cpl last-good-token-idx)
-      #_ (prn "old tfp:" tfp)
-      (if (and last-good-token-idx
-               (> last-good-token-idx 0))
-        (merge tfp
-               {:tokens (subvec (tfp :tokens) 0 last-good-token-idx)
-                :bracket-pairs (update-bracket-pairs (tfp :bracket-pairs) last-good-token-idx)
-                ;; TODO: update lbracket-indices
-                :text (. (tfp :textfield) text)
-                :done false})
-        (textfield-parser (tfp :textfield))))
+    (let [cpl (common-prefix-length (. (tfp :textfield) text) (tfp :text))]
+      (if (> cpl (parse-index tfp))
+        tfp
+        (let [last-good-token-idx (dec (char->token-index tfp cpl))]
+          #_ (psymacs/clear-mini-buffer!)
+          #_ (prn "changed - cpl, token-idx:" cpl last-good-token-idx)
+          #_ (prn "old tfp:" tfp)
+          (if (and last-good-token-idx
+                   (> last-good-token-idx 0))
+            (merge tfp
+                   {:tokens (subvec (tfp :tokens) 0 last-good-token-idx)
+                    :bracket-pairs (update-bracket-pairs (tfp :bracket-pairs) last-good-token-idx)
+                    ;; TODO: update lbracket-indices
+                    :text (. (tfp :textfield) text)
+                    :done false})
+            (textfield-parser (tfp :textfield))))))
     tfp))
 
 (defn parse-next [parser]
@@ -258,10 +260,10 @@
 (defn parse-and-highlight-next! 
   "Returns a new parser state."
   [tfp]
-    (let [tfp (parse-next (update-tfp tfp))]
-      (if (not (tfp :done))
-        (highlight-last! tfp))
-      tfp))
+  (let [tfp (parse-next (update-tfp tfp))]
+    (if (not (tfp :done))
+      (highlight-last! tfp))
+    tfp))
 
 ;; testing
 
@@ -289,6 +291,6 @@
                                  #_ (prn "tfp:" tfp))))
   (. *stage* (addChild tf)))
 
-;(test-tfp)
+;;(test-tfp)
 
-;(time (parse-all (string-parser (psymacs/editor-string))))
+;;(time (parse-all (string-parser (psymacs/editor-string))))
