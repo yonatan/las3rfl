@@ -6,18 +6,24 @@
 (def #^{:private true} log-div (. Math (log 2)))
 (defmacro #^{:private true} log2 [x] `(/ (. Math (log ~x)) log-div))
 
+(defn vlast 
+  "Returns the last element of a vector. Fast."
+  [v]
+  (when (seq v)
+    (v (dec (count v)))))
+
 (defn common-prefix-length [s1 s2]
   (let [min-length (min (count s1) (count s2))]
     (min (loop [step (. Math (pow 2 (. Math (floor (log2 min-length)))))
-		l 0]
-	   (if (< l min-length)
-	     (if (= (. s1 (substr 0 (+ l step))) (. s2 (substr 0 (+ l step))))
-	       (recur step (+ l step))
-	       (if (= step 1)
-		 l
-		 (recur (bit-shr step 1) l)))
-	     l))
-	 min-length)))
+                l 0]
+           (if (< l min-length)
+             (if (= (. s1 (substr 0 (+ l step))) (. s2 (substr 0 (+ l step))))
+               (recur step (+ l step))
+               (if (= step 1)
+                 l
+                 (recur (bit-shr step 1) l)))
+             l))
+         min-length)))
 
 (defn binary-search
   "Takes data (should be a sorted vector), and an under-value? predicate function. Returns either the index of the match (or whatever is above where the match would be), or nil if given an empty vector."
@@ -90,11 +96,12 @@
 
 ;; big hairy parsing regex
 (def #^{:private true}
-     parser-regex #"#(\"(?:\\?+.)*?\")[gismx]*|(\"(?:\\?+.)*?\")|(\\newline|\\tab|\\space|\\formfeed|\\return|\\u[0-9]+|\\[0-6]+|\\.)|([\(\[\{])|([\)\]\}])|(;[^\r]*)|([^\s\(\[\{\}\]\)\";,]+)|([\r\s,]+)|(#?\".*)"gms)
+     parser-regex #"#(\"(?:\\?+.)*?\")[gismx]*|([^\s\(\[\{\}\]\)\";,]+)|([\r\s,]+)|([\(\[\{])|([\)\]\}])|(\"(?:\\?+.)*?\")|(;[^\r]*)|\\(newline|tab|space|formfeed|return|u[0-9]+|[0-6]+|.)|(#?\".*)"gms)
+;     parser-regex #"#(\"(?:\\?+.)*?\")[gismx]*|(\"(?:\\?+.)*?\")|(\\newline|\\tab|\\space|\\formfeed|\\return|\\u[0-9]+|\\[0-6]+|\\.)|([\(\[\{])|([\)\]\}])|(;[^\r]*)|([^\s\(\[\{\}\]\)\";,]+)|([\r\s,]+)|(#?\".*)"gms)
 
 ;; these map to the big hairy regex matches
 (def #^{:private true}
-     basic-token-types [:regex :string :char :lbracket :rbracket :comment :other :whitespace :unmatched])
+     basic-token-types [:regex :other :whitespace :lbracket :rbracket :string :comment :char :unmatched])
 
 (defn- basic-parse
   "Initial token parser, helper for the parse fn."
@@ -102,9 +109,10 @@
   (set! (. parser-regex lastIndex) idx)
   (let [m (. parser-regex (exec s))]
     (when m
-      {:type (some identity (map (fn [x y] (and x y))
-                                 (rest m)
-                                 basic-token-types))
+      {:type (loop [m (rest m) t basic-token-types]
+               (if (first m) 
+                 (first t) 
+                 (recur (rest m) (rest t))))
        :string (first m)
        :index idx
        :next-index (. parser-regex lastIndex)})))
@@ -113,22 +121,22 @@
   [s idx]
   (let [token (basic-parse s idx)]
     (when token
-      (if (= (token :type) :other) ;; handle numbers, keywords and open strings or regexes
+      (if (= (token :type) :other) ;; handle numbers and keywords
         (let [reader (. *runtime* lispReader) ;; use LispReader's number matching regexes
               ts (token :string)]
-	  (assoc token :type
-		 (cond (= (first ts) ":") :keyword
-		       (re-match (. reader intPat)   ts) :int
-		       (re-match (. reader floatPat) ts) :float
-		       (re-match (. reader ratioPat) ts) :ratio
-		       :else :other)))
-	token))))
+          (assoc token :type
+                 (cond (= (first ts) ":") :keyword
+                       (re-match (. reader intPat)   ts) :int
+                       (re-match (. reader floatPat) ts) :float
+                       (re-match (. reader ratioPat) ts) :ratio
+                       :else :other)))
+        token))))
 
 (defn- parse-index
   "Returns the position of the first unparsed char."
   [parser]
   (if (seq (parser :tokens))
-    ((last (parser :tokens)) :next-index)
+    ((vlast (parser :tokens)) :next-index)
     0))
 
 ;; highlighting and textfield connectors
@@ -161,13 +169,13 @@
   "Returns the token index of the token at char-idx, or nil. "
   [parser char-idx]
   (let [token-idx (binary-search (parser :tokens)
-				 (fn [t]
-				   (<= (t :next-index) char-idx)))]
+                                 (fn [t]
+                                   (<= (t :next-index) char-idx)))]
     (when token-idx ;; might be nil
       (if (>= char-idx (get-in parser [:tokens token-idx :next-index])) ;; if we're outside the token's range
-    	(and (parser :done) ;; char might not be parsed yet in which case we return nil,
-    	     token-idx) ;; or we could be in an unparsable end-of-string section, so we return the last token's idx.
-    	token-idx))))
+        (and (parser :done) ;; char might not be parsed yet in which case we return nil,
+             token-idx) ;; or we could be in an unparsable end-of-string section, so we return the last token's idx.
+        token-idx))))
 
 (defn content-changed? 
   "Returns true if the textfield's content has been updated since the last call to parse-and-highlight-next!."
@@ -185,19 +193,19 @@
   [tfp]
   (if (content-changed? tfp)
     (let [cpl (common-prefix-length (. (tfp :textfield) text) (tfp :text))
-	  last-good-token-idx (dec (char->token-index tfp cpl))]
+          last-good-token-idx (dec (char->token-index tfp cpl))]
       #_ (psymacs/clear-mini-buffer!)
       #_ (prn "changed - cpl, token-idx:" cpl last-good-token-idx)
       #_ (prn "old tfp:" tfp)
       (if (and last-good-token-idx
-	       (> last-good-token-idx 0))
-	(merge tfp
-	       {:tokens (subvec (tfp :tokens) 0 last-good-token-idx)
-		:bracket-pairs (update-bracket-pairs (tfp :bracket-pairs) last-good-token-idx)
-		;; TODO: update lbracket-indices
-		:text (. (tfp :textfield) text)
-		:done false})
-	(textfield-parser (tfp :textfield))))
+               (> last-good-token-idx 0))
+        (merge tfp
+               {:tokens (subvec (tfp :tokens) 0 last-good-token-idx)
+                :bracket-pairs (update-bracket-pairs (tfp :bracket-pairs) last-good-token-idx)
+                ;; TODO: update lbracket-indices
+                :text (. (tfp :textfield) text)
+                :done false})
+        (textfield-parser (tfp :textfield))))
     tfp))
 
 (defn parse-next [parser]
@@ -206,30 +214,33 @@
     parser
     (let [token (parse (parser :text) (parse-index parser))]
       (if token
-	(merge parser
-	       {:tokens 
-		(conj (parser :tokens) (assoc token :prev-lbracket ;; save prev-labracket in token
-					      (first (parser :lbracket-indices))))
+        (let [tokens (parser :tokens)
+              type (token :type)
+              lb-indices (parser :lbracket-indices)]
+          (assoc parser
+            :tokens 
+            (conj tokens (assoc token :prev-lbracket ;; save prev-labracket in token
+                                (first lb-indices)))
 
-		:lbracket-indices
-		(cond (= (token :type) :lbracket)
-		      (cons (count (parser :tokens)) (parser :lbracket-indices))
-		      
-		      (= (token :type) :rbracket)
-		      (rest (parser :lbracket-indices))
+            :lbracket-indices
+            (cond (= type :lbracket)
+                  (cons (count tokens) lb-indices)
+                  
+                  (= type :rbracket)
+                  (rest lb-indices)
 
-		      :else
-		      (parser :lbracket-indices))
+                  :else
+                  lb-indices)
 
-		:bracket-pairs
-		(if (and (= (token :type) :rbracket) ;; if we're at an rbracket,
-			 (seq (parser :lbracket-indices))) ;; and an open lbracket exists -
-		  ;; insert their indices into the bracket-pairs vector
-		  (conj (parser :bracket-pairs) 
-			{:l (first (parser :lbracket-indices))
-			 :r (count (parser :tokens))})
-		  (parser :bracket-pairs))})
-	(assoc parser :done true)))))
+            :bracket-pairs
+            (if (and (= type :rbracket) ;; if we're at an rbracket,
+                     (seq lb-indices)) ;; and an open lbracket exists -
+              ;; insert their indices into the bracket-pairs vector
+              (conj (parser :bracket-pairs) 
+                    {:l (first lb-indices)
+                     :r (count tokens)})
+              (parser :bracket-pairs))))
+        (assoc parser :done true)))))
 
 (defn parse-all [parser]
   (if (parser :done)
@@ -238,18 +249,18 @@
 
 (defn highlight-last! [tfp]
   "Highlights the last parsed token."
-  (let [token (last (tfp :tokens))]
+  (let [token (vlast (tfp :tokens))]
     (when token
       (. (tfp :textfield) (setTextFormat (formats (token :type))
-					 (token :index)
-					 (token :next-index))))))
+                                         (token :index)
+                                         (token :next-index))))))
 
 (defn parse-and-highlight-next! 
   "Returns a new parser state."
   [tfp]
     (let [tfp (parse-next (update-tfp tfp))]
       (if (not (tfp :done))
-	(highlight-last! tfp))
+        (highlight-last! tfp))
       tfp))
 
 ;; testing
@@ -273,9 +284,11 @@
   (. *stage* (addEventListener "enterFrame" 
                                (fn [_] 
                                  (def tfp (parse-and-highlight-next! tfp))
-                                 (psymacs/clear-mini-buffer!)
-				 #_ (prn (char->token-index tfp (. tf caretIndex)))
-                                 (prn "tfp:" tfp))))
+                                 #_ (psymacs/clear-mini-buffer!)
+                                 #_ (prn (char->token-index tfp (. tf caretIndex)))
+                                 #_ (prn "tfp:" tfp))))
   (. *stage* (addChild tf)))
 
-(test-tfp)
+;(test-tfp)
+
+;(time (parse-all (string-parser (psymacs/editor-string))))
