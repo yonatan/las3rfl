@@ -13,6 +13,10 @@ package {
     import net.hires.debug.Stats;
 	import com.las3r.io.OutputStream;
 	import com.las3r.runtime.RT;
+
+	import flexlib.controls.textClasses.StringBoundaries;
+
+	StringBoundaries;
     
     [SWF(width=800,height=600,backgroundColor=0xFFFFFF,frameRate=30)]
     public class Psymacs extends Sprite {

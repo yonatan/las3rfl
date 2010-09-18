@@ -183,20 +183,12 @@
   [tfp]
   (not (= (tfp :text) (. (tfp :textfield) text))))
 
-(defn- update-bracket-pairs [bps cutoff-token-idx]
-  (prn 'update-bracket-pairs bps cutoff-token-idx)
-  (let [cutoff (binary-search bps (fn [p] (< (p :r) cutoff-token-idx)))]
-    (prn 'cutoff cutoff)
-    (if (pos? cutoff)
-      (subvec bps 0 cutoff)
-      [])))
-
 (defn update-tfp
   "Returns an up-to-date parser (in case the textfield's content has changed)."
   [tfp]
   (if (content-changed? tfp)
-    (textfield-parser (tfp :textfield)) ;; debug - bypass
-    #_
+    ;; (textfield-parser (tfp :textfield)) ;; debug - bypass
+    ;; #_
     (let [cpl (common-prefix-length (. (tfp :textfield) text) (tfp :text))]
       (if (> cpl (parse-index tfp))
         tfp
@@ -205,8 +197,6 @@
                    (> last-good-token-idx 0))
             (merge tfp
                    {:tokens (subvec (tfp :tokens) 0 last-good-token-idx)
-                    :bracket-pairs (update-bracket-pairs (tfp :bracket-pairs) last-good-token-idx)
-                    ;; TODO: update lbracket-indices faster?
                     :text (. (tfp :textfield) text)
                     :done false})
             (textfield-parser (tfp :textfield))))))
@@ -305,33 +295,34 @@
   [tf]
   (let [cont (new flash.display.Sprite)]
     (. cont (addChild tf))
-    (set! (. cont opaqueBackground) (. tf opaqueBackground))
-    (set! (. tf opaqueBackground) nil)
+    (set! (. cont opaqueBackground) 0xeeeeee)
     {:textfield tf
      :container cont
      :parser (textfield-parser tf)}))
 
 (defn highlight-current-sexp! [buffer]
-  (let [pos (. (buffer :textfield) caretIndex)
-	token-idx (char->token-index (buffer :parser) pos)
-	bracket-pairs (-> buffer :parser :bracket-pairs) 
-	bp-idx (binary-search (-> buffer :parser :bracket-pairs) (fn [bp] (< (bp :r) token-idx)))
-	bp (and bp-idx (bracket-pairs bp-idx))
-	g (. (buffer :container) graphics)]
-    (. g (clear))
-    
-    (when bp
-      (let [l (get-in buffer [:parser :tokens (bp :l) :index])
-	    r (get-in buffer [:parser :tokens (bp :r) :index])]
-	(when (<= l pos r)
-	  (let [tf (buffer :textfield)
-		do-char! (fn [pos]
-			   (let [rect (. tf (getCharBoundaries pos))]
-			     (. g (beginFill 0x888888))
-			     (. g (drawRect (. rect x) (. rect y) (. rect width) (. rect height)))
-			     (. g (endFill))))]
-	    (do-char! l)
-	    (do-char! r)))))))
+  (let [pos (. (buffer :textfield) caretIndex)]
+    (when-let token-idx (char->token-index (buffer :parser) pos)
+      (let [tokens ((buffer :parser) :tokens)
+	    token (tokens token-idx)
+	    bracket-pairs (token :bracket-pairs)
+	    bp-idx (binary-search bracket-pairs (fn [bp] (< (bp :r) token-idx)))
+	    bp (and bp-idx (bracket-pairs bp-idx))
+	    g (. (buffer :container) graphics)]
+	(. g (clear))
+	(when bp
+	  (let [l ((tokens (bp :l)) :index)
+		r ((tokens (bp :r)) :index)]
+	    (when (<= l pos r)
+	      (let [tf (buffer :textfield)
+		    do-char! (fn [pos]
+			       (let [rect (. tf (getCharBoundaries pos))]
+				 (prn rect)
+				 (. g (beginFill 0xcccccc))
+				 (. g (drawRect (. rect x) (. rect y) (. rect width) (. rect height)))
+				 (. g (endFill))))]
+		(do-char! l)
+		(do-char! r)))))))))
 
 ;; (defn event->keystroke [e]
 ;;   "Converts a KEY_DOWN event to a {:code ... :modifiers ...} map."
@@ -355,11 +346,11 @@
 
 (defn run-tests []
   (def tf (new flash.text.TextField))
-  (set! (. tf background) true)
-  (set! (. tf backgroundColor) 0xeeeeee)
+  ;; (set! (. tf background) true)
+  ;; (set! (. tf backgroundColor) 0xeeeeee)
   (set! (. tf multiline) true)
   (set! (. tf type) "input")
-  (set! (. tf defaultTextFormat) (new flash.text.TextFormat "Courier New", 13, 0x000000))
+  (set! (. tf defaultTextFormat) (new flash.text.TextFormat "Courier New", 8, 0x000000))
 
   (def buff (attach-to-textfield tf))
 
@@ -370,12 +361,12 @@
   
   (. *stage* (addEventListener "enterFrame" 
                                (fn [_] 
-                                 (psymacs/clear-mini-buffer!)
+                                 ;(psymacs/clear-mini-buffer!)
                                  (def buff (assoc buff :parser (parse-and-highlight-next! (buff :parser))))
-				 ;; (try 
-				 ;;  (highlight-current-sexp! buff)
-				 ;;  (catch Error e (prn e)))
-				 (prn 'buff buff)
+				 ;(try 
+				  (highlight-current-sexp! buff)
+				  ;(catch Error e (prn (. e (getStackTrace)))))
+				 ;(prn 'buff buff)
 
                                  #_ (prn (char->token-index tfp (. tf caretIndex)))
                                  #_ (prn "tfp:" tfp))))
