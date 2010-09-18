@@ -26,7 +26,7 @@
          min-length)))
 
 (defn binary-search
-  "Takes data (should be a sorted vector), and an under-value? predicate function. Returns either the index of the match (or whatever is above where the match would be), or nil if given an empty vector."
+  "Takes data (should be a sorted vector), and an under-value? predicate function. Returns the index of the match or nil."
   [data under-value?]
   (if (seq data) ;; skip if vector is empty
     (loop [lo 0
@@ -36,7 +36,7 @@
           (if (under-value? (nth data mid))
             (recur (inc mid) hi)
             (recur lo mid)))
-        lo))))
+        (and (not (under-value? (nth data lo))) lo)))))
 
 (defn run-tests []
   ;; common-prefix-length tests
@@ -65,22 +65,21 @@
 ;; A parser map contains these keys:
 ;;   :text             - the string being parsed.
 ;;   :tokens           - a vector of parsed tokens (more details below).
-;;   :lbracket-indices - a list of all *open* lbrackets for the current parse-index.
-;;   :bracket-pairs    - a vector of token indices pairs {:l int, :r int}, 
-;;                       contains all the matching brackets found so far, 
-;;                       ordered by the token index of the closing rbracket.
 ;;   :textfield        - a textfield object (textfield-parsers only).
 ;;   :done             - set to true when parser is finished.
-
-;; :bracket-pairs exists to speed up paren-matching and
-;; context-sensitive help in the editor.
 
 ;; A parsed token (also a map) looks like this:
 ;;   :type          - token type (keyword).
 ;;   :string        - the actual content of the token.
 ;;   :index         - char index of the token in the parser's string.
+;;!TODO!   :open-lbrackets - a list of all *open* lbrackets for the current parse-index.
+;;!TODO!   :bracket-pairs  - a vector of token indices pairs {:l int, :r int}, 
+;;                    contains all the matching brackets found so far, 
+;;                    ordered by the token index of the closing rbracket.
 ;;   :next-index    - char index of the next token (might not exist, or be parsed yet).
-;;   :prev-lbracket - token index of the previous *open* lbracket.
+
+;; :bracket-pairs exists to speed up paren-matching and
+;; context-sensitive help in the editor.
 
 ;; In order to fake being fast, when a textfield is changed, the
 ;; parser will skip the already parsed tokens and start at the changed
@@ -97,7 +96,6 @@
 ;; big hairy parsing regex
 (def #^{:private true}
      parser-regex #"#(\"(?:\\?+.)*?\")[gismx]*|([^\s\(\[\{\}\]\)\";,]+)|([\r\s,]+)|([\(\[\{])|([\)\]\}])|(\"(?:\\?+.)*?\")|(;[^\r]*)|\\(newline|tab|space|formfeed|return|u[0-9]+|[0-6]+|.)|(#?\".*)"gms)
-;;     parser-regex #"#(\"(?:\\?+.)*?\")[gismx]*|(\"(?:\\?+.)*?\")|(\\newline|\\tab|\\space|\\formfeed|\\return|\\u[0-9]+|\\[0-6]+|\\.)|([\(\[\{])|([\)\]\}])|(;[^\r]*)|([^\s\(\[\{\}\]\)\";,]+)|([\r\s,]+)|(#?\".*)"gms)
 
 ;; these map to the big hairy regex matches
 (def #^{:private true}
@@ -150,7 +148,7 @@
       :char        (new flash.text.TextFormat nil nil 0xccaa44 true)
       :comment     (new flash.text.TextFormat nil nil 0xcc2200 true)
       :lbracket    (new flash.text.TextFormat nil nil 0x005577 true)
-      :rbracket    (new flash.text.TextFormat nil nil 0x005577 true)
+      :rbracket    (new flash.text.TextFormat nil nil 0xff5577 true)
       :keyword     (new flash.text.TextFormat nil nil 0x008888 true)
       :int         (new flash.text.TextFormat nil nil 0x440088 true)
       :float       (new flash.text.TextFormat nil nil 0x8800cc true)
@@ -158,9 +156,12 @@
 
 (defn string-parser [s]
   {:text s
-   :tokens []
-   :lbracket-indices '()
-   :bracket-pairs []})
+   :tokens []})
+
+(defn last-token 
+  "Takes parser, returns the last parsed token."
+  [p]
+  (vlast (p :tokens)))
 
 (defn textfield-parser [tf]
   (assoc (string-parser (. tf text)) :textfield tf))
@@ -183,8 +184,10 @@
   (not (= (tfp :text) (. (tfp :textfield) text))))
 
 (defn- update-bracket-pairs [bps cutoff-token-idx]
+  (prn 'update-bracket-pairs bps cutoff-token-idx)
   (let [cutoff (binary-search bps (fn [p] (< (p :r) cutoff-token-idx)))]
-    (if cutoff
+    (prn 'cutoff cutoff)
+    (if (pos? cutoff)
       (subvec bps 0 cutoff)
       [])))
 
@@ -192,19 +195,18 @@
   "Returns an up-to-date parser (in case the textfield's content has changed)."
   [tfp]
   (if (content-changed? tfp)
+    (textfield-parser (tfp :textfield)) ;; debug - bypass
+    #_
     (let [cpl (common-prefix-length (. (tfp :textfield) text) (tfp :text))]
       (if (> cpl (parse-index tfp))
         tfp
         (let [last-good-token-idx (dec (char->token-index tfp cpl))]
-          #_ (psymacs/clear-mini-buffer!)
-          #_ (prn "changed - cpl, token-idx:" cpl last-good-token-idx)
-          #_ (prn "old tfp:" tfp)
           (if (and last-good-token-idx
                    (> last-good-token-idx 0))
             (merge tfp
                    {:tokens (subvec (tfp :tokens) 0 last-good-token-idx)
                     :bracket-pairs (update-bracket-pairs (tfp :bracket-pairs) last-good-token-idx)
-                    ;; TODO: update lbracket-indices
+                    ;; TODO: update lbracket-indices faster?
                     :text (. (tfp :textfield) text)
                     :done false})
             (textfield-parser (tfp :textfield))))))
@@ -214,35 +216,34 @@
   "Parses the next token, returns updated parser."
   (if (parser :done)
     parser
-    (let [token (parse (parser :text) (parse-index parser))]
-      (if token
-        (let [tokens (parser :tokens)
-              type (token :type)
-              lb-indices (parser :lbracket-indices)]
-          (assoc parser
-            :tokens 
-            (conj tokens (assoc token :prev-lbracket ;; save prev-labracket in token
-                                (first lb-indices)))
+    (if-let token (parse (parser :text) (parse-index parser)) ;; get next token
+      (let [type (token :type)
+	    tokens (parser :tokens)
+	    cnt (count tokens)
+	    prev (vlast tokens)
+	    
+	    [p-type p-olbs p-bps] 
+	    (if (seq prev)
+	      [(prev :type) (prev :open-lbrackets) (prev :bracket-pairs)]
+	      [nil '() []])
 
-            :lbracket-indices
-            (cond (= type :lbracket)
-                  (cons (count tokens) lb-indices)
-                  
-                  (= type :rbracket)
-                  (rest lb-indices)
+	    ;; new open-lbrackets list
+	    olbs (cond (= p-type :lbracket)
+		       (cons (dec cnt) p-olbs)
+		       
+		       (= p-type :rbracket)
+		       (rest p-olbs)
+		       
+		       :else
+		       p-olbs)
+	    ;; new bracket-pairs vector
+	    bps (if (and (= type :rbracket) (seq olbs))
+		  (conj p-bps {:l (first olbs) :r cnt})
+		  p-bps)
 
-                  :else
-                  lb-indices)
-
-            :bracket-pairs
-            (if (and (= type :rbracket) ;; if we're at an rbracket,
-                     (seq lb-indices)) ;; and an open lbracket exists -
-              ;; insert their indices into the bracket-pairs vector
-              (conj (parser :bracket-pairs) 
-                    {:l (first lb-indices)
-                     :r (count tokens)})
-              (parser :bracket-pairs))))
-        (assoc parser :done true)))))
+	    token (assoc token :open-lbrackets olbs :bracket-pairs bps)]
+	    (assoc parser :tokens (conj tokens token)))
+      (assoc parser :done true))))
 
 (defn parse-all [parser]
   (if (parser :done)
@@ -267,30 +268,115 @@
 
 ;; testing
 
-(def tf nil)
-(def tfp nil)
+;; (defn run-tests []
+;;   (let [tf (new flash.text.TextField)
+;; 	tfp (textfield-parser tf)]
 
-(defn test-tfp []
+;;     (set! (. tf width) 300)
+;;     (set! (. tf height) 300)
+;;     (set! (. tf x) 500)
+;;     (set! (. tf y) 100)
+;;     (set! (. tf background) true)
+;;     (set! (. tf backgroundColor) 0xeeeeee)
+;;     (set! (. tf multiline) true)
+;;     (set! (. tf type) "input")
+;;     (set! (. tf defaultTextFormat) (new flash.text.TextFormat "Courier New", 13, 0x000000))
+    
+;;     (. *stage* (addEventListener "enterFrame" 
+;; 				 (fn [_] 
+;; 				   (def tfp (parse-and-highlight-next! tfp))
+;; 				   #_ (psymacs/clear-mini-buffer!)
+;; 				   #_ (prn (char->token-index tfp (. tf caretIndex)))
+;; 				   #_ (prn "tfp:" tfp))))
+;;     (. *stage* (addChild tf))))
+
+;;(time (parse-all (string-parser (psymacs/editor-string))))
+
+
+(las3r.core/in-ns 'psymacs.main)
+(las3r.core/refer 'las3r.core :exclude '(run-tests))
+(las3r.core/refer 'psymacs.parser :exclude '(run-tests))
+(las3r.core/refer 'psymacs.utils :exclude '(run-tests))
+
+(def *buffers* #{})
+
+(defn attach-to-textfield 
+  "Returns a psymacs buffer."
+  [tf]
+  (let [cont (new flash.display.Sprite)]
+    (. cont (addChild tf))
+    (set! (. cont opaqueBackground) (. tf opaqueBackground))
+    (set! (. tf opaqueBackground) nil)
+    {:textfield tf
+     :container cont
+     :parser (textfield-parser tf)}))
+
+(defn highlight-current-sexp! [buffer]
+  (let [pos (. (buffer :textfield) caretIndex)
+	token-idx (char->token-index (buffer :parser) pos)
+	bracket-pairs (-> buffer :parser :bracket-pairs) 
+	bp-idx (binary-search (-> buffer :parser :bracket-pairs) (fn [bp] (< (bp :r) token-idx)))
+	bp (and bp-idx (bracket-pairs bp-idx))
+	g (. (buffer :container) graphics)]
+    (. g (clear))
+    
+    (when bp
+      (let [l (get-in buffer [:parser :tokens (bp :l) :index])
+	    r (get-in buffer [:parser :tokens (bp :r) :index])]
+	(when (<= l pos r)
+	  (let [tf (buffer :textfield)
+		do-char! (fn [pos]
+			   (let [rect (. tf (getCharBoundaries pos))]
+			     (. g (beginFill 0x888888))
+			     (. g (drawRect (. rect x) (. rect y) (. rect width) (. rect height)))
+			     (. g (endFill))))]
+	    (do-char! l)
+	    (do-char! r)))))))
+
+;; (defn event->keystroke [e]
+;;   "Converts a KEY_DOWN event to a {:code ... :modifiers ...} map."
+;;   (let [modifiers #{}
+;; 	modifiers (if (. e ctrlKey) (conj modifiers :ctrl) modifiers)
+;; 	modifiers (if (. e altKey) (conj modifiers :alt) modifiers)
+;; 	modifiers (if (. e shiftKey) (conj modifiers :shift) modifiers)]
+;;     {:code (. e keyCode) :modifiers modifiers}))
+
+;; (defn key-down-handler [editor event]
+;;   (let [cmd (*kb-map* (event->keystroke event))]
+;;     (if cmd
+;;       (do
+;;         (set! (. editor trackChanges) false)
+;;         (cmd)
+;;         (set! (. editor trackChanges) true)
+;;         (. editor (dispatchChangeEvent)))
+;;       (def *print-doc* true))))
+
+(def buff nil)
+
+(defn run-tests []
   (def tf (new flash.text.TextField))
-  (def tfp (textfield-parser tf))
-  (set! (. tf width) 300)
-  (set! (. tf height) 300)
-  (set! (. tf x) 500)
-  (set! (. tf y) 100)
   (set! (. tf background) true)
   (set! (. tf backgroundColor) 0xeeeeee)
   (set! (. tf multiline) true)
   (set! (. tf type) "input")
   (set! (. tf defaultTextFormat) (new flash.text.TextFormat "Courier New", 13, 0x000000))
+
+  (def buff (attach-to-textfield tf))
+
+  (set! (. (buff :container) width) 300)
+  (set! (. (buff :container) height) 300)
+  (set! (. (buff :container) x) 500)
+  (set! (. (buff :container) y) 100)
   
   (. *stage* (addEventListener "enterFrame" 
                                (fn [_] 
-                                 (def tfp (parse-and-highlight-next! tfp))
-                                 #_ (psymacs/clear-mini-buffer!)
+                                 (psymacs/clear-mini-buffer!)
+                                 (def buff (assoc buff :parser (parse-and-highlight-next! (buff :parser))))
+				 ;; (try 
+				 ;;  (highlight-current-sexp! buff)
+				 ;;  (catch Error e (prn e)))
+				 (prn 'buff buff)
+
                                  #_ (prn (char->token-index tfp (. tf caretIndex)))
                                  #_ (prn "tfp:" tfp))))
-  (. *stage* (addChild tf)))
-
-;;(test-tfp)
-
-;;(time (parse-all (string-parser (psymacs/editor-string))))
+  (. *stage* (addChild (buff :container))))
