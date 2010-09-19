@@ -38,6 +38,25 @@
             (recur lo mid)))
         (and (not (under-value? (nth data lo))) lo)))))
 
+(def *char-width* 7)
+(def *char-height* 14)
+(defn char-xy
+  "Returns the [x y] coordinates of the char at the specified index. Compensates for textfield scrolling."
+  [tf idx]
+  (let [char-row (. tf (getLineIndexOfChar idx))
+	line-offset (. tf (getLineOffset char-row))
+	char-col (- idx line-offset)]
+    [(+ 2 (- (* *char-width* char-col) (. tf scrollH)))
+     (+ 2 (* *char-height* (- char-row (dec (. tf scrollV)))))]))
+
+(defn matching-bracket
+  "Returns c's matching bracket or nil."
+  [c]
+  (get {"(" ")", ")" "(", "[" "]", "]" "[", "{" "}", "}" "{"} c))
+
+(defn matching-brackets? [x y]
+  (= (matching-bracket x) y))
+
 (defn run-tests []
   ;; common-prefix-length tests
   (assert-true (= (common-prefix-length "Hello World", "Hello World") 11))
@@ -148,7 +167,7 @@
       :char        (new flash.text.TextFormat nil nil 0xccaa44 true)
       :comment     (new flash.text.TextFormat nil nil 0xcc2200 true)
       :lbracket    (new flash.text.TextFormat nil nil 0x005577 true)
-      :rbracket    (new flash.text.TextFormat nil nil 0xff5577 true)
+      :rbracket    (new flash.text.TextFormat nil nil 0x005577 true)
       :keyword     (new flash.text.TextFormat nil nil 0x008888 true)
       :int         (new flash.text.TextFormat nil nil 0x440088 true)
       :float       (new flash.text.TextFormat nil nil 0x8800cc true)
@@ -290,6 +309,9 @@
 
 (def *buffers* #{})
 
+(def *paren-match-color* 0xAAAAAA)
+(def *paren-mismatch-color* 0xff77aa)
+
 (defn attach-to-textfield 
   "Returns a psymacs buffer."
   [tf]
@@ -301,28 +323,33 @@
      :parser (textfield-parser tf)}))
 
 (defn highlight-current-sexp! [buffer]
-  (let [pos (. (buffer :textfield) caretIndex)]
+  (let [pos (. (buffer :textfield) caretIndex)
+	g (. (buffer :container) graphics)]
+    (. g (clear))
     (when-let token-idx (char->token-index (buffer :parser) pos)
       (let [tokens ((buffer :parser) :tokens)
 	    token (tokens token-idx)
-	    bracket-pairs (token :bracket-pairs)
-	    bp-idx (binary-search bracket-pairs (fn [bp] (< (bp :r) token-idx)))
-	    bp (and bp-idx (bracket-pairs bp-idx))
-	    g (. (buffer :container) graphics)]
-	(. g (clear))
-	(when bp
-	  (let [l ((tokens (bp :l)) :index)
-		r ((tokens (bp :r)) :index)]
-	    (when (<= l pos r)
-	      (let [tf (buffer :textfield)
-		    do-char! (fn [pos]
-			       (let [rect (. tf (getCharBoundaries pos))]
-				 (prn rect)
-				 (. g (beginFill 0xcccccc))
-				 (. g (drawRect (. rect x) (. rect y) (. rect width) (. rect height)))
-				 (. g (endFill))))]
-		(do-char! l)
-		(do-char! r)))))))))
+	    bracket-pairs ((vlast tokens) :bracket-pairs)]
+	(when (seq (token :open-lbrackets))
+	  (when-let bp-idx (binary-search bracket-pairs ;; find 1st pair with rbracket after or at pos
+					  (fn [bp] 
+					    (< (bp :r) token-idx)))
+	    (let [bracket-pairs (subvec bracket-pairs bp-idx)] ;; snip irrelevant bracket pairs
+	      (when-let bp (some (fn [bp] (when (= (bp :l) (first (token :open-lbrackets))) bp)) bracket-pairs)
+		(let [tf (buffer :textfield)
+		      l ((tokens (bp :l)) :index)
+		      r ((tokens (bp :r)) :index)
+		      color (if (matching-brackets? ((tokens (bp :l)) :string)
+						    ((tokens (bp :r)) :string))
+			      *paren-match-color*
+			      *paren-mismatch-color*)
+		      highlight-char! (fn [idx]
+					(let [[x y] (char-xy tf idx)]
+					  (. g (beginFill color))
+					  (. g (drawRect x y *char-width* *char-height*))
+					  (. g (endFill))))]
+		  (highlight-char! l)
+		  (highlight-char! r))))))))))
 
 ;; (defn event->keystroke [e]
 ;;   "Converts a KEY_DOWN event to a {:code ... :modifiers ...} map."
@@ -343,31 +370,34 @@
 ;;       (def *print-doc* true))))
 
 (def buff nil)
+(def tf nil)
+
+(defn- frame-handler [_] 
+  (psymacs/clear-mini-buffer!)
+  (def buff (assoc buff :parser (parse-and-highlight-next! (buff :parser))))
+  (prn (. (buff :textfield) scrollRect))
+  ;; (try 
+  (highlight-current-sexp! buff)
+  ;; (catch Error e (prn (. e (getStackTrace)))))
+  ;; (prn 'buff buff)
+
+  #_ (prn (char->token-index tfp (. tf caretIndex)))
+  #_ (prn "tfp:" tfp))
 
 (defn run-tests []
   (def tf (new flash.text.TextField))
-  ;; (set! (. tf background) true)
-  ;; (set! (. tf backgroundColor) 0xeeeeee)
   (set! (. tf multiline) true)
   (set! (. tf type) "input")
-  (set! (. tf defaultTextFormat) (new flash.text.TextFormat "Courier New", 8, 0x000000))
+  (set! (. tf defaultTextFormat) (new flash.text.TextFormat "Courier New", 12, 0x000000))
 
   (def buff (attach-to-textfield tf))
 
-  (set! (. (buff :container) width) 300)
-  (set! (. (buff :container) height) 300)
+  (set! (. (buff :textfield) width) 300)
+  (set! (. (buff :textfield) height) 300)
   (set! (. (buff :container) x) 500)
   (set! (. (buff :container) y) 100)
+  (set! (. (buff :container) scrollRect) (new flash.geom.Rectangle 0 0 300 300))
   
-  (. *stage* (addEventListener "enterFrame" 
-                               (fn [_] 
-                                 ;(psymacs/clear-mini-buffer!)
-                                 (def buff (assoc buff :parser (parse-and-highlight-next! (buff :parser))))
-				 ;(try 
-				  (highlight-current-sexp! buff)
-				  ;(catch Error e (prn (. e (getStackTrace)))))
-				 ;(prn 'buff buff)
-
-                                 #_ (prn (char->token-index tfp (. tf caretIndex)))
-                                 #_ (prn "tfp:" tfp))))
+  (. *stage* (addEventListener "enterFrame" frame-handler))
   (. *stage* (addChild (buff :container))))
+
