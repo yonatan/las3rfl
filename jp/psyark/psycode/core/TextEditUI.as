@@ -11,6 +11,8 @@ package jp.psyark.psycode.core {
 	import jp.psyark.psycode.controls.UIControl;
 	import jp.psyark.psycode.controls.ScrollBar;
 	import jp.psyark.psycode.controls.TextScrollBar;
+	import jp.psyark.psycode.core.psycode_internal;
+	import jp.psyark.utils.convertNewlines;
 
 	/**
 	* @private
@@ -25,7 +27,6 @@ package jp.psyark.psycode.core {
 		
 		private var TAB_STOP_RATIO:Number = 2.42;
 		private var fileRef:FileReference;
-		
 		
 		/**
 		* TextEditUIクラスのインスタンスを初期化します。
@@ -75,7 +76,7 @@ package jp.psyark.psycode.core {
 					fileRef.load();
 				});
 			fileRef.addEventListener(Event.COMPLETE, function (event:Event):void {
-					text = psycode_internal::convertNewlines(String(fileRef.data));
+					text = convertNewlines(String(fileRef.data));
 				});
 			fileRef.browse();
 		}
@@ -140,7 +141,7 @@ package jp.psyark.psycode.core {
 			textField.setSelection(beginIndex, endIndex);
 		}
 		public function replaceText(beginIndex:int, endIndex:int, newText:String):void {
-			textField.replaceText(beginIndex, endIndex, psycode_internal::convertNewlines(newText));
+			textField.replaceText(beginIndex, endIndex, convertNewlines(newText));
 		}
 		public function replaceSelectedText(newText:String):void {
 			textField.replaceSelectedText(newText);
