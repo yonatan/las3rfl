@@ -200,35 +200,6 @@ class StringComparator {
 
 
 /*
-jp/psyark/utils/escapeText.as
-*/
-
-function escapeText(str:String):String {
-    return EscapeTextInternal.escapeText(str);
-}
-
-class EscapeTextInternal {
-    private static var table:Object;
-    {
-        table = {};
-        table["\t"] = "\\t";
-        table["\r"] = "\\r";
-        table["\n"] = "\\n";
-        table["\\"] = "\\\\";
-    }
-    
-    public static function escapeText(str:String):String {
-        return str.replace(/[\t\r\n\\]/g, replace);
-    }
-    
-    private static function replace(match:String, index:int, source:String):String {
-        return table[match];
-    }
-}
-
-
-
-/*
 jp/psyark/psycode/core/psycode_internal.as
 */
 
