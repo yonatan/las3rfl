@@ -97,22 +97,6 @@ package {
     }
 }
 
-/*
-jp/psyark/psycode/core/history/HistoryEntry.as
-*/
-
-class HistoryEntry {
-    public var index:int;
-    public var oldText:String;
-    public var newText:String;
-
-    public function HistoryEntry(index:int=0, oldText:String="", newText:String="") {
-        this.index   = index;
-        this.oldText = oldText;
-        this.newText = newText;
-    }
-}
-
 
 
 /*
@@ -429,6 +413,7 @@ jp/psyark/psycode/core/history/HistoryManager.as
 */
 
 import __AS3__.vec.Vector;
+import jp.psyark.psycode.core.history.HistoryEntry;
 
 class HistoryManager {
     private var currentIndex:int = 0;
@@ -474,6 +459,7 @@ jp/psyark/psycode/core/TextEditorBase.as
 import flash.events.Event;
 import flash.events.TextEvent;
 import flash.geom.Rectangle;
+import jp.psyark.psycode.core.history.HistoryEntry;
 
 
 /**
