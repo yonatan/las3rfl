@@ -214,79 +214,6 @@ function convertNewlines(str:String, newline:String="\n"):String {
 
 
 
-/*
-jp/psyark/psycode/controls/TextScrollBar.as
-*/
-
-import flash.events.Event;
-import flash.text.TextField;
-import jp.psyark.psycode.controls.ScrollBar;
-
-class TextScrollBar extends ScrollBar {
-    private var target:TextField;
-    
-    public function TextScrollBar(target:TextField, direction:String="vertical") {
-        this.target = target;
-        super(direction);
-        
-        if (direction == VERTICAL) {
-            minValue = 1;
-            value = 1;
-        }
-        
-        addEventListener(Event.CHANGE, changeHandler);
-        target.addEventListener(Event.CHANGE, targetChangeHandler);
-        target.addEventListener(Event.SCROLL, targetScrollHandler);
-        
-        targetChangeHandler(null);
-        targetScrollHandler(null);
-    }
-    
-    private function changeHandler(event:Event):void {
-        if (direction == VERTICAL) {
-            target.scrollV = Math.round(value);
-        } else {
-            target.scrollH = Math.round(value);
-        }
-    }
-    
-    private function targetChangeHandler(event:Event):void {
-        correctTextFieldScrollPosition(target);
-        if (direction == VERTICAL) {
-            maxValue = target.maxScrollV;
-            viewSize = target.bottomScrollV - target.scrollV;
-        } else {
-            maxValue = target.maxScrollH;
-            viewSize = target.width;
-        }
-    }
-    
-    private function targetScrollHandler(event:Event):void {
-        correctTextFieldScrollPosition(target);
-        if (direction == VERTICAL) {
-            value = target.scrollV;
-        } else {
-            value = target.scrollH;
-        }
-    }
-    
-    protected override function updateSize():void {
-        super.updateSize();
-        targetChangeHandler(null);
-    }
-    
-    
-    /**
-    * 時折不正確な値を返すTextField#scrollVが、正しい値を返すようにする
-    */
-    protected static function correctTextFieldScrollPosition(target:TextField):void {
-        // textWidthかtextHeightにアクセスすればOK
-        target.textWidth;
-        target.textHeight;
-    }
-}
-
-
 
 /*
 jp/psyark/psycode/core/TextEditUI.as
@@ -301,6 +228,8 @@ import flash.text.TextFormat;
 import flash.text.TextFormatAlign;
 import jp.psyark.psycode.core.linenumber.LineNumberView;
 import jp.psyark.psycode.controls.UIControl;
+import jp.psyark.psycode.controls.ScrollBar;
+import jp.psyark.psycode.controls.TextScrollBar;
 
 /**
 * @private
@@ -633,72 +562,6 @@ class TextEditorBase extends TextEditUI {
 }
 
 
-
-/*
-jp/psyark/psycode/controls/ScrollBarHandle.as
-*/
-
-import flash.display.GradientType;
-import flash.display.Graphics;
-import flash.display.Shape;
-import flash.display.SimpleButton;
-import flash.geom.ColorTransform;
-import flash.geom.Matrix;
-import jp.psyark.psycode.controls.ScrollBar;
-
-class ScrollBarHandle extends SimpleButton {
-    protected static var handleColors:Array = [0xF7F7F7, 0xECECEC, 0xD8D8D8, 0xCCCCCC, 0xEDEDED];
-    protected static var handleAlphas:Array = [1, 1, 1, 1, 1];
-    protected static var handleRatios:Array = [0x00, 0x66, 0x80, 0xDD, 0xFF];
-    protected static var iconColors:Array = [0x000000, 0xFFFFFF];
-    protected static var iconAlphas:Array = [1, 1];
-    protected static var iconRatios:Array = [0x00, 0xFF];
-    
-    private var direction:String;
-    private var upFace:Shape;
-    private var overFace:Shape;
-    
-    public function ScrollBarHandle(direction:String="vertical") {
-        this.direction = direction;
-        cacheAsBitmap = true;
-        useHandCursor = false;
-        
-        upFace = new Shape();
-        overFace = new Shape();
-        overFace.transform.colorTransform = new ColorTransform(0.95, 1.3, 1.5, 1, 0x00, -0x33, -0x44);
-        
-        upState = upFace;
-        overState = overFace;
-        downState = overFace;
-        hitTestState = upFace;
-    }
-    
-    public function setSize(w:Number, h:Number):void {
-        drawFace(upFace.graphics, w, h);
-        drawFace(overFace.graphics, w, h);
-    }
-    
-    protected function drawFace(graphics:Graphics, w:Number, h:Number):void {
-        var mtx:Matrix = new Matrix();
-        mtx.createGradientBox(w, h, direction == ScrollBar.VERTICAL ? 0 : Math.PI / 2);
-        
-        graphics.clear();
-        graphics.beginFill(0x999999);
-        graphics.drawRoundRect(0, 0, w, h, 2);
-        graphics.beginGradientFill(GradientType.LINEAR, handleColors, handleAlphas, handleRatios, mtx);
-        graphics.drawRect(1, 1, w - 2, h - 2);
-        
-        graphics.lineStyle(-1, 0xEEEEEE);
-        graphics.beginGradientFill(GradientType.LINEAR, iconColors, iconAlphas, iconRatios, mtx);
-        for (var i:int=-1; i<2; i++) {
-            if (direction == ScrollBar.VERTICAL) {
-                graphics.drawRoundRect((w - 8) / 2, (h - 3) / 2 + i * 3, 8, 3, 2);
-            } else {
-                graphics.drawRoundRect((w - 3) / 2 + i * 3, (h - 8) / 2, 3, 8, 2);
-            }
-        }
-    }
-}
 
 
 
