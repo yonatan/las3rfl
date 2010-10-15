@@ -69,6 +69,8 @@
   (assert-true (= (common-prefix-length "aXbXc", "aXc") 2))
   (assert-true (= (common-prefix-length "aaaXccc", "aaaXbbbXccc") 4)))
 
+
+
 ;; This is a parser/highlighter for las3r syntax.
 
 ;; Since paring a large string can be slow, the parser is designed to
@@ -91,8 +93,8 @@
 ;;   :type          - token type (keyword).
 ;;   :string        - the actual content of the token.
 ;;   :index         - char index of the token in the parser's string.
-;;!TODO!   :open-lbrackets - a list of all *open* lbrackets for the current parse-index.
-;;!TODO!   :bracket-pairs  - a vector of token indices pairs {:l int, :r int}, 
+;;   :open-lbrackets - a list of all *open* lbrackets for the current parse-index.
+;;   :bracket-pairs  - a vector of token indices pairs {:l int, :r int}, 
 ;;                    contains all the matching brackets found so far, 
 ;;                    ordered by the token index of the closing rbracket.
 ;;   :next-index    - char index of the next token (might not exist, or be parsed yet).
@@ -301,26 +303,46 @@
 
 ;;(time (parse-all (string-parser (psymacs/editor-string))))
 
+(las3r.core/in-ns 'psymacs.keyboard)
+(las3r.core/refer 'las3r.core :exclude '(run-tests))
+
+(defn event->keystroke [e]
+  "Converts a KEY_DOWN event to a {:code ... :modifiers ...} map."
+  (let [modifiers #{}
+	modifiers (if (. e ctrlKey) (conj modifiers :ctrl) modifiers)
+	modifiers (if (. e altKey) (conj modifiers :alt) modifiers)
+	modifiers (if (. e shiftKey) (conj modifiers :shift) modifiers)]
+    {:code (. e keyCode) :modifiers modifiers}))
+
+;;;;;;;;;;;;;;;;;;;
 
 (las3r.core/in-ns 'psymacs.main)
 (las3r.core/refer 'las3r.core :exclude '(run-tests))
 (las3r.core/refer 'psymacs.parser :exclude '(run-tests))
 (las3r.core/refer 'psymacs.utils :exclude '(run-tests))
+(las3r.core/refer 'psymacs.keyboard :exclude '(run-tests))
 
 (def *buffers* #{})
 
-(def *paren-match-color* 0xAAAAAA)
-(def *paren-mismatch-color* 0xff77aa)
+(def *bracket-match-color* 0xAAAAAA)
+(def *bracket-mismatch-color* 0xFF77AA)
+(def *background-color* 0xEEEEEE)
 
 (defn attach-to-textfield 
   "Returns a psymacs buffer."
   [tf]
-  (let [cont (new flash.display.Sprite)]
+  (let [cont (new flash.display.Sprite)
+	overlay (new flash.display.Sprite)]
     (. cont (addChild tf))
-    (set! (. cont opaqueBackground) 0xeeeeee)
+    (. cont (addChild overlay))
+    (set! (. cont opaqueBackground) *background-color*)
     {:textfield tf
      :container cont
+     :overlay overlay
      :parser (textfield-parser tf)}))
+
+(defn buffer-string [buffer]
+  (. (buffer :textfield) text))
 
 (defn highlight-current-sexp! [buffer]
   (let [pos (. (buffer :textfield) caretIndex)
@@ -341,8 +363,8 @@
 		      r ((tokens (bp :r)) :index)
 		      color (if (matching-brackets? ((tokens (bp :l)) :string)
 						    ((tokens (bp :r)) :string))
-			      *paren-match-color*
-			      *paren-mismatch-color*)
+			      *bracket-match-color*
+			      *bracket-mismatch-color*)
 		      highlight-char! (fn [idx]
 					(let [[x y] (char-xy tf idx)]
 					  (. g (beginFill color))
@@ -351,23 +373,37 @@
 		  (highlight-char! l)
 		  (highlight-char! r))))))))))
 
-;; (defn event->keystroke [e]
-;;   "Converts a KEY_DOWN event to a {:code ... :modifiers ...} map."
-;;   (let [modifiers #{}
-;; 	modifiers (if (. e ctrlKey) (conj modifiers :ctrl) modifiers)
-;; 	modifiers (if (. e altKey) (conj modifiers :alt) modifiers)
-;; 	modifiers (if (. e shiftKey) (conj modifiers :shift) modifiers)]
-;;     {:code (. e keyCode) :modifiers modifiers}))
 
-;; (defn key-down-handler [editor event]
-;;   (let [cmd (*kb-map* (event->keystroke event))]
-;;     (if cmd
-;;       (do
-;;         (set! (. editor trackChanges) false)
-;;         (cmd)
-;;         (set! (. editor trackChanges) true)
-;;         (. editor (dispatchChangeEvent)))
-;;       (def *print-doc* true))))
+;; TODO: search all namespaces?
+;; (defn format-doc [fn-name]
+;;   "Returns the enclosing function's documentation in the minibuffer, searches in current *ns* and 'las3r.core."
+;;   []
+;;   (let [name (back-search-for-context-doc)]
+;;     (if name 
+;;       (try
+;;        (let [v (or (find-var (symbol (ns-name *ns*) name))
+;; 		   (find-var (symbol 'las3r.core name)))
+;;        	     arglists ((meta v) :arglists)]
+;;        	 (minibuff-print-doc v))
+;;        (catch Error e nil)))))
+
+(defn docs [buffer]
+  (let [caret-idx (. (buffer :textfield) caretIndex)
+	pos (if (= caret-idx (count (buffer-string buffer))) ;; if we're past the last char
+	      (max 0 (dec caret-idx)) ;; go one char back
+	      caret-idx)]
+    (prn 'pos pos)
+    (when-let token-idx (char->token-index (buffer :parser) pos)
+      (let [tokens ((buffer :parser) :tokens)
+	    token (tokens token-idx)]
+	(when-let doc-idx (some (fn [ti] 
+				  (when (= ((tokens ti) :string) "(") 
+				    (inc ti)))
+				(token :open-lbrackets))
+	  (let [fn-token (tokens doc-idx)]
+	    (when (= (fn-token :type) :other)
+	      (let [fn-name (fn-token :string)]
+		(prn 'fn-name fn-name)))))))))
 
 (def buff nil)
 (def tf nil)
@@ -375,7 +411,8 @@
 (defn- frame-handler [_] 
   (psymacs/clear-mini-buffer!)
   (def buff (assoc buff :parser (parse-and-highlight-next! (buff :parser))))
-  (prn (. (buff :textfield) scrollRect))
+  ;; (prn (. (buff :textfield) scrollRect))
+  (prn (docs buff))
   ;; (try 
   (highlight-current-sexp! buff)
   ;; (catch Error e (prn (. e (getStackTrace)))))
