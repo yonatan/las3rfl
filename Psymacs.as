@@ -216,74 +216,6 @@ function convertNewlines(str:String, newline:String="\n"):String {
 }
 
 
-
-/*
-jp/psyark/psycode/controls/UIControl.as
-*/
-
-import flash.display.Sprite;
-
-class UIControl extends Sprite {
-    private var _width:Number = 100;
-    private var _height:Number = 100;
-    
-    
-    /**
-    * コントロールの幅と高さ設定します。
-    */
-    public function setSize(width:Number, height:Number):void {
-        if (_width != width || _height != height) {
-            _width = width;
-            _height = height;
-            updateSize();
-        }
-    }
-    
-    
-    /**
-    * コントロールの幅を取得または設定します。
-    */
-    public override function get width():Number {
-        return _width;
-    }
-    
-    /**
-    * @private
-    */
-    public override function set width(value:Number):void {
-        if (_width != value) {
-            _width = value;
-            updateSize();
-        }
-    }
-    
-    /**
-    * コントロールの高さを取得または設定します。
-    */
-    public override function get height():Number {
-        return _height;
-    }
-    
-    /**
-    * @private
-    */
-    public override function set height(value:Number):void {
-        if (_height != value) {
-            _height = value;
-            updateSize();
-        }
-    }
-    
-    
-    /**
-    * コントロールのサイズを更新します。
-    */
-    protected function updateSize():void {
-    }
-}
-
-
-
 /*
 jp/psyark/psycode/controls/ScrollBar.as
 */
@@ -293,6 +225,7 @@ import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.geom.Matrix;
+import jp.psyark.psycode.controls.UIControl;
 
 [Event(name="change", type="flash.events.Event")]
 class ScrollBar extends UIControl {
@@ -569,6 +502,7 @@ import flash.text.TextFieldType;
 import flash.text.TextFormat;
 import flash.text.TextFormatAlign;
 import jp.psyark.psycode.core.linenumber.LineNumberView;
+import jp.psyark.psycode.controls.UIControl;
 
 /**
 * @private
@@ -977,6 +911,7 @@ jp/psyark/psycode/controls/ListItemRenderer.as
 import flash.events.MouseEvent;
 import flash.text.TextField;
 import flash.text.TextFormat;
+import jp.psyark.psycode.controls.UIControl;
 
 class ListItemRenderer extends UIControl {
     private var _data:Object;
@@ -1063,6 +998,7 @@ import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.geom.Matrix;
 import flash.utils.Dictionary;
+import jp.psyark.psycode.controls.UIControl;
 
 class TabView extends UIControl {
     private var contentItemTable:Dictionary;
