@@ -328,19 +328,6 @@
 (def *bracket-mismatch-color* 0xFF77AA)
 (def *background-color* 0xEEEEEE)
 
-(defn attach-to-textfield 
-  "Returns a psymacs buffer."
-  [tf]
-  (let [cont (new flash.display.Sprite)
-	overlay (new flash.display.Sprite)]
-    (. cont (addChild tf))
-    (. cont (addChild overlay))
-    (set! (. cont opaqueBackground) *background-color*)
-    {:textfield tf
-     :container cont
-     :overlay overlay
-     :parser (textfield-parser tf)}))
-
 (defn buffer-string [buffer]
   (. (buffer :textfield) text))
 
@@ -414,27 +401,33 @@
   ;; (prn (. (buff :textfield) scrollRect))
   (prn (docs buff))
   ;; (try 
-  (highlight-current-sexp! buff)
+  #_ (highlight-current-sexp! buff)
   ;; (catch Error e (prn (. e (getStackTrace)))))
   ;; (prn 'buff buff)
 
   #_ (prn (char->token-index tfp (. tf caretIndex)))
   #_ (prn "tfp:" tfp))
 
+(defn attach-to-textfield-container
+  "Returns a psymacs buffer. Container should have a readable textField property."
+  [cont]
+  (let [overlay (new flash.display.Sprite)]
+    (. cont (addChild overlay))
+    {:textfield (. cont textField)
+     :container cont
+     :overlay overlay
+     :parser (textfield-parser tf)}))
+
 (defn run-tests []
-  (def tf (new flash.text.TextField))
-  (set! (. tf multiline) true)
-  (set! (. tf type) "input")
-  (set! (. tf defaultTextFormat) (new flash.text.TextFormat "Courier New", 12, 0x000000))
+  (def teui (new jp.psyark.psycode.core.TextEditUI))
 
-  (def buff (attach-to-textfield tf))
+  (def buff (attach-to-textfield-container teui))
 
-  (set! (. (buff :textfield) width) 300)
-  (set! (. (buff :textfield) height) 300)
-  (set! (. (buff :container) x) 500)
-  (set! (. (buff :container) y) 100)
-  (set! (. (buff :container) scrollRect) (new flash.geom.Rectangle 0 0 300 300))
+  (set! (. teui width) 300)
+  (set! (. teui height) 300)
+  (set! (. teui x) 500)
+  (set! (. teui y) 100)
+  ;(set! (. (buff :container) scrollRect) (new flash.geom.Rectangle 0 0 300 300))
   
   (. *stage* (addEventListener "enterFrame" frame-handler))
   (. *stage* (addChild (buff :container))))
-
