@@ -38,8 +38,8 @@
             (recur lo mid)))
         (and (not (under-value? (nth data lo))) lo)))))
 
-(def *char-width* 7)
-(def *char-height* 14)
+(def *char-width* 8)
+(def *char-height* 15)
 (defn char-xy
   "Returns the [x y] coordinates of the char at the specified index. Compensates for textfield scrolling."
   [tf idx]
@@ -48,6 +48,22 @@
 	char-col (- idx line-offset)]
     [(+ 2 (- (* *char-width* char-col) (. tf scrollH)))
      (+ 2 (* *char-height* (- char-row (dec (. tf scrollV)))))]))
+
+(def #^{:private true} overlay-rect (new flash.geom.Rectangle))
+
+(defn position-overlay!
+  "Positions overlay sprite on top of textfield and applies a scrollRect."
+  [buffer]
+  (let [overlay (buffer :overlay)
+	tf (buffer :textfield)]
+    (set! (. overlay x) (. tf x))
+    (set! (. overlay y) (. tf y))
+
+    (set! (. overlay-rect width) (. tf width))
+    (set! (. overlay-rect height) (. tf height))
+    (set! (. overlay scrollRect) overlay-rect)
+    ;; (set! (. overlay scrollRect) (new flash.geom.Rectangle 0 0 (. tf width) (. tf height)))
+))
 
 (defn matching-bracket
   "Returns c's matching bracket or nil."
@@ -325,7 +341,7 @@
 (def *buffers* #{})
 
 (def *bracket-match-color* 0xAAAAAA)
-(def *bracket-mismatch-color* 0xFF77AA)
+(def *bracket-mismatch-color* 0xFF0000)
 (def *background-color* 0xEEEEEE)
 
 (defn buffer-string [buffer]
@@ -333,7 +349,7 @@
 
 (defn highlight-current-sexp! [buffer]
   (let [pos (. (buffer :textfield) caretIndex)
-	g (. (buffer :container) graphics)]
+	g (. (buffer :overlay) graphics)]
     (. g (clear))
     (when-let token-idx (char->token-index (buffer :parser) pos)
       (let [tokens ((buffer :parser) :tokens)
@@ -354,7 +370,7 @@
 			      *bracket-mismatch-color*)
 		      highlight-char! (fn [idx]
 					(let [[x y] (char-xy tf idx)]
-					  (. g (beginFill color))
+					  (. g (beginFill color 0.5))
 					  (. g (drawRect x y *char-width* *char-height*))
 					  (. g (endFill))))]
 		  (highlight-char! l)
@@ -396,12 +412,13 @@
 (def tf nil)
 
 (defn- frame-handler [_] 
-  (psymacs/clear-mini-buffer!)
+  ;; (psymacs/clear-mini-buffer!)
   (def buff (assoc buff :parser (parse-and-highlight-next! (buff :parser))))
   ;; (prn (. (buff :textfield) scrollRect))
   (prn (docs buff))
   ;; (try 
-  #_ (highlight-current-sexp! buff)
+  (position-overlay! buff)
+  (highlight-current-sexp! buff)
   ;; (catch Error e (prn (. e (getStackTrace)))))
   ;; (prn 'buff buff)
 
@@ -411,23 +428,24 @@
 (defn attach-to-textfield-container
   "Returns a psymacs buffer. Container should have a readable textField property."
   [cont]
-  (let [overlay (new flash.display.Sprite)]
+  (let [overlay (new flash.display.Sprite)
+	tf (. cont textField)]
     (. cont (addChild overlay))
-    {:textfield (. cont textField)
+    {:textfield tf
      :container cont
      :overlay overlay
      :parser (textfield-parser tf)}))
 
-(defn run-tests []
-  (def teui (new jp.psyark.psycode.core.TextEditUI))
+;; (defn run-tests []
+;;   (def teui (new jp.psyark.psycode.core.TextEditUI))
 
-  (def buff (attach-to-textfield-container teui))
+;;   (def buff (attach-to-textfield-container teui))
 
-  (set! (. teui width) 300)
-  (set! (. teui height) 300)
-  (set! (. teui x) 500)
-  (set! (. teui y) 100)
-  ;(set! (. (buff :container) scrollRect) (new flash.geom.Rectangle 0 0 300 300))
+;;   (set! (. teui width) 300)
+;;   (set! (. teui height) 300)
+;;   (set! (. teui x) 500)
+;;   (set! (. teui y) 100)
+;;   ;(set! (. (buff :container) scrollRect) (new flash.geom.Rectangle 0 0 300 300))
   
-  (. *stage* (addEventListener "enterFrame" frame-handler))
-  (. *stage* (addChild (buff :container))))
+;;   (. *stage* (addEventListener "enterFrame" frame-handler))
+;;   (. *stage* (addChild (buff :container))))

@@ -1,0 +1,52 @@
+// forked from psyark's F-siteで紹介したエディタを無理やりWonderflに突っ込んでみた
+package {
+    import flash.display.*;
+    import flash.events.*;
+    import flash.net.*;
+    import flash.system.*;
+    import flash.utils.*;
+	import com.las3r.io.OutputStream;
+	import com.las3r.runtime.RT;
+	import com.las3r.repl.Repl;
+	import com.bit101.components.*;
+
+	com.bit101.components.TextArea;
+
+    [SWF(width=800,height=600,backgroundColor=0xFFFFFF,frameRate=30)]
+    public class MCompsTest extends Sprite {
+        [Embed(source="psymacs.parser.lsr", mimeType="application/octet-stream")]
+        protected const PsymacsLsr:Class;
+        protected var las3rCode:String
+
+        public var repl:Repl;
+        public var rt:RT;
+        
+        public function MCompsTest() {
+            stage.scaleMode = StageScaleMode.NO_SCALE;
+            stage.align = StageAlign.TOP_LEFT;
+
+            las3rCode = ByteArray(new PsymacsLsr).toString();
+
+			repl = new Repl(400, 400, stage);
+			stage.addChild(repl);
+			repl.addEventListener("inited", init);
+		}
+
+		private function init(e:Event):void {
+			las3rCode = "(prn 'starting)" + las3rCode + "(prn 'loaded)" +  <![CDATA[
+					(def ta (new com.bit101.components.TextArea))
+					(def tf (. ta textField))
+					(set! (. tf embedFonts) false)
+					(set! (. tf wordWrap) false)
+					(set! (. tf defaultTextFormat)
+						  (new flash.text.TextFormat "Courier New", 13, 0x000000))
+					(def buff (attach-to-textfield-container ta))
+					(. *stage* (addChild ta))
+					(. *stage* (addEventListener "enterFrame" frame-handler))
+				]]>;
+
+			repl.evalLibrary(las3rCode, trace);
+        }
+    }
+}
+
