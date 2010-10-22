@@ -468,25 +468,35 @@
        ~@body
        (recur))))
 
-(def *parser-time-limit* 1000/30)
+(def *parser-time-limit* (/ 1000 (. *stage* frameRate)))
 (defn- frame-handler [_] 
   (def buffer (assoc buffer :parser (update-tfp (buffer :parser)))) ;; in case text has changed
-  (let [limit (+ (get-timer) *parser-time-limit*)]
-    (repeat-until (or (> (get-timer) limit) (> (get-timer) limit)
-		      ((buffer :parser) :done))
-  		  (def buffer (assoc buffer :parser (parse-and-highlight-next! (buffer :parser))))))
+  (when-not ((buffer :parser) :done)
+    (let [limit (+ (get-timer) *parser-time-limit*)]
+      (repeat-until (or (> (get-timer) limit) (> (get-timer) limit)
+			((buffer :parser) :done))
+		    (def buffer (assoc buffer :parser (parse-and-highlight-next! (buffer :parser))))))
 
-  (let [buffer-length (count (. (buffer :textfield) text))]
-    (mset! parse-progress [maximum buffer-length
-			   value (if ((buffer :parser) :done)
-				   buffer-length
-				   ((vlast ((buffer :parser) :tokens)) :next-index))]))
+    (let [buffer-length (count (. (buffer :textfield) text))]
+      (mset! parse-progress [maximum buffer-length
+			     value (if ((buffer :parser) :done)
+				     buffer-length
+				     ((vlast ((buffer :parser) :tokens)) :next-index))])))
   (highlight-current-sexp! buffer))
+
+(defn change-handler [& _]
+  ;; sanitize text
+  ;; (set! (. (buffer :textfield) text)
+  ;; 	(. (. (. (buffer :textfield) text) (replace #"(\r\n|\r)"g "\n")) (replace "\t" " "))
+
+  ;; overlay needs to be repositioned, the textfield might be pushed by the line numbers
+  (position-overlay! buffer))
 
 (defn init []
   (doseq obj [code-pane help-pane out-pane err-pane parse-progress]
     (. *stage* (addChild obj)))
   (. *stage* (addEventListener "resize" update-layout!))
+  (. (buffer :textfield) (addEventListener "change" change-handler))
   (. *stage* (addEventListener "enterFrame" frame-handler))
   (update-layout!))
   

@@ -15,7 +15,7 @@ package {
 	com.bit101.components.ProgressBar;
 	jp.psyark.psycode.core.TextEditUI;
 
-    [SWF(width=800,height=600,backgroundColor=0xFFFFFF,frameRate=30)]
+    [SWF(width=950,height=600,backgroundColor=0xFFFFFF,frameRate=30)]
     public class MCompsTest extends Sprite {
         [Embed(source="psymacs.parser.lsr", mimeType="application/octet-stream")]
         protected const PsymacsLsr:Class;
