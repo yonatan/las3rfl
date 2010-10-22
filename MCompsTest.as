@@ -9,8 +9,11 @@ package {
 	import com.las3r.runtime.RT;
 	import com.las3r.repl.Repl;
 	import com.bit101.components.*;
+	import jp.psyark.psycode.core.TextEditUI;
 
 	com.bit101.components.TextArea;
+	com.bit101.components.ProgressBar;
+	jp.psyark.psycode.core.TextEditUI;
 
     [SWF(width=800,height=600,backgroundColor=0xFFFFFF,frameRate=30)]
     public class MCompsTest extends Sprite {
@@ -33,19 +36,20 @@ package {
 		}
 
 		private function init(e:Event):void {
-			las3rCode = "(prn 'starting)" + las3rCode + "(prn 'loaded)" +  <![CDATA[
-					(def ta (new com.bit101.components.TextArea))
-					(def tf (. ta textField))
-					(set! (. tf embedFonts) false)
-					(set! (. tf wordWrap) false)
-					(set! (. tf defaultTextFormat)
-						  (new flash.text.TextFormat "Courier New", 13, 0x000000))
-					(def buff (attach-to-textfield-container ta))
-					(. *stage* (addChild ta))
-					(. *stage* (addEventListener "enterFrame" frame-handler))
-				]]>;
+			// las3rCode = "(prn 'starting)" + las3rCode + "(prn 'loaded)" +  <![CDATA[
+			// 		(def ta (new com.bit101.components.TextArea *stage* 300 300))
+			// 		(def tf (. ta textField))
+			// 		(set! (. tf embedFonts) false)
+			// 		(set! (. tf wordWrap) false)
+			// 		(set! (. tf defaultTextFormat)
+			// 			  (new flash.text.TextFormat "Courier New", 13, 0x000000))
+			// 		(def buff (attach-to-textfield-container ta))
+			// 		;(. *stage* (addChild ta))
+			// 		(. *stage* (addEventListener "enterFrame" frame-handler))
+			// 	]]>;
+			
 
-			repl.evalLibrary(las3rCode, trace);
+			repl.evalLibrary(las3rCode += "(init)", trace);
         }
     }
 }

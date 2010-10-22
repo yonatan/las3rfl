@@ -6,11 +6,27 @@
 (def #^{:private true} log-div (. Math (log 2)))
 (defmacro #^{:private true} log2 [x] `(/ (. Math (log ~x)) log-div))
 
+(defn get-def
+  "flash.utils.getDefinitionByName"
+  [name]
+  (. com.las3r.runtime.RT (objectForName name)))
+
 (defn vlast 
   "Returns the last element of a vector. Fast."
   [v]
   (when (seq v)
     (v (dec (count v)))))
+
+(defmacro mset! 
+  "Sets multiple objet properties."
+  [obj name-vals]
+  (loop [nv name-vals
+         acc '()]
+    (if (seq nv)
+      (recur (rrest nv) (cons `(set! (. ~obj ~(first nv)) ~(second nv)) acc))
+      `(do ~@(reverse acc)))))
+
+(def get-timer (get-def "flash.utils.getTimer"))
 
 (defn common-prefix-length [s1 s2]
   (let [min-length (min (count s1) (count s2))]
@@ -39,13 +55,13 @@
         (and (not (under-value? (nth data lo))) lo)))))
 
 (def *char-width* 8)
-(def *char-height* 15)
+(def *char-height* 16)
 (defn char-xy
   "Returns the [x y] coordinates of the char at the specified index. Compensates for textfield scrolling."
   [tf idx]
   (let [char-row (. tf (getLineIndexOfChar idx))
-	line-offset (. tf (getLineOffset char-row))
-	char-col (- idx line-offset)]
+        line-offset (. tf (getLineOffset char-row))
+        char-col (- idx line-offset)]
     [(+ 2 (- (* *char-width* char-col) (. tf scrollH)))
      (+ 2 (* *char-height* (- char-row (dec (. tf scrollV)))))]))
 
@@ -55,7 +71,7 @@
   "Positions overlay sprite on top of textfield and applies a scrollRect."
   [buffer]
   (let [overlay (buffer :overlay)
-	tf (buffer :textfield)]
+        tf (buffer :textfield)]
     (set! (. overlay x) (. tf x))
     (set! (. overlay y) (. tf y))
 
@@ -245,31 +261,31 @@
     parser
     (if-let token (parse (parser :text) (parse-index parser)) ;; get next token
       (let [type (token :type)
-	    tokens (parser :tokens)
-	    cnt (count tokens)
-	    prev (vlast tokens)
-	    
-	    [p-type p-olbs p-bps] 
-	    (if (seq prev)
-	      [(prev :type) (prev :open-lbrackets) (prev :bracket-pairs)]
-	      [nil '() []])
+            tokens (parser :tokens)
+            cnt (count tokens)
+            prev (vlast tokens)
+            
+            [p-type p-olbs p-bps] 
+            (if (seq prev)
+              [(prev :type) (prev :open-lbrackets) (prev :bracket-pairs)]
+              [nil '() []])
 
-	    ;; new open-lbrackets list
-	    olbs (cond (= p-type :lbracket)
-		       (cons (dec cnt) p-olbs)
-		       
-		       (= p-type :rbracket)
-		       (rest p-olbs)
-		       
-		       :else
-		       p-olbs)
-	    ;; new bracket-pairs vector
-	    bps (if (and (= type :rbracket) (seq olbs))
-		  (conj p-bps {:l (first olbs) :r cnt})
-		  p-bps)
+            ;; new open-lbrackets list
+            olbs (cond (= p-type :lbracket)
+                       (cons (dec cnt) p-olbs)
+                       
+                       (= p-type :rbracket)
+                       (rest p-olbs)
+                       
+                       :else
+                       p-olbs)
+            ;; new bracket-pairs vector
+            bps (if (and (= type :rbracket) (seq olbs))
+                  (conj p-bps {:l (first olbs) :r cnt})
+                  p-bps)
 
-	    token (assoc token :open-lbrackets olbs :bracket-pairs bps)]
-	    (assoc parser :tokens (conj tokens token)))
+            token (assoc token :open-lbrackets olbs :bracket-pairs bps)]
+            (assoc parser :tokens (conj tokens token)))
       (assoc parser :done true))))
 
 (defn parse-all [parser]
@@ -297,7 +313,7 @@
 
 ;; (defn run-tests []
 ;;   (let [tf (new flash.text.TextField)
-;; 	tfp (textfield-parser tf)]
+;;      tfp (textfield-parser tf)]
 
 ;;     (set! (. tf width) 300)
 ;;     (set! (. tf height) 300)
@@ -310,11 +326,11 @@
 ;;     (set! (. tf defaultTextFormat) (new flash.text.TextFormat "Courier New", 13, 0x000000))
     
 ;;     (. *stage* (addEventListener "enterFrame" 
-;; 				 (fn [_] 
-;; 				   (def tfp (parse-and-highlight-next! tfp))
-;; 				   #_ (psymacs/clear-mini-buffer!)
-;; 				   #_ (prn (char->token-index tfp (. tf caretIndex)))
-;; 				   #_ (prn "tfp:" tfp))))
+;;                               (fn [_] 
+;;                                 (def tfp (parse-and-highlight-next! tfp))
+;;                                 #_ (psymacs/clear-mini-buffer!)
+;;                                 #_ (prn (char->token-index tfp (. tf caretIndex)))
+;;                                 #_ (prn "tfp:" tfp))))
 ;;     (. *stage* (addChild tf))))
 
 ;;(time (parse-all (string-parser (psymacs/editor-string))))
@@ -325,10 +341,12 @@
 (defn event->keystroke [e]
   "Converts a KEY_DOWN event to a {:code ... :modifiers ...} map."
   (let [modifiers #{}
-	modifiers (if (. e ctrlKey) (conj modifiers :ctrl) modifiers)
-	modifiers (if (. e altKey) (conj modifiers :alt) modifiers)
-	modifiers (if (. e shiftKey) (conj modifiers :shift) modifiers)]
+        modifiers (if (. e ctrlKey) (conj modifiers :ctrl) modifiers)
+        modifiers (if (. e altKey) (conj modifiers :alt) modifiers)
+        modifiers (if (. e shiftKey) (conj modifiers :shift) modifiers)]
     {:code (. e keyCode) :modifiers modifiers}))
+
+
 
 ;;;;;;;;;;;;;;;;;;;
 
@@ -337,8 +355,6 @@
 (las3r.core/refer 'psymacs.parser :exclude '(run-tests))
 (las3r.core/refer 'psymacs.utils :exclude '(run-tests))
 (las3r.core/refer 'psymacs.keyboard :exclude '(run-tests))
-
-(def *buffers* #{})
 
 (def *bracket-match-color* 0xAAAAAA)
 (def *bracket-mismatch-color* 0xFF0000)
@@ -349,32 +365,32 @@
 
 (defn highlight-current-sexp! [buffer]
   (let [pos (. (buffer :textfield) caretIndex)
-	g (. (buffer :overlay) graphics)]
+        g (. (buffer :overlay) graphics)]
     (. g (clear))
     (when-let token-idx (char->token-index (buffer :parser) pos)
       (let [tokens ((buffer :parser) :tokens)
-	    token (tokens token-idx)
-	    bracket-pairs ((vlast tokens) :bracket-pairs)]
-	(when (seq (token :open-lbrackets))
-	  (when-let bp-idx (binary-search bracket-pairs ;; find 1st pair with rbracket after or at pos
-					  (fn [bp] 
-					    (< (bp :r) token-idx)))
-	    (let [bracket-pairs (subvec bracket-pairs bp-idx)] ;; snip irrelevant bracket pairs
-	      (when-let bp (some (fn [bp] (when (= (bp :l) (first (token :open-lbrackets))) bp)) bracket-pairs)
-		(let [tf (buffer :textfield)
-		      l ((tokens (bp :l)) :index)
-		      r ((tokens (bp :r)) :index)
-		      color (if (matching-brackets? ((tokens (bp :l)) :string)
-						    ((tokens (bp :r)) :string))
-			      *bracket-match-color*
-			      *bracket-mismatch-color*)
-		      highlight-char! (fn [idx]
-					(let [[x y] (char-xy tf idx)]
-					  (. g (beginFill color 0.5))
-					  (. g (drawRect x y *char-width* *char-height*))
-					  (. g (endFill))))]
-		  (highlight-char! l)
-		  (highlight-char! r))))))))))
+            token (tokens token-idx)
+            bracket-pairs ((vlast tokens) :bracket-pairs)]
+        (when (seq (token :open-lbrackets))
+          (when-let bp-idx (binary-search bracket-pairs ;; find 1st pair with rbracket after or at pos
+                                          (fn [bp] 
+                                            (< (bp :r) token-idx)))
+            (let [bracket-pairs (subvec bracket-pairs bp-idx)] ;; snip irrelevant bracket pairs
+              (when-let bp (some (fn [bp] (when (= (bp :l) (first (token :open-lbrackets))) bp)) bracket-pairs)
+                (let [tf (buffer :textfield)
+                      l ((tokens (bp :l)) :index)
+                      r ((tokens (bp :r)) :index)
+                      color (if (matching-brackets? ((tokens (bp :l)) :string)
+                                                    ((tokens (bp :r)) :string))
+                              *bracket-match-color*
+                              *bracket-mismatch-color*)
+                      highlight-char! (fn [idx]
+                                        (let [[x y] (char-xy tf idx)]
+                                          (. g (beginFill color 0.5))
+                                          (. g (drawRect x y *char-width* *char-height*))
+                                          (. g (endFill))))]
+                  (highlight-char! l)
+                  (highlight-char! r))))))))))
 
 
 ;; TODO: search all namespaces?
@@ -385,56 +401,96 @@
 ;;     (if name 
 ;;       (try
 ;;        (let [v (or (find-var (symbol (ns-name *ns*) name))
-;; 		   (find-var (symbol 'las3r.core name)))
-;;        	     arglists ((meta v) :arglists)]
-;;        	 (minibuff-print-doc v))
+;;                 (find-var (symbol 'las3r.core name)))
+;;                   arglists ((meta v) :arglists)]
+;;               (minibuff-print-doc v))
 ;;        (catch Error e nil)))))
 
 (defn docs [buffer]
   (let [caret-idx (. (buffer :textfield) caretIndex)
-	pos (if (= caret-idx (count (buffer-string buffer))) ;; if we're past the last char
-	      (max 0 (dec caret-idx)) ;; go one char back
-	      caret-idx)]
+        pos (if (= caret-idx (count (buffer-string buffer))) ;; if we're past the last char
+              (max 0 (dec caret-idx)) ;; go one char back
+              caret-idx)]
     (prn 'pos pos)
     (when-let token-idx (char->token-index (buffer :parser) pos)
       (let [tokens ((buffer :parser) :tokens)
-	    token (tokens token-idx)]
-	(when-let doc-idx (some (fn [ti] 
-				  (when (= ((tokens ti) :string) "(") 
-				    (inc ti)))
-				(token :open-lbrackets))
-	  (let [fn-token (tokens doc-idx)]
-	    (when (= (fn-token :type) :other)
-	      (let [fn-name (fn-token :string)]
-		(prn 'fn-name fn-name)))))))))
-
-(def buff nil)
-(def tf nil)
-
-(defn- frame-handler [_] 
-  ;; (psymacs/clear-mini-buffer!)
-  (def buff (assoc buff :parser (parse-and-highlight-next! (buff :parser))))
-  ;; (prn (. (buff :textfield) scrollRect))
-  (prn (docs buff))
-  ;; (try 
-  (position-overlay! buff)
-  (highlight-current-sexp! buff)
-  ;; (catch Error e (prn (. e (getStackTrace)))))
-  ;; (prn 'buff buff)
-
-  #_ (prn (char->token-index tfp (. tf caretIndex)))
-  #_ (prn "tfp:" tfp))
+            token (tokens token-idx)]
+        (when-let doc-idx (some (fn [ti] 
+                                  (when (= ((tokens ti) :string) "(") 
+                                    (inc ti)))
+                                (token :open-lbrackets))
+          (let [fn-token (tokens doc-idx)]
+            (when (= (fn-token :type) :other)
+              (let [fn-name (fn-token :string)]
+                #_ (prn 'fn-name fn-name)))))))))
 
 (defn attach-to-textfield-container
   "Returns a psymacs buffer. Container should have a readable textField property."
   [cont]
   (let [overlay (new flash.display.Sprite)
-	tf (. cont textField)]
+        tf (. cont textField)]
     (. cont (addChild overlay))
     {:textfield tf
      :container cont
      :overlay overlay
      :parser (textfield-parser tf)}))
+
+(def code-pane (new jp.psyark.psycode.core.TextEditUI))
+(def buffer (attach-to-textfield-container code-pane))
+(def help-pane (new com.bit101.components.TextArea))
+(def err-pane (new com.bit101.components.TextArea))
+(def out-pane (new com.bit101.components.TextArea))
+(def parse-progress (new com.bit101.components.ProgressBar))
+
+(defn update-layout! [& _]
+  (let [pbh (. parse-progress height)
+	w (. *stage* stageWidth)
+        h (- (. *stage* stageHeight) pbh)
+        cw (* w 3/4)   ;; code pane width
+        ch (* h 4/5)]  ;; code pane height
+    (mset! parse-progress
+    	   [y h width w])
+    (mset! code-pane
+           [x 0 y 0 width cw height ch alpha 0.5])
+    (mset! help-pane
+           [x 0 y ch width cw height (- h ch)])
+    (mset! out-pane
+           [x cw y 0 width (- w cw) height (/ h 2)])
+    (mset! err-pane
+           [x cw y (/ h 2) width (- w cw) height (/ h 2)]))
+  (position-overlay! buffer))
+
+(defmacro repeat-until
+  "Executes body repeatedly (for side-effects) until condition is met."
+  [condition & body]
+  `(loop []
+     (when-not ~condition
+       ~@body
+       (recur))))
+
+(def *parser-time-limit* 1000/30)
+(defn- frame-handler [_] 
+  (def buffer (assoc buffer :parser (update-tfp (buffer :parser)))) ;; in case text has changed
+  (let [limit (+ (get-timer) *parser-time-limit*)]
+    (repeat-until (or (> (get-timer) limit) (> (get-timer) limit)
+		      ((buffer :parser) :done))
+  		  (def buffer (assoc buffer :parser (parse-and-highlight-next! (buffer :parser))))))
+
+  (let [buffer-length (count (. (buffer :textfield) text))]
+    (mset! parse-progress [maximum buffer-length
+			   value (if ((buffer :parser) :done)
+				   buffer-length
+				   ((vlast ((buffer :parser) :tokens)) :next-index))]))
+  (highlight-current-sexp! buffer))
+
+(defn init []
+  (doseq obj [code-pane help-pane out-pane err-pane parse-progress]
+    (. *stage* (addChild obj)))
+  (. *stage* (addEventListener "resize" update-layout!))
+  (. *stage* (addEventListener "enterFrame" frame-handler))
+  (update-layout!))
+  
+  
 
 ;; (defn run-tests []
 ;;   (def teui (new jp.psyark.psycode.core.TextEditUI))
