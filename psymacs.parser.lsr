@@ -54,7 +54,7 @@
             (recur lo mid)))
         (and (not (under-value? (nth data lo))) lo)))))
 
-(def *char-width* 7.8283)
+(def *char-width* 8)
 (def *char-height* 16)
 
 (defn measure-font!
@@ -86,19 +86,23 @@
 
 (def #^{:private true} overlay-rect (new flash.geom.Rectangle))
 
+(defn hide-overlay!
+  "Hides overlay sprite."
+  [buffer]
+  (set! (. (buffer :overlay) visible) false))
+
 (defn position-overlay!
   "Positions overlay sprite on top of textfield and applies a scrollRect."
   [buffer]
   (let [overlay (buffer :overlay)
         tf (buffer :textfield)]
-    (set! (. overlay x) (. tf x))
-    (set! (. overlay y) (. tf y))
+    (mset! overlay [x (. tf x)
+		    y (. tf y)
+		    visible true])
 
     (set! (. overlay-rect width) (. tf width))
     (set! (. overlay-rect height) (. tf height))
-    (set! (. overlay scrollRect) overlay-rect)
-    ;; (set! (. overlay scrollRect) (new flash.geom.Rectangle 0 0 (. tf width) (. tf height)))
-))
+    (set! (. overlay scrollRect) overlay-rect)))
 
 (defn matching-bracket
   "Returns c's matching bracket or nil."
@@ -119,8 +123,6 @@
   (assert-true (= (common-prefix-length "aBC", "DaBC") 0))
   (assert-true (= (common-prefix-length "aXbXc", "aXc") 2))
   (assert-true (= (common-prefix-length "aaaXccc", "aaaXbbbXccc") 4)))
-
-
 
 ;; This is a parser/highlighter for las3r syntax.
 
@@ -365,8 +367,6 @@
         modifiers (if (. e shiftKey) (conj modifiers :shift) modifiers)]
     {:code (. e keyCode) :modifiers modifiers}))
 
-
-
 ;;;;;;;;;;;;;;;;;;;
 
 (las3r.core/in-ns 'psymacs.main)
@@ -411,7 +411,6 @@
                   (highlight-char! l)
                   (highlight-char! r))))))))))
 
-
 (defn attach-to-textfield-container
   "Returns a psymacs buffer. Container should have a readable textField property."
   [cont]
@@ -430,7 +429,6 @@
 (def parse-progress (new com.bit101.components.ProgressBar))
 (def buffer (assoc (attach-to-textfield-container code-pane)
 	      :runtime *runtime*))
-
 
 (defn current-fn-name [buffer]
   (let [caret-idx (. (buffer :textfield) caretIndex)
@@ -498,50 +496,54 @@
 (def #^{:private true} *prev-scrollv* nil)
 (def #^{:private true} *prev-scrollh* nil)
 (def #^{:private true} *prev-position* nil)
+(def #^{:private true} *ui-needs-update* false)
+(def #^{:private true} *last-action-time* 0)
+
 (def *parser-time-limit* (/ 1000 (. *stage* frameRate)))
+(def *idle-time* 200)
 
-(defn- changed? []
-  (not= (. (buffer :textfield) text) *prev-text*))
+(defn- frame-handler [_]
+  (let [time (get-timer)
+	changed? (not= (. (buffer :textfield) text) *prev-text*)
+	moved? (not= (. (buffer :textfield) caretIndex) *prev-position*)
+	scrolled? (not (and (= (. (buffer :textfield) scrollV) *prev-scrollv*)
+			    (= (. (buffer :textfield) scrollH) *prev-scrollh*)))
+	busy? (< (- time *last-action-time*) *idle-time*)]
+    (when changed?
+      ;; sanitize
+      (set! (. (buffer :textfield) text)
+	    (. (. (. (buffer :textfield) text) (replace #"(\r\n|\r)"g "\n")) (replace #"\t"g " ")))
+      ;; update parser
+      (def buffer (assoc buffer :parser (update-tfp (buffer :parser)))))
 
-(defn- moved? []
-  (not= (. (buffer :textfield) caretIndex) *prev-position*))
+    (when-not busy?
+      (when-not ((buffer :parser) :done)
+	(let [limit (+ time *parser-time-limit*)]
+	  (repeat-until (or (> (get-timer) limit)
+			    ((buffer :parser) :done))
+			(def buffer (assoc buffer :parser (parse-and-highlight-next! (buffer :parser))))))
 
-(defn- scrolled? []
-  (not (and (= (. (buffer :textfield) scrollV) *prev-scrollv*)
-	    (= (. (buffer :textfield) scrollH) *prev-scrollh*))))
+	(let [buffer-length (count (. (buffer :textfield) text))]
+	  (mset! parse-progress [maximum buffer-length
+				 value (if ((buffer :parser) :done)
+					 buffer-length
+					 ((vlast ((buffer :parser) :tokens)) :next-index))])))
+      (when *ui-needs-update*
+	(def #^{:private true} *ui-needs-update* false)
+	(position-overlay! buffer)
+	(highlight-current-sexp! buffer)
+	(context-doc buffer)))
 
-(defn- frame-handler [_] 
-  (when (changed?)
-    ;; sanitize
-    (set! (. (buffer :textfield) text)
-	  (. (. (. (buffer :textfield) text) (replace #"(\r\n|\r)"g "\n")) (replace #"\t"g " ")))
-    ;; update parser
-    (def buffer (assoc buffer :parser (update-tfp (buffer :parser)))))
+    (when (or changed? moved? scrolled?)
+      (def #^{:private true} *last-action-time* (get-timer))
+      (def #^{:private true} *ui-needs-update* true)
+      (hide-overlay! buffer))
 
-  (when-not ((buffer :parser) :done)
-    (let [limit (+ (get-timer) *parser-time-limit*)]
-      (repeat-until (or (> (get-timer) limit) (> (get-timer) limit)
-			((buffer :parser) :done))
-		    (def buffer (assoc buffer :parser (parse-and-highlight-next! (buffer :parser))))))
-
-    (let [buffer-length (count (. (buffer :textfield) text))]
-      (mset! parse-progress [maximum buffer-length
-			     value (if ((buffer :parser) :done)
-				     buffer-length
-				     ((vlast ((buffer :parser) :tokens)) :next-index))])))
-
-  (when (or (changed?) (moved?) (scrolled?))
-    (position-overlay! buffer)
-    (highlight-current-sexp! buffer))
-
-  (when (or (changed?) (moved?))
-    (context-doc buffer))
-
-  (let [tf (buffer :textfield)]
-    (def *prev-scrollh* (. tf scrollH))
-    (def *prev-scrollv* (. tf scrollV))
-    (def *prev-text* (. tf text))
-    (def *prev-position* (. tf caretIndex))))
+    (let [tf (buffer :textfield)]
+      (def #^{:private true} *prev-scrollh* (. tf scrollH))
+      (def #^{:private true} *prev-scrollv* (. tf scrollV))
+      (def #^{:private true} *prev-text* (. tf text))
+      (def #^{:private true} *prev-position* (. tf caretIndex)))))
 
 (defn init []
   (doseq obj [code-pane help-pane out-pane err-pane parse-progress]
