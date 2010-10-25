@@ -261,8 +261,6 @@
   "Returns an up-to-date parser (in case the textfield's content has changed)."
   [tfp]
   (if (content-changed? tfp)
-    ;; (textfield-parser (tfp :textfield)) ;; debug - bypass
-    ;; #_
     (let [cpl (common-prefix-length (. (tfp :textfield) text) (tfp :text))]
       (if (> cpl (parse-index tfp))
         tfp
@@ -325,7 +323,7 @@
 (defn parse-and-highlight-next! 
   "Returns a new parser state."
   [tfp]
-  (let [tfp (parse-next (update-tfp tfp))]
+  (let [tfp (parse-next tfp #_ (update-tfp tfp))] ;; debug
     (if (not (tfp :done))
       (highlight-last! tfp))
     tfp))
@@ -427,6 +425,7 @@
 (def err-pane (new com.bit101.components.TextArea))
 (def out-pane (new com.bit101.components.TextArea))
 (def parse-progress (new com.bit101.components.ProgressBar))
+(def stats (new net.hires.debug.Stats))
 (def buffer (assoc (attach-to-textfield-container code-pane)
 	      :runtime *runtime*))
 
@@ -477,6 +476,7 @@
         cw (* w 3/4)   ;; code pane width
         ch (* h 4/5)]  ;; code pane height
     (mset! parse-progress [y h width w])
+    (set! (. stats x) (- w (. stats width)))
 
     (mset! code-pane [x 0  y 0       width cw       height ch])
     (mset! help-pane [x 0  y ch      width cw       height (- h ch)])
@@ -492,7 +492,6 @@
        ~@body
        (recur))))
 
-(def #^{:private true} *prev-text* nil)
 (def #^{:private true} *prev-scrollv* nil)
 (def #^{:private true} *prev-scrollh* nil)
 (def #^{:private true} *prev-position* nil)
@@ -502,20 +501,34 @@
 (def *parser-time-limit* (/ 1000 (. *stage* frameRate)))
 (def *idle-time* 200)
 
+(def changed? false)
+
+;; in principle this should also trigger a full buffer highlight invalidation, 
+;; since pasting identical text will remove the formatting and  won't be 
+;; noticed by update-tfp. but it's not worth the cpu cost imo.
+(defn- change-handler [& _]
+  (def changed? true)
+  ;; sanitize (cleanup tabs and CRLFs)
+  ;; don't touch anything before the 1st bad char, text might already be highlighted
+  (let [text (. (buffer :textfield) text)
+	first-crlf (. text (indexOf "\r\n"))
+	first-tab (. text (indexOf "\t"))]
+    (when (or (pos? first-crlf) (pos? first-tab)) ;; if bad chars found
+      (let [bad-idx ((if (and (pos? first-crlf) (pos? first-tab))
+		       min
+		       max) first-crlf first-tab) ;; first bad char idx
+	    bad-str (subs text bad-idx)
+	    good-str (. (. bad-str (replace #"(\r\n|\r)"g "\n")) (replace #"\t"g " "))]
+	(. (buffer :textfield) (replaceText bad-idx (count text) good-str)))))
+  ;; update parser
+  (def buffer (assoc buffer :parser (update-tfp (buffer :parser)))))
+
 (defn- frame-handler [_]
   (let [time (get-timer)
-	changed? (not= (. (buffer :textfield) text) *prev-text*)
 	moved? (not= (. (buffer :textfield) caretIndex) *prev-position*)
 	scrolled? (not (and (= (. (buffer :textfield) scrollV) *prev-scrollv*)
 			    (= (. (buffer :textfield) scrollH) *prev-scrollh*)))
 	busy? (< (- time *last-action-time*) *idle-time*)]
-    (when changed?
-      ;; sanitize
-      (set! (. (buffer :textfield) text)
-	    (. (. (. (buffer :textfield) text) (replace #"(\r\n|\r)"g "\n")) (replace #"\t"g " ")))
-      ;; update parser
-      (def buffer (assoc buffer :parser (update-tfp (buffer :parser)))))
-
     (when-not busy?
       (when-not ((buffer :parser) :done)
 	(let [limit (+ time *parser-time-limit*)]
@@ -535,20 +548,21 @@
 	(context-doc buffer)))
 
     (when (or changed? moved? scrolled?)
-      (def #^{:private true} *last-action-time* (get-timer))
+      (def changed? false)
+      (def #^{:private true} *last-action-time* time)
       (def #^{:private true} *ui-needs-update* true)
-      (hide-overlay! buffer))
+      (hide-overlay! buffer)
 
-    (let [tf (buffer :textfield)]
-      (def #^{:private true} *prev-scrollh* (. tf scrollH))
-      (def #^{:private true} *prev-scrollv* (. tf scrollV))
-      (def #^{:private true} *prev-text* (. tf text))
-      (def #^{:private true} *prev-position* (. tf caretIndex)))))
+      (let [tf (buffer :textfield)]
+	(def #^{:private true} *prev-scrollh* (. tf scrollH))
+	(def #^{:private true} *prev-scrollv* (. tf scrollV))
+	(def #^{:private true} *prev-position* (. tf caretIndex))))))
 
 (defn init []
-  (doseq obj [code-pane help-pane out-pane err-pane parse-progress]
+  (doseq obj [code-pane help-pane out-pane err-pane parse-progress stats]
     (. *stage* (addChild obj)))
   (. *stage* (addEventListener "resize" update-layout!))
+  (. (buffer :textfield) (addEventListener "change" change-handler))
   (. *stage* (addEventListener "enterFrame" frame-handler))
 
   (measure-font! (buffer :textfield))
@@ -582,3 +596,8 @@
   
 ;;   (. *stage* (addEventListener "enterFrame" frame-handler))
 ;;   (. *stage* (addChild (buff :container))))
+
+
+(init)
+;; show repl on top
+(. *stage* (addChild (. (get-def "MCompsTest") repl)))
