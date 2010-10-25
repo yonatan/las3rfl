@@ -10,6 +10,7 @@ package {
 	import com.las3r.repl.Repl;
 	import com.bit101.components.*;
 	import jp.psyark.psycode.core.TextEditUI;
+	import net.hires.debug.Stats;
 
 	com.bit101.components.TextArea;
 	com.bit101.components.ProgressBar;
@@ -17,11 +18,16 @@ package {
 
     [SWF(width=950,height=600,backgroundColor=0xFFFFFF,frameRate=30)]
     public class MCompsTest extends Sprite {
+		//[Embed(source="fonts/DroidSansMono.ttf", embedAsCFF="false", fontName="Droid Sans Mono", mimeType="application/x-font")]
+		[Embed(source="fonts/DejaVuSansMono.ttf", embedAsCFF="false", fontName="Droid Sans Mono", mimeType="application/x-font")]
+        protected const PsymacsFont:Class;
+		
         [Embed(source="psymacs.parser.lsr", mimeType="application/octet-stream")]
         protected const PsymacsLsr:Class;
         protected var las3rCode:String
 
-        public var repl:Repl;
+        public static var repl:Repl;
+        public static var stats:Stats = new Stats;
         public var rt:RT;
         
         public function MCompsTest() {
@@ -32,6 +38,7 @@ package {
 
 			repl = new Repl(400, 400, stage);
 			stage.addChild(repl);
+			//stage.addChild(stats);
 			repl.addEventListener("inited", init);
 		}
 
@@ -49,7 +56,10 @@ package {
 			// 	]]>;
 			
 
-			repl.evalLibrary(las3rCode += "(init)", trace);
+			repl.evalLibrary(las3rCode += 
+				'(init)' +
+				'(. *stage* (addChild (. (get-def "MCompsTest") repl)))'
+				, trace);
         }
     }
 }

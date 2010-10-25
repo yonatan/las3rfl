@@ -18,7 +18,7 @@
     (v (dec (count v)))))
 
 (defmacro mset! 
-  "Sets multiple objet properties."
+  "Sets multiple object properties."
   [obj name-vals]
   (loop [nv name-vals
          acc '()]
@@ -54,8 +54,27 @@
             (recur lo mid)))
         (and (not (under-value? (nth data lo))) lo)))))
 
-(def *char-width* 8)
+(def *char-width* 7.8283)
 (def *char-height* 16)
+
+(defn measure-font!
+  "Sets char width and height for char-xy fn."
+  [tf]
+  (let [tmp (new flash.text.TextField)]
+    (mset! tmp [embedFonts (. tf embedFonts)
+    		multiline true
+    		antiAliasType (. tf antiAliasType)
+    		autoSize "left"
+    		defaultTextFormat (. tf defaultTextFormat)])
+    (let [extra-x (. tmp width)
+    	  extra-y (. tmp height)
+    	  s (str (apply str (take 1000 (repeat "M")))
+    		 (apply str (take 999 (repeat "\nM"))))] ;; 1000x1000 chars
+      (set! (. tmp text) s)
+
+      (def *char-width* (/ (- (. tmp width) extra-x) 1000))
+      (def *char-height* (/ (- (. tmp height) extra-y) 1000)))))
+
 (defn char-xy
   "Returns the [x y] coordinates of the char at the specified index. Compensates for textfield scrolling."
   [tf idx]
@@ -194,18 +213,18 @@
 
 (def formats
      {:other       (new flash.text.TextFormat nil nil 0x000000 false) ;; default token format
-      :whitespace  (new flash.text.TextFormat nil nil 0xa0a0a0 true) ;; used on whitespace (and commas)
-      :regex       (new flash.text.TextFormat nil nil 0x00aa22 true)
-      :string      (new flash.text.TextFormat nil nil 0xaa8800 true)
-      :unmatched   (new flash.text.TextFormat nil nil 0xff0000 true)
-      :char        (new flash.text.TextFormat nil nil 0xccaa44 true)
-      :comment     (new flash.text.TextFormat nil nil 0xcc2200 true)
-      :lbracket    (new flash.text.TextFormat nil nil 0x005577 true)
-      :rbracket    (new flash.text.TextFormat nil nil 0x005577 true)
-      :keyword     (new flash.text.TextFormat nil nil 0x008888 true)
-      :int         (new flash.text.TextFormat nil nil 0x440088 true)
-      :float       (new flash.text.TextFormat nil nil 0x8800cc true)
-      :ratio       (new flash.text.TextFormat nil nil 0xcc00ff true)})
+      :whitespace  (new flash.text.TextFormat nil nil 0xa0a0a0 false) ;; used on whitespace (and commas)
+      :regex       (new flash.text.TextFormat nil nil 0x00aa22 false)
+      :string      (new flash.text.TextFormat nil nil 0xaa8800 false)
+      :unmatched   (new flash.text.TextFormat nil nil 0xff0000 false)
+      :char        (new flash.text.TextFormat nil nil 0xccaa44 false)
+      :comment     (new flash.text.TextFormat nil nil 0xcc2200 false)
+      :lbracket    (new flash.text.TextFormat nil nil 0x005577 false)
+      :rbracket    (new flash.text.TextFormat nil nil 0x005577 false)
+      :keyword     (new flash.text.TextFormat nil nil 0x008888 false)
+      :int         (new flash.text.TextFormat nil nil 0x440088 false)
+      :float       (new flash.text.TextFormat nil nil 0x8800cc false)
+      :ratio       (new flash.text.TextFormat nil nil 0xcc00ff false)})
 
 (defn string-parser [s]
   {:text s
@@ -393,37 +412,6 @@
                   (highlight-char! r))))))))))
 
 
-;; TODO: search all namespaces?
-;; (defn format-doc [fn-name]
-;;   "Returns the enclosing function's documentation in the minibuffer, searches in current *ns* and 'las3r.core."
-;;   []
-;;   (let [name (back-search-for-context-doc)]
-;;     (if name 
-;;       (try
-;;        (let [v (or (find-var (symbol (ns-name *ns*) name))
-;;                 (find-var (symbol 'las3r.core name)))
-;;                   arglists ((meta v) :arglists)]
-;;               (minibuff-print-doc v))
-;;        (catch Error e nil)))))
-
-(defn docs [buffer]
-  (let [caret-idx (. (buffer :textfield) caretIndex)
-        pos (if (= caret-idx (count (buffer-string buffer))) ;; if we're past the last char
-              (max 0 (dec caret-idx)) ;; go one char back
-              caret-idx)]
-    (prn 'pos pos)
-    (when-let token-idx (char->token-index (buffer :parser) pos)
-      (let [tokens ((buffer :parser) :tokens)
-            token (tokens token-idx)]
-        (when-let doc-idx (some (fn [ti] 
-                                  (when (= ((tokens ti) :string) "(") 
-                                    (inc ti)))
-                                (token :open-lbrackets))
-          (let [fn-token (tokens doc-idx)]
-            (when (= (fn-token :type) :other)
-              (let [fn-name (fn-token :string)]
-                #_ (prn 'fn-name fn-name)))))))))
-
 (defn attach-to-textfield-container
   "Returns a psymacs buffer. Container should have a readable textField property."
   [cont]
@@ -436,11 +424,53 @@
      :parser (textfield-parser tf)}))
 
 (def code-pane (new jp.psyark.psycode.core.TextEditUI))
-(def buffer (attach-to-textfield-container code-pane))
 (def help-pane (new com.bit101.components.TextArea))
 (def err-pane (new com.bit101.components.TextArea))
 (def out-pane (new com.bit101.components.TextArea))
 (def parse-progress (new com.bit101.components.ProgressBar))
+(def buffer (assoc (attach-to-textfield-container code-pane)
+	      :runtime *runtime*))
+
+
+(defn current-fn-name [buffer]
+  (let [caret-idx (. (buffer :textfield) caretIndex)
+        pos (if (= caret-idx (count (buffer-string buffer))) ;; if we're past the last char
+              (max 0 (dec caret-idx)) ;; go one char back
+              caret-idx)]
+    (when-let token-idx (char->token-index (buffer :parser) pos)
+      (let [tokens ((buffer :parser) :tokens)
+            token (tokens token-idx)]
+        (when-let doc-idx (some (fn [ti] 
+                                  (when (= ((tokens ti) :string) "(") 
+                                    (inc ti)))
+                                (token :open-lbrackets))
+          (let [fn-token (tokens doc-idx)]
+            (when (= (fn-token :type) :other)
+              (let [fn-name (fn-token :string)]
+                (str fn-name)))))))))
+
+(defn print-help
+  "Like print-doc, with different formatting."
+  [v]
+  (println (str (ns-name (get ^v :ns)) "/" (get ^v :name) 
+		(if (get ^v :macro) " - Macro" "")))
+  (prn (get ^v :arglists))
+  (println " " (get ^v :doc)))
+
+;; TODO: search all namespaces?
+(defn context-doc [buffer]
+  "Shows the enclosing function's documentation in the minibuffer, searches in current *ns* and 'las3r.core."
+  []
+  (let [tf (. help-pane textField)]
+    (set! (. tf text) "")
+    (let [name (current-fn-name buffer)]
+      (when name
+	(try (let [v (or (find-var (symbol (ns-name *ns*) name))
+			 (find-var (symbol 'las3r.core name)))
+		   arglists ((meta v) :arglists)]
+	       (binding [*out* (new com.las3r.io.OutputStream (. tf appendText))]
+		 (print-help v)))
+	     (catch Error e nil))))))
 
 (defn update-layout! [& _]
   (let [pbh (. parse-progress height)
@@ -448,16 +478,12 @@
         h (- (. *stage* stageHeight) pbh)
         cw (* w 3/4)   ;; code pane width
         ch (* h 4/5)]  ;; code pane height
-    (mset! parse-progress
-    	   [y h width w])
-    (mset! code-pane
-           [x 0 y 0 width cw height ch alpha 0.5])
-    (mset! help-pane
-           [x 0 y ch width cw height (- h ch)])
-    (mset! out-pane
-           [x cw y 0 width (- w cw) height (/ h 2)])
-    (mset! err-pane
-           [x cw y (/ h 2) width (- w cw) height (/ h 2)]))
+    (mset! parse-progress [y h width w])
+
+    (mset! code-pane [x 0  y 0       width cw       height ch])
+    (mset! help-pane [x 0  y ch      width cw       height (- h ch)])
+    (mset! out-pane  [x cw y 0       width (- w cw) height (/ h 2)])
+    (mset! err-pane  [x cw y (/ h 2) width (- w cw) height (/ h 2)]))
   (position-overlay! buffer))
 
 (defmacro repeat-until
@@ -468,9 +494,30 @@
        ~@body
        (recur))))
 
+(def #^{:private true} *prev-text* nil)
+(def #^{:private true} *prev-scrollv* nil)
+(def #^{:private true} *prev-scrollh* nil)
+(def #^{:private true} *prev-position* nil)
 (def *parser-time-limit* (/ 1000 (. *stage* frameRate)))
+
+(defn- changed? []
+  (not= (. (buffer :textfield) text) *prev-text*))
+
+(defn- moved? []
+  (not= (. (buffer :textfield) caretIndex) *prev-position*))
+
+(defn- scrolled? []
+  (not (and (= (. (buffer :textfield) scrollV) *prev-scrollv*)
+	    (= (. (buffer :textfield) scrollH) *prev-scrollh*))))
+
 (defn- frame-handler [_] 
-  (def buffer (assoc buffer :parser (update-tfp (buffer :parser)))) ;; in case text has changed
+  (when (changed?)
+    ;; sanitize
+    (set! (. (buffer :textfield) text)
+	  (. (. (. (buffer :textfield) text) (replace #"(\r\n|\r)"g "\n")) (replace #"\t"g " ")))
+    ;; update parser
+    (def buffer (assoc buffer :parser (update-tfp (buffer :parser)))))
+
   (when-not ((buffer :parser) :done)
     (let [limit (+ (get-timer) *parser-time-limit*)]
       (repeat-until (or (> (get-timer) limit) (> (get-timer) limit)
@@ -482,23 +529,41 @@
 			     value (if ((buffer :parser) :done)
 				     buffer-length
 				     ((vlast ((buffer :parser) :tokens)) :next-index))])))
-  (highlight-current-sexp! buffer))
 
-(defn change-handler [& _]
-  ;; sanitize text
-  ;; (set! (. (buffer :textfield) text)
-  ;; 	(. (. (. (buffer :textfield) text) (replace #"(\r\n|\r)"g "\n")) (replace "\t" " "))
+  (when (or (changed?) (moved?) (scrolled?))
+    (position-overlay! buffer)
+    (highlight-current-sexp! buffer))
 
-  ;; overlay needs to be repositioned, the textfield might be pushed by the line numbers
-  (position-overlay! buffer))
+  (when (or (changed?) (moved?))
+    (context-doc buffer))
+
+  (let [tf (buffer :textfield)]
+    (def *prev-scrollh* (. tf scrollH))
+    (def *prev-scrollv* (. tf scrollV))
+    (def *prev-text* (. tf text))
+    (def *prev-position* (. tf caretIndex))))
 
 (defn init []
   (doseq obj [code-pane help-pane out-pane err-pane parse-progress]
     (. *stage* (addChild obj)))
   (. *stage* (addEventListener "resize" update-layout!))
-  (. (buffer :textfield) (addEventListener "change" change-handler))
   (. *stage* (addEventListener "enterFrame" frame-handler))
-  (update-layout!))
+
+  (measure-font! (buffer :textfield))
+  (update-layout!)
+
+  (def ctf (buffer :textfield))
+
+  ;; (def stdout (new com.las3r.io.OutputStream (. (. out-pane textField) appendText)))
+  ;; (def lns (. *runtime* LAS3R_NAMESPACE))
+  ;; (. com.las3r.runtime.Var (internWithRoot lns '*out* stdout))
+  
+
+)
+
+(defn deinit [] ; for debugging purposes
+  (. *stage* (removeEventListener "resize" update-layout!))
+  (. *stage* (removeEventListener "enterFrame" frame-handler)))
   
   
 
