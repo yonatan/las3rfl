@@ -28,6 +28,11 @@
 
 (def get-timer (get-def "flash.utils.getTimer"))
 
+(defn clipped-caret-idx 
+  "Returns caret index or index of last char if caret is at end-of-string."
+  [tf]
+  (min (. tf caretIndex) (max 0 (dec (. tf length)))))
+
 (defn common-prefix-length [s1 s2]
   (let [min-length (min (count s1) (count s2))]
     (min (loop [step (. Math (pow 2 (. Math (floor (log2 min-length)))))
@@ -95,7 +100,7 @@
   "Positions overlay sprite on top of textfield and applies a scrollRect."
   [buffer]
   (let [overlay (buffer :overlay)
-        tf (buffer :textfield)]
+        tf ((buffer :parser) :textfield)]
     (mset! overlay [x (. tf x)
 		    y (. tf y)
 		    visible true])
@@ -304,7 +309,7 @@
                   p-bps)
 
             token (assoc token :open-lbrackets olbs :bracket-pairs bps)]
-            (assoc parser :tokens (conj tokens token)))
+	(assoc parser :tokens (conj tokens token)))
       (assoc parser :done true))))
 
 (defn parse-all [parser]
@@ -343,7 +348,7 @@
 ;;     (set! (. tf multiline) true)
 ;;     (set! (. tf type) "input")
 ;;     (set! (. tf defaultTextFormat) (new flash.text.TextFormat "Courier New", 13, 0x000000))
-    
+
 ;;     (. *stage* (addEventListener "enterFrame" 
 ;;                               (fn [_] 
 ;;                                 (def tfp (parse-and-highlight-next! tfp))
@@ -365,6 +370,72 @@
         modifiers (if (. e shiftKey) (conj modifiers :shift) modifiers)]
     {:code (. e keyCode) :modifiers modifiers}))
 
+
+(def *kb-map* {})
+
+(defmacro kb
+  "Shortcut for flash.ui.Keyboard constants"
+  [const]
+  `(. flash.ui.Keyboard ~const))
+
+(defn set-key-handler!
+  "Sets a function as the handler for a specific keypress. key can be either a character or a key-code, modifiers are a sequence which can contain :ctrl, :alt and :shift."
+  [key modifiers handler]
+  (def *kb-map*
+       (assoc *kb-map*
+	 {:code (if (string? key)
+		  (. (. key (toUpperCase)) (charCodeAt 0))
+		  key)
+	  :modifiers (into #{} modifiers)}
+	 handler)))
+
+(defn key-down-handler [event]
+  (when-let cmd (*kb-map* (event->keystroke event))
+    (cmd)))
+
+;;;;;;;;;;;;;;;;;;;
+
+(las3r.core/in-ns 'psymacs.undo)
+(las3r.core/refer 'las3r.core :exclude '(run-tests))
+(las3r.core/refer 'psymacs.parser :exclude '(run-tests))
+(las3r.core/refer 'psymacs.utils :exclude '(run-tests))
+
+(def comparator (new jp.psyark.utils.StringComparator))
+(defn delta [old-str new-str]
+  (. comparator (compare old-str new-str))
+  (let [cpl (. comparator commonPrefixLength)
+	csl (. comparator commonSuffixLength)]
+    {:common-prefix-length cpl
+     :common-suffix-length csl
+     :old-content (subs old-str cpl (- (count old-str) csl))}))
+
+(defn create-undo-point 
+  "Creates a new undo point, must be called after the textfield is changed and 
+before the parser's :text is updated."
+  [buffer]
+  (let [tf-text (. ((buffer :parser) :textfield) text)
+	parser-text ((buffer :parser) :text)]
+    (if (= tf-text parser-text)
+      buffer ;; return buffer if no change
+      (assoc buffer :undo-stack (conj (buffer :undo-stack) (delta parser-text tf-text))))))
+
+(defn undo! [buffer]
+  (let [{stack :undo-stack depth :undo-depth parser :parser} buffer
+	tf (parser :textfield)
+	stack-last (dec (count stack))]
+    (if (and (seq stack)
+	     (<= depth stack-last))
+      (let [delta (nth stack (- stack-last depth))]
+	(prn 'undoing tf)
+	(. tf (replaceText (delta :common-prefix-length)
+			   (- (. tf length) (delta :common-suffix-length))
+			   (delta :old-content)))
+	(update-tfp (create-undo-point (assoc buffer :undo-depth (+ depth 2)))))
+      buffer)))
+
+
+
+
 ;;;;;;;;;;;;;;;;;;;
 
 (las3r.core/in-ns 'psymacs.main)
@@ -372,17 +443,18 @@
 (las3r.core/refer 'psymacs.parser :exclude '(run-tests))
 (las3r.core/refer 'psymacs.utils :exclude '(run-tests))
 (las3r.core/refer 'psymacs.keyboard :exclude '(run-tests))
+(las3r.core/refer 'psymacs.undo :exclude '(run-tests))
 
 (def *bracket-match-color* 0xAAAAAA)
 (def *bracket-mismatch-color* 0xFF0000)
 (def *background-color* 0xEEEEEE)
 
 (defn buffer-string [buffer]
-  (. (buffer :textfield) text))
+  (. ((buffer :parser) :textfield) text))
 
 (defn highlight-current-sexp! [buffer]
-  (let [tf (buffer :textfield)
-	pos (. tf caretIndex)
+  (let [tf ((buffer :parser) :textfield)
+	pos (clipped-caret-idx tf)
         g (. (buffer :overlay) graphics)]
     (. g (clear))
     (when-let token-idx (char->token-index (buffer :parser) pos)
@@ -415,7 +487,8 @@
   (let [overlay (new flash.display.Sprite)
         tf (. cont textField)]
     (. cont (addChild overlay))
-    {:textfield tf
+    {:undo-stack []
+     :undo-depth 0
      :container cont
      :overlay overlay
      :parser (textfield-parser tf)}))
@@ -430,7 +503,7 @@
 	      :runtime *runtime*))
 
 (defn current-fn-name [buffer]
-  (let [caret-idx (. (buffer :textfield) caretIndex)
+  (let [caret-idx (. ((buffer :parser) :textfield) caretIndex)
         pos (if (= caret-idx (count (buffer-string buffer))) ;; if we're past the last char
               (max 0 (dec caret-idx)) ;; go one char back
               caret-idx)]
@@ -504,13 +577,13 @@
 (def changed? false)
 
 ;; in principle this should also trigger a full buffer highlight invalidation, 
-;; since pasting identical text will remove the formatting and  won't be 
+;; since pasting identical text will remove the formatting and won't be 
 ;; noticed by update-tfp. but it's not worth the cpu cost imo.
 (defn- change-handler [& _]
   (def changed? true)
   ;; sanitize (cleanup tabs and CRLFs)
   ;; don't touch anything before the 1st bad char, text might already be highlighted
-  (let [text (. (buffer :textfield) text)
+  (let [text (buffer-string buffer)
 	first-crlf (. text (indexOf "\r\n"))
 	first-tab (. text (indexOf "\t"))]
     (when (or (pos? first-crlf) (pos? first-tab)) ;; if bad chars found
@@ -519,28 +592,31 @@
 		       max) first-crlf first-tab) ;; first bad char idx
 	    bad-str (subs text bad-idx)
 	    good-str (. (. bad-str (replace #"(\r\n|\r)"g "\n")) (replace #"\t"g " "))]
-	(. (buffer :textfield) (replaceText bad-idx (count text) good-str)))))
+	(. ((buffer :parser) :textfield) (replaceText bad-idx (count text) good-str)))))
   ;; update parser
+  (def buffer (create-undo-point buffer))
   (def buffer (assoc buffer :parser (update-tfp (buffer :parser)))))
 
 (defn- frame-handler [_]
-  (let [time (get-timer)
-	moved? (not= (. (buffer :textfield) caretIndex) *prev-position*)
-	scrolled? (not (and (= (. (buffer :textfield) scrollV) *prev-scrollv*)
-			    (= (. (buffer :textfield) scrollH) *prev-scrollh*)))
+  (let [tf ((buffer :parser) :textfield)
+	moved? (not= (. tf caretIndex) *prev-position*)
+	scrolled? (not (and (= (. tf scrollV) *prev-scrollv*)
+			    (= (. tf scrollH) *prev-scrollh*)))
+	time (get-timer)
 	busy? (< (- time *last-action-time*) *idle-time*)]
     (when-not busy?
       (when-not ((buffer :parser) :done)
-	(let [limit (+ time *parser-time-limit*)]
+	(let [limit (+ time *parser-time-limit* 400)]
 	  (repeat-until (or (> (get-timer) limit)
 			    ((buffer :parser) :done))
 			(def buffer (assoc buffer :parser (parse-and-highlight-next! (buffer :parser))))))
 
-	(let [buffer-length (count (. (buffer :textfield) text))]
-	  (mset! parse-progress [maximum buffer-length
-				 value (if ((buffer :parser) :done)
-					 buffer-length
-					 ((vlast ((buffer :parser) :tokens)) :next-index))])))
+	(when (seq ((buffer :parser) :tokens))
+	  (let [buffer-length (. tf length)]
+	    (mset! parse-progress [maximum buffer-length
+				   value (if ((buffer :parser) :done)
+					   buffer-length
+					   ((vlast ((buffer :parser) :tokens)) :next-index))]))))
       (when *ui-needs-update*
 	(def #^{:private true} *ui-needs-update* false)
 	(position-overlay! buffer)
@@ -553,35 +629,44 @@
       (def #^{:private true} *ui-needs-update* true)
       (hide-overlay! buffer)
 
-      (let [tf (buffer :textfield)]
-	(def #^{:private true} *prev-scrollh* (. tf scrollH))
-	(def #^{:private true} *prev-scrollv* (. tf scrollV))
-	(def #^{:private true} *prev-position* (. tf caretIndex))))))
+      (def #^{:private true} *prev-scrollh* (. tf scrollH))
+      (def #^{:private true} *prev-scrollv* (. tf scrollV))
+      (def #^{:private true} *prev-position* (. tf caretIndex)))))
 
 (defn init []
-  (doseq obj [code-pane help-pane out-pane err-pane parse-progress stats]
-    (. *stage* (addChild obj)))
-  (. *stage* (addEventListener "resize" update-layout!))
-  (. (buffer :textfield) (addEventListener "change" change-handler))
-  (. *stage* (addEventListener "enterFrame" frame-handler))
+  (let [tf ((buffer :parser) :textfield)]
+    (doseq obj [code-pane help-pane out-pane err-pane parse-progress stats]
+      (. *stage* (addChild obj)))
 
-  (measure-font! (buffer :textfield))
-  (update-layout!)
+    (. *stage* (addEventListener "resize" update-layout!))
+    ;(. tf (addEventListener "keyDown" key-down-handler))
+    (. tf (addEventListener "change" change-handler))
+    (. *stage* (addEventListener "enterFrame" frame-handler))
 
-  (def ctf (buffer :textfield))
+    ;; show repl on top
+    (. *stage* (addChild (. (get-def "MCompsTest") repl)))
 
-  ;; (def stdout (new com.las3r.io.OutputStream (. (. out-pane textField) appendText)))
-  ;; (def lns (. *runtime* LAS3R_NAMESPACE))
-  ;; (. com.las3r.runtime.Var (internWithRoot lns '*out* stdout))
-  
+    (measure-font! tf)
+    (update-layout!)
 
-)
+    ;; tmp testing helpers
+    (def ctf tf)
+
+    (defn ui [] (prn "stack: " (buffer :undo-stack) "\ndepth: " (buffer :undo-depth)))
+    
+    (defn undo [] (def buffer (undo! buffer)))
+
+    ;; (def stdout (new com.las3r.io.OutputStream (. (. out-pane textField) appendText)))
+    ;; (def lns (. *runtime* LAS3R_NAMESPACE))
+    ;; (. com.las3r.runtime.Var (internWithRoot lns '*out* stdout))
+
+    ))
 
 (defn deinit [] ; for debugging purposes
   (. *stage* (removeEventListener "resize" update-layout!))
   (. *stage* (removeEventListener "enterFrame" frame-handler)))
-  
-  
+
+
 
 ;; (defn run-tests []
 ;;   (def teui (new jp.psyark.psycode.core.TextEditUI))
@@ -593,11 +678,9 @@
 ;;   (set! (. teui x) 500)
 ;;   (set! (. teui y) 100)
 ;;   ;(set! (. (buff :container) scrollRect) (new flash.geom.Rectangle 0 0 300 300))
-  
+
 ;;   (. *stage* (addEventListener "enterFrame" frame-handler))
 ;;   (. *stage* (addChild (buff :container))))
 
 
 (init)
-;; show repl on top
-(. *stage* (addChild (. (get-def "MCompsTest") repl)))

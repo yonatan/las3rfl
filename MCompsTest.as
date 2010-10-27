@@ -10,12 +10,14 @@ package {
 	import com.las3r.repl.Repl;
 	import com.bit101.components.*;
 	import jp.psyark.psycode.core.TextEditUI;
+	import jp.psyark.utils.StringComparator;
 	import net.hires.debug.Stats;
 
 	// classes used by las3r code
 	com.bit101.components.TextArea;
 	com.bit101.components.ProgressBar;
 	jp.psyark.psycode.core.TextEditUI;
+	jp.psyark.utils.StringComparator;
 	net.hires.debug.Stats;
 
     [SWF(width=950,height=600,backgroundColor=0xFFFFFF,frameRate=30)]
