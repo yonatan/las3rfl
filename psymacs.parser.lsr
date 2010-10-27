@@ -28,6 +28,11 @@
 
 (def get-timer (get-def "flash.utils.getTimer"))
 
+(defn sanitize 
+  "Sanitize a string - replace tabs w/spaces, newlines with \\n."
+  [s]
+  (. (. s (replace #"(\r\n|\r)"g "\n")) (replace #"\t"g " ")))
+
 (defn clipped-caret-idx 
   "Returns caret index or index of last char if caret is at end-of-string."
   [tf]
@@ -359,8 +364,56 @@
 
 ;;(time (parse-all (string-parser (psymacs/editor-string))))
 
+
+(las3r.core/in-ns 'psymacs.undo)
+(las3r.core/refer 'las3r.core :exclude '(run-tests))
+(las3r.core/refer 'psymacs.parser :exclude '(run-tests))
+(las3r.core/refer 'psymacs.utils :exclude '(run-tests))
+
+(def comparator (new jp.psyark.utils.StringComparator))
+(defn delta [old-str new-str]
+  (. comparator (compare old-str new-str))
+  (let [cpl (. comparator commonPrefixLength)
+	csl (. comparator commonSuffixLength)]
+    {:common-prefix-length cpl
+     :common-suffix-length csl
+     :old-content (sanitize (subs old-str cpl (- (count old-str) csl)))}))
+
+(defn create-undo-point 
+  "Returns a buffer with  a new undo point, must be called after the 
+textfield is changed and before the parser's :text is updated."
+  [buffer]
+  (let [tf-text (. ((buffer :parser) :textfield) text)
+	parser-text ((buffer :parser) :text)]
+    (if (= tf-text parser-text)
+      buffer ;; return buffer if no change
+      (assoc buffer :undo-stack (conj (buffer :undo-stack) (delta parser-text tf-text))))))
+
+(defn undo! 
+  "Updates texfield and returns a new buffer."
+  [buffer]
+  (let [{stack :undo-stack depth :undo-depth parser :parser} buffer
+	tf (parser :textfield)
+	stack-last (dec (count stack))]
+    (if (and (seq stack)
+	     (<= depth stack-last))
+      (let [delta (nth stack (- stack-last depth))
+	    start (delta :common-prefix-length)
+	    end (- (. tf length) (delta :common-suffix-length))
+	    old-text (delta :old-content)
+	    caret-idx (+ start (count old-text))]
+	(. tf (replaceText start end old-text))
+	(. tf (setSelection caret-idx caret-idx))
+	(update-in (create-undo-point (assoc buffer :undo-depth (+ depth 2)))
+		   [:parser] update-tfp))
+      buffer)))
+
+;;;;;;;;;;;;;;;;;;;
+
+
 (las3r.core/in-ns 'psymacs.keyboard)
 (las3r.core/refer 'las3r.core :exclude '(run-tests))
+(las3r.core/refer 'psymacs.undo)
 
 (defn event->keystroke [e]
   "Converts a KEY_DOWN event to a {:code ... :modifiers ...} map."
@@ -369,7 +422,6 @@
         modifiers (if (. e altKey) (conj modifiers :alt) modifiers)
         modifiers (if (. e shiftKey) (conj modifiers :shift) modifiers)]
     {:code (. e keyCode) :modifiers modifiers}))
-
 
 (def *kb-map* {})
 
@@ -388,53 +440,6 @@
 		  key)
 	  :modifiers (into #{} modifiers)}
 	 handler)))
-
-(defn key-down-handler [event]
-  (when-let cmd (*kb-map* (event->keystroke event))
-    (cmd)))
-
-;;;;;;;;;;;;;;;;;;;
-
-(las3r.core/in-ns 'psymacs.undo)
-(las3r.core/refer 'las3r.core :exclude '(run-tests))
-(las3r.core/refer 'psymacs.parser :exclude '(run-tests))
-(las3r.core/refer 'psymacs.utils :exclude '(run-tests))
-
-(def comparator (new jp.psyark.utils.StringComparator))
-(defn delta [old-str new-str]
-  (. comparator (compare old-str new-str))
-  (let [cpl (. comparator commonPrefixLength)
-	csl (. comparator commonSuffixLength)]
-    {:common-prefix-length cpl
-     :common-suffix-length csl
-     :old-content (subs old-str cpl (- (count old-str) csl))}))
-
-(defn create-undo-point 
-  "Creates a new undo point, must be called after the textfield is changed and 
-before the parser's :text is updated."
-  [buffer]
-  (let [tf-text (. ((buffer :parser) :textfield) text)
-	parser-text ((buffer :parser) :text)]
-    (if (= tf-text parser-text)
-      buffer ;; return buffer if no change
-      (assoc buffer :undo-stack (conj (buffer :undo-stack) (delta parser-text tf-text))))))
-
-(defn undo! [buffer]
-  (let [{stack :undo-stack depth :undo-depth parser :parser} buffer
-	tf (parser :textfield)
-	stack-last (dec (count stack))]
-    (if (and (seq stack)
-	     (<= depth stack-last))
-      (let [delta (nth stack (- stack-last depth))]
-	(prn 'undoing tf)
-	(. tf (replaceText (delta :common-prefix-length)
-			   (- (. tf length) (delta :common-suffix-length))
-			   (delta :old-content)))
-	(update-tfp (create-undo-point (assoc buffer :undo-depth (+ depth 2)))))
-      buffer)))
-
-
-
 
 ;;;;;;;;;;;;;;;;;;;
 
@@ -591,10 +596,10 @@ before the parser's :text is updated."
 		       min
 		       max) first-crlf first-tab) ;; first bad char idx
 	    bad-str (subs text bad-idx)
-	    good-str (. (. bad-str (replace #"(\r\n|\r)"g "\n")) (replace #"\t"g " "))]
+	    good-str (sanitize bad-str)]
 	(. ((buffer :parser) :textfield) (replaceText bad-idx (count text) good-str)))))
   ;; update parser
-  (def buffer (create-undo-point buffer))
+  (def buffer (assoc (create-undo-point buffer) :undo-depth 0))
   (def buffer (assoc buffer :parser (update-tfp (buffer :parser)))))
 
 (defn- frame-handler [_]
@@ -606,7 +611,7 @@ before the parser's :text is updated."
 	busy? (< (- time *last-action-time*) *idle-time*)]
     (when-not busy?
       (when-not ((buffer :parser) :done)
-	(let [limit (+ time *parser-time-limit* 400)]
+	(let [limit (+ time *parser-time-limit*)]
 	  (repeat-until (or (> (get-timer) limit)
 			    ((buffer :parser) :done))
 			(def buffer (assoc buffer :parser (parse-and-highlight-next! (buffer :parser))))))
@@ -633,13 +638,41 @@ before the parser's :text is updated."
       (def #^{:private true} *prev-scrollv* (. tf scrollV))
       (def #^{:private true} *prev-position* (. tf caretIndex)))))
 
+
+(def #^{:private true} prevent-next-input false)
+
+(let [undo-keystroke {:code (. "Z" (charCodeAt 0)) :modifiers #{:ctrl}}]
+  (defn key-down-handler [event]
+    (let [keystroke (event->keystroke event)]
+      (if (= keystroke undo-keystroke)
+	(do
+	  (def buffer (undo! buffer))
+	  (def changed? true)
+	  (def #^{:private true} prevent-next-input true)
+	  (. event (preventDefault)))
+	(if-let cmd (*kb-map* keystroke)
+	  (do
+	    (let [orig-text (buffer-string buffer)]
+	      (cmd)
+	      (def #^{:private true} prevent-next-input true)
+	      (when-not (= orig-text (buffer-string buffer))
+		(change-handler))
+	      (. event (preventDefault))))
+	  (def buffer (assoc buffer :undo-depth 0)))))))
+
+(defn text-input-handler [event]
+  (when prevent-next-input
+    (def #^{:private true} prevent-next-input false)
+    (. event (preventDefault))))
+
 (defn init []
   (let [tf ((buffer :parser) :textfield)]
     (doseq obj [code-pane help-pane out-pane err-pane parse-progress stats]
       (. *stage* (addChild obj)))
 
     (. *stage* (addEventListener "resize" update-layout!))
-    ;(. tf (addEventListener "keyDown" key-down-handler))
+    (. tf (addEventListener "keyDown" key-down-handler))
+    (. tf (addEventListener "textInput" text-input-handler))
     (. tf (addEventListener "change" change-handler))
     (. *stage* (addEventListener "enterFrame" frame-handler))
 
