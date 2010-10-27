@@ -379,6 +379,19 @@
      :common-suffix-length csl
      :old-content (sanitize (subs old-str cpl (- (count old-str) csl)))}))
 
+;; this sets the number of changes saved, not bytes like in emacs.
+;; since undo changes are themselves pushed into the undo stack
+;; this means the number of changes that can be backed out is
+;; undo-limit/2.
+(def undo-limit 1000)
+
+(defn- trim-stack
+  "Returns a trimmed undo stack."
+  [stack]
+  (if (> (count stack) undo-limit)
+    (subvec stack (- (count stack) undo-limit))
+    stack))
+
 (defn create-undo-point 
   "Returns a buffer with  a new undo point, must be called after the 
 textfield is changed and before the parser's :text is updated."
@@ -387,7 +400,7 @@ textfield is changed and before the parser's :text is updated."
 	parser-text ((buffer :parser) :text)]
     (if (= tf-text parser-text)
       buffer ;; return buffer if no change
-      (assoc buffer :undo-stack (conj (buffer :undo-stack) (delta parser-text tf-text))))))
+      (assoc buffer :undo-stack (trim-stack (conj (buffer :undo-stack) (delta parser-text tf-text)))))))
 
 (defn undo! 
   "Updates texfield and returns a new buffer."
