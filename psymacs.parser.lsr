@@ -222,21 +222,24 @@
     0))
 
 ;; highlighting and textfield connectors
+;; formats make the textfield slower, so use default format as much
+;; as possible.
 
-(def formats
-     {:other       (new flash.text.TextFormat nil nil 0x000000 false) ;; default token format
-      :whitespace  (new flash.text.TextFormat nil nil 0xa0a0a0 false) ;; used on whitespace (and commas)
-      :regex       (new flash.text.TextFormat nil nil 0x00aa22 false)
-      :string      (new flash.text.TextFormat nil nil 0xaa8800 false)
-      :unmatched   (new flash.text.TextFormat nil nil 0xff0000 false)
-      :char        (new flash.text.TextFormat nil nil 0xccaa44 false)
-      :comment     (new flash.text.TextFormat nil nil 0xcc2200 false)
-      :lbracket    (new flash.text.TextFormat nil nil 0x005577 true)
-      :rbracket    (new flash.text.TextFormat nil nil 0x005577 true)
-      :keyword     (new flash.text.TextFormat nil nil 0x008888 false)
-      :int         (new flash.text.TextFormat nil nil 0x440088 false)
-      :float       (new flash.text.TextFormat nil nil 0x8800cc false)
-      :ratio       (new flash.text.TextFormat nil nil 0xcc00ff false)})
+(let [default (new flash.text.TextFormat nil nil 0x000000 false)]
+  (def formats
+       {:other       default ;; default token format
+	:whitespace  default ;(new flash.text.TextFormat nil nil 0xa0a0a0 false) ;; used on whitespace (and commas)
+	:regex       (new flash.text.TextFormat nil nil 0x00aa22 false)
+	:string      (new flash.text.TextFormat nil nil 0xaa8800 false)
+	:unmatched   (new flash.text.TextFormat nil nil 0xff0000 false)
+	:char        (new flash.text.TextFormat nil nil 0xccaa44 false)
+	:comment     (new flash.text.TextFormat nil nil 0xcc2200 false)
+	:lbracket    default ;(new flash.text.TextFormat nil nil 0x005577 true)
+	:rbracket    default ;(new flash.text.TextFormat nil nil 0x005577 true)
+	:keyword     (new flash.text.TextFormat nil nil 0x008888 false)
+	:int         (new flash.text.TextFormat nil nil 0x440088 false)
+	:float       (new flash.text.TextFormat nil nil 0x8800cc false)
+	:ratio       (new flash.text.TextFormat nil nil 0xcc00ff false)}))
 
 (defn string-parser [s]
   {:text s
