@@ -592,28 +592,43 @@ textfield is changed and before the parser's :text is updated."
 (def *parser-time-limit* (/ 1000 (. *stage* frameRate)))
 (def *idle-time* 200)
 
+;; textfield change event dispatchers
+
+(def #^{:private true} ignore-change-events false)
+
+(defn dispatch-change-event [buffer]
+  (. ((buffer :parser) :textfield) (dispatchEvent (new flash.events.Event "change" true))))
+
+(defn dispatch-ignorable-change-event [buffer]
+  (def #^{:private true} ignore-change-events true)
+  (. ((buffer :parser) :textfield) (dispatchEvent (new flash.events.Event "change" true)))
+  (def #^{:private true} ignore-change-events false))
+
+(def #^{:private true} prevent-next-input false)
+
 (def changed? false)
 
 ;; in principle this should also trigger a full buffer highlight invalidation, 
 ;; since pasting identical text will remove the formatting and won't be 
 ;; noticed by update-tfp. but it's not worth the cpu cost imo.
 (defn- change-handler [& _]
-  (def changed? true)
-  ;; sanitize (cleanup tabs and CRLFs)
-  ;; don't touch anything before the 1st bad char, text might already be highlighted
-  (let [text (buffer-string buffer)
-	first-crlf (. text (indexOf "\r\n"))
-	first-tab (. text (indexOf "\t"))]
-    (when (or (pos? first-crlf) (pos? first-tab)) ;; if bad chars found
-      (let [bad-idx ((if (and (pos? first-crlf) (pos? first-tab))
-		       min
-		       max) first-crlf first-tab) ;; first bad char idx
-	    bad-str (subs text bad-idx)
-	    good-str (sanitize bad-str)]
-	(. ((buffer :parser) :textfield) (replaceText bad-idx (count text) good-str)))))
-  ;; update parser
-  (def buffer (assoc (create-undo-point buffer) :undo-depth 0))
-  (def buffer (assoc buffer :parser (update-tfp (buffer :parser)))))
+  (when-not ignore-change-events
+      (def changed? true)
+      ;; sanitize (cleanup tabs and CRLFs)
+      ;; don't touch anything before the 1st bad char, text might already be highlighted
+      (let [text (buffer-string buffer)
+	    first-crlf (. text (indexOf "\r\n"))
+	    first-tab (. text (indexOf "\t"))]
+	(when (or (pos? first-crlf) (pos? first-tab)) ;; if bad chars found
+	  (let [bad-idx ((if (and (pos? first-crlf) (pos? first-tab))
+			   min
+			   max) first-crlf first-tab) ;; first bad char idx
+		bad-str (subs text bad-idx)
+		good-str (sanitize bad-str)]
+	    (. ((buffer :parser) :textfield) (replaceText bad-idx (count text) good-str)))))
+      ;; update parser
+      (def buffer (assoc (create-undo-point buffer) :undo-depth 0))
+      (def buffer (assoc buffer :parser (update-tfp (buffer :parser))))))
 
 (defn- frame-handler [_]
   (let [tf ((buffer :parser) :textfield)
@@ -651,8 +666,7 @@ textfield is changed and before the parser's :text is updated."
       (def #^{:private true} *prev-scrollv* (. tf scrollV))
       (def #^{:private true} *prev-position* (. tf caretIndex)))))
 
-
-(def #^{:private true} prevent-next-input false)
+;; key handler
 
 (let [undo-keystroke {:code (. "Z" (charCodeAt 0)) :modifiers #{:ctrl}}]
   (defn key-down-handler [event]
@@ -662,15 +676,16 @@ textfield is changed and before the parser's :text is updated."
 	  (def buffer (undo! buffer))
 	  (def changed? true)
 	  (def #^{:private true} prevent-next-input true)
-	  (. event (preventDefault)))
+	  (. event (preventDefault))
+	  (dispatch-ignorable-change-event buffer))
 	(if-let cmd (*kb-map* keystroke)
 	  (do
 	    (let [orig-text (buffer-string buffer)]
 	      (cmd)
 	      (def #^{:private true} prevent-next-input true)
+	      (. event (preventDefault))
 	      (when-not (= orig-text (buffer-string buffer))
-		(change-handler))
-	      (. event (preventDefault))))
+		(dispatch-change-event buffer))))
 	  (def buffer (assoc buffer :undo-depth 0)))))))
 
 (defn text-input-handler [event]
@@ -730,3 +745,4 @@ textfield is changed and before the parser's :text is updated."
 
 
 (init)
+
