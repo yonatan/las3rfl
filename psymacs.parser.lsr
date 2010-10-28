@@ -754,37 +754,14 @@ on failure."
 
     ;; tmp testing helpers
     (def ctf tf)
-
     (defn ui [] (prn "stack: " (buffer :undo-stack) "\ndepth: " (buffer :undo-depth)))
-    
     (defn undo [] (def buffer (undo! buffer)))
-
-    ;; (def stdout (new com.las3r.io.OutputStream (. (. out-pane textField) appendText)))
-    ;; (def lns (. *runtime* LAS3R_NAMESPACE))
-    ;; (. com.las3r.runtime.Var (internWithRoot lns '*out* stdout))
 
     ))
 
 (defn deinit [] ; for debugging purposes
   (. *stage* (removeEventListener "resize" update-layout!))
   (. *stage* (removeEventListener "enterFrame" frame-handler)))
-
-
-
-;; (defn run-tests []
-;;   (def teui (new jp.psyark.psycode.core.TextEditUI))
-
-;;   (def buff (attach-to-textfield-container teui))
-
-;;   (set! (. teui width) 300)
-;;   (set! (. teui height) 300)
-;;   (set! (. teui x) 500)
-;;   (set! (. teui y) 100)
-;;   ;(set! (. (buff :container) scrollRect) (new flash.geom.Rectangle 0 0 300 300))
-
-;;   (. *stage* (addEventListener "enterFrame" frame-handler))
-;;   (. *stage* (addChild (buff :container))))
-
 
 (init)
 
