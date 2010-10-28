@@ -277,7 +277,7 @@
     (assoc (let [cpl (common-prefix-length (. (tfp :textfield) text) (tfp :text))]
 	     (if (> cpl (parse-index tfp))
 	       tfp
-	       (let [last-good-token-idx (dec (char->token-index tfp cpl))]
+	       (let [last-good-token-idx (dec (char->token-index tfp (max 0 (dec cpl))))]
 		 (if (and last-good-token-idx
 			  (> last-good-token-idx 0))
 		   (merge tfp
