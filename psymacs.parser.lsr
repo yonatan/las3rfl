@@ -473,13 +473,14 @@ textfield is changed and before the parser's :text is updated."
 (defn buffer-string [buffer]
   (. ((buffer :parser) :textfield) text))
 
-(defn highlight-current-sexp! [buffer]
-  (let [tf ((buffer :parser) :textfield)
-	pos (clipped-caret-idx tf)
-        g (. (buffer :overlay) graphics)]
-    (. g (clear))
-    (when-let token-idx (char->token-index (buffer :parser) pos)
-      (let [tokens ((buffer :parser) :tokens)
+(defn get-bracket-enclosed-tokens-at
+  "Returns a vector of all tokens including l/r brackets in the sexp at pos, or nil
+on failure. Doesn't check if bracket types match each other."
+  [buffer pos]
+  (let [parser (buffer :parser)
+	tf (parser :textfield)]
+    (when-let token-idx (char->token-index parser pos)
+      (let [tokens (parser :tokens)
             token (tokens token-idx)
             bracket-pairs ((vlast tokens) :bracket-pairs)]
         (when (seq (token :open-lbrackets))
@@ -488,19 +489,39 @@ textfield is changed and before the parser's :text is updated."
                                             (< (bp :r) token-idx)))
             (let [bracket-pairs (subvec bracket-pairs bp-idx)] ;; snip irrelevant bracket pairs
               (when-let bp (some (fn [bp] (when (= (bp :l) (first (token :open-lbrackets))) bp)) bracket-pairs)
-                (let [l ((tokens (bp :l)) :index)
-                      r ((tokens (bp :r)) :index)
-                      color (if (matching-brackets? ((tokens (bp :l)) :string)
-                                                    ((tokens (bp :r)) :string))
-                              *bracket-match-color*
-                              *bracket-mismatch-color*)
-                      highlight-char! (fn [idx]
-                                        (let [[x y] (char-xy tf idx)]
-                                          (. g (beginFill color 0.5))
-                                          (. g (drawRect x y *char-width* *char-height*))
-                                          (. g (endFill))))]
-                  (highlight-char! l)
-                  (highlight-char! r))))))))))
+		(subvec tokens (bp :l) (inc (bp :r)))))))))))
+
+(defn get-coll-at
+  "Returns a vector of all tokens including l/r brackets in the collection at pos, or nil
+on failure."
+  [buffer pos]
+  (when-let enclosed (get-bracket-enclosed-tokens-at buffer pos)
+    (when (matching-brackets? ((first enclosed) :string) ((vlast enclosed) :string))
+      enclosed)))
+
+(defn highlight-current-sexp! 
+  "Draws char highlights on the buffer overlay sprite."
+  [buffer]
+  (let [tf ((buffer :parser) :textfield)
+	pos (clipped-caret-idx tf)
+        g (. (buffer :overlay) graphics)]
+    (. g (clear))
+    (when-let sexp-tokens (get-bracket-enclosed-tokens-at buffer pos)
+      (let [first-token (first sexp-tokens)
+	    last-token (vlast sexp-tokens)
+	    l (first-token :index)
+	    r (last-token :index)
+	    color (if (matching-brackets? (first-token :string)
+					  (last-token :string))
+		    *bracket-match-color*
+		    *bracket-mismatch-color*)
+	    highlight-char! (fn [idx]
+			      (let [[x y] (char-xy tf idx)]
+				(. g (beginFill color 0.5))
+				(. g (drawRect x y *char-width* *char-height*))
+				(. g (endFill))))]
+	(highlight-char! l)
+	(highlight-char! r)))))
 
 (defn attach-to-textfield-container
   "Returns a psymacs buffer. Container should have a readable textField property."
@@ -684,7 +705,7 @@ textfield is changed and before the parser's :text is updated."
 	(if-let cmd (*kb-map* keystroke)
 	  (do
 	    (let [orig-text (buffer-string buffer)]
-	      (cmd)
+	      (def buffer (cmd buffer))
 	      (def #^{:private true} prevent-next-input true)
 	      (. event (preventDefault))
 	      (when-not (= orig-text (buffer-string buffer))
@@ -695,6 +716,24 @@ textfield is changed and before the parser's :text is updated."
   (when prevent-next-input
     (def #^{:private true} prevent-next-input false)
     (. event (preventDefault))))
+
+;; (defn indent-line!
+;;   "Indents a line (caret line by default), returns a new buffer."
+;;   ([buffer]
+;;      (indent-line! buffer (let [tf ((buffer :parser) :textfield)]
+;; 			    (. tf (getLineIndexOfChar (. tf caretIndex))))))
+;;   ([buffer line]
+
+(defn prn-current-sexp [buffer]
+  (prn (apply str (map :string (get-coll-at buffer (. ((buffer :parser) :textfield) caretIndex)))))
+  buffer)
+
+(defn prn-hello [buffer]
+  (prn "hello")
+  buffer)
+
+(set-key-handler! "h" [:ctrl] prn-hello)
+(set-key-handler! "s" [:ctrl] prn-current-sexp)
 
 (defn init []
   (let [tf ((buffer :parser) :textfield)]
