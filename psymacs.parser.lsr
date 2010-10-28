@@ -179,7 +179,7 @@
 
 ;; big hairy parsing regex
 (def #^{:private true}
-     parser-regex #"#(\"(?:\\?+.)*?\")[gismx]*|([^\s\(\[\{\}\]\)\";,]+)|([\r\s,]+)|([\(\[\{])|([\)\]\}])|(\"(?:\\?+.)*?\")|(;[^\r]*)|\\(newline|tab|space|formfeed|return|u[0-9]+|[0-6]+|.)|(#?\".*)"gms)
+     parser-regex #"#(\"(?:\\?+.)*?\")[gismx]*|([^\s\(\[\{\}\]\)\";,]+)|([\r\n\s,]+)|([\(\[\{])|([\)\]\}])|(\"(?:\\?+.)*?\")|(;[^\r]*)|\\(newline|tab|space|formfeed|return|u[0-9]+|[0-6]+|.)|(#?\".*)"gms)
 
 ;; these map to the big hairy regex matches
 (def #^{:private true}
@@ -477,8 +477,7 @@ textfield is changed and before the parser's :text is updated."
   "Returns a vector of all tokens including l/r brackets in the sexp at pos, or nil
 on failure. Doesn't check if bracket types match each other."
   [buffer pos]
-  (let [parser (buffer :parser)
-	tf (parser :textfield)]
+  (let [parser (buffer :parser)]
     (when-let token-idx (char->token-index parser pos)
       (let [tokens (parser :tokens)
             token (tokens token-idx)
@@ -498,6 +497,31 @@ on failure."
   (when-let enclosed (get-bracket-enclosed-tokens-at buffer pos)
     (when (matching-brackets? ((first enclosed) :string) ((vlast enclosed) :string))
       enclosed)))
+
+(defn get-sexp-at
+  "If the token at pos is of an ignorable type, scans backward for the 1st good token.
+Returns a vector containing either the token at pos, or all tokens including l/r brackets
+in the collection at pos, or nil on failure. Fails on mismatched brackets."
+  ([buffer pos]
+     (get-sexp-at buffer pos [:whitespace :comment]))
+  ([buffer pos ignored-types]
+     (let [parser (buffer :parser)
+	   ignored (into #{} ignored-types)]
+       (when-let token-idx (char->token-index parser pos)
+	 (loop [token-idx token-idx]
+	   (when-not (neg? token-idx)
+	     (let [token ((parser :tokens) token-idx)
+		   type (token :type)]
+	       (if (ignored type)
+		 (recur (dec token-idx))
+		 (cond (= type :lbracket)
+		       (get-coll-at buffer (inc (token :index)))
+
+		       (= type :rbracket)
+		       (get-coll-at buffer (token :index))
+
+		       :else
+		       [token])))))))))
 
 (defn highlight-current-sexp! 
   "Draws char highlights on the buffer overlay sprite."
@@ -717,15 +741,40 @@ on failure."
     (def #^{:private true} prevent-next-input false)
     (. event (preventDefault))))
 
-;; (defn indent-line!
-;;   "Indents a line (caret line by default), returns a new buffer."
-;;   ([buffer]
-;;      (indent-line! buffer (let [tf ((buffer :parser) :textfield)]
-;; 			    (. tf (getLineIndexOfChar (. tf caretIndex))))))
-;;   ([buffer line]
+(defn indent-line!
+  "Indents a line (caret line by default), returns a new buffer."
+  ([buffer]
+     (indent-line! buffer (let [tf ((buffer :parser) :textfield)]
+			    (. tf (getLineIndexOfChar (clipped-caret-idx tf))))))
+  ([buffer line]
+     (let [parser (buffer :parser)
+	   {tf :textfield tokens :tokens} parser
+	   line-text (. tf (getLineText line))
+	   token-line (fn [t] (. tf (getLineIndexOfChar (t :index))))
+	   get-offset (. tf getLineOffset)
+	   line-start (get-offset line)
+	   _ (prn 'line-start line-start 'token (char->token-index parser line-start))
+	   bol-token (tokens (char->token-index parser line-start))
+	   indentation (if-let lbracket-token-idx (first (bol-token :open-lbrackets))
+			 (let [lbracket-token (tokens lbracket-token-idx)]
+			   _ (prn 'lbracket-token-idx lbracket-token-idx 'token lbracket-token)
+			   (- (lbracket-token :index)
+			      (get-offset (token-line lbracket-token))))
+			 0)
+	   _ (prn indentation)
+	   spaces (apply str (take indentation (repeat " ")))
+	   indented-line (str spaces (. line-text (replace #" *" "")))]
+       (. tf (replaceText line-start 
+			  (+ line-start (count line-text))
+			  indented-line)))
+     buffer))
+(set-key-handler! (kb TAB) [] indent-line!)
+       
+	   
+	   
 
 (defn prn-current-sexp [buffer]
-  (prn (apply str (map :string (get-coll-at buffer (. ((buffer :parser) :textfield) caretIndex)))))
+  (prn (apply str (map :string (get-sexp-at buffer (clipped-caret-idx ((buffer :parser) :textfield))))))
   buffer)
 
 (defn prn-hello [buffer]
@@ -734,6 +783,7 @@ on failure."
 
 (set-key-handler! "h" [:ctrl] prn-hello)
 (set-key-handler! "s" [:ctrl] prn-current-sexp)
+(set-key-handler! (kb TAB) [] indent-line!)
 
 (defn init []
   (let [tf ((buffer :parser) :textfield)]
