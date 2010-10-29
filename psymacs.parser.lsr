@@ -38,6 +38,22 @@
   [tf]
   (min (. tf caretIndex) (max 0 (dec (. tf length)))))
 
+(defn get-line-index-of-char
+  "Saner version of TextField::getLineIndexOfChar. Returns nil on failure."
+  [tf char-idx]
+  (let [tf-len (. tf length)]
+    (when (<= 0 char-idx tf-len)
+      (cond (zero? char-idx)
+            0
+
+            (= char-idx tf-len)
+            (let [last-idx (dec char-idx)]
+              (+ (. tf (getLineIndexOfChar last-idx))
+                 (if (= "\r" (. (. tf text) (charAt last-idx))) 1 0)))
+
+            :else
+            (. tf (getLineIndexOfChar char-idx))))))
+
 (defn common-prefix-length [s1 s2]
   (let [min-length (min (count s1) (count s2))]
     (min (loop [step (. Math (pow 2 (. Math (floor (log2 min-length)))))
@@ -72,14 +88,14 @@
   [tf]
   (let [tmp (new flash.text.TextField)]
     (mset! tmp [embedFonts (. tf embedFonts)
-    		multiline true
-    		antiAliasType (. tf antiAliasType)
-    		autoSize "left"
-    		defaultTextFormat (. tf defaultTextFormat)])
+                multiline true
+                antiAliasType (. tf antiAliasType)
+                autoSize "left"
+                defaultTextFormat (. tf defaultTextFormat)])
     (let [extra-x (. tmp width)
-    	  extra-y (. tmp height)
-    	  s (str (apply str (take 1000 (repeat "M")))
-    		 (apply str (take 999 (repeat "\nM"))))] ;; 1000x1000 chars
+          extra-y (. tmp height)
+          s (str (apply str (take 1000 (repeat "M")))
+                 (apply str (take 999 (repeat "\nM"))))] ;; 1000x1000 chars
       (set! (. tmp text) s)
 
       (def *char-width* (/ (- (. tmp width) extra-x) 1000))
@@ -107,8 +123,8 @@
   (let [overlay (buffer :overlay)
         tf ((buffer :parser) :textfield)]
     (mset! overlay [x (. tf x)
-		    y (. tf y)
-		    visible true])
+                    y (. tf y)
+                    visible true])
 
     (set! (. overlay-rect width) (. tf width))
     (set! (. overlay-rect height) (. tf height))
@@ -228,18 +244,18 @@
 (let [default (new flash.text.TextFormat nil nil 0x000000 false)]
   (def formats
        {:other       default ;; default token format
-	:whitespace  default ;(new flash.text.TextFormat nil nil 0xa0a0a0 false) ;; used on whitespace (and commas)
-	:regex       (new flash.text.TextFormat nil nil 0x00aa22 false)
-	:string      (new flash.text.TextFormat nil nil 0xaa8800 false)
-	:unmatched   (new flash.text.TextFormat nil nil 0xff0000 false)
-	:char        (new flash.text.TextFormat nil nil 0xccaa44 false)
-	:comment     (new flash.text.TextFormat nil nil 0xcc2200 false)
-	:lbracket    default ;(new flash.text.TextFormat nil nil 0x005577 true)
-	:rbracket    default ;(new flash.text.TextFormat nil nil 0x005577 true)
-	:keyword     (new flash.text.TextFormat nil nil 0x008888 false)
-	:int         (new flash.text.TextFormat nil nil 0x440088 false)
-	:float       (new flash.text.TextFormat nil nil 0x8800cc false)
-	:ratio       (new flash.text.TextFormat nil nil 0xcc00ff false)}))
+        :whitespace  default ;(new flash.text.TextFormat nil nil 0xa0a0a0 false) ;; used on whitespace (and commas)
+        :regex       (new flash.text.TextFormat nil nil 0x00aa22 false)
+        :string      (new flash.text.TextFormat nil nil 0xaa8800 false)
+        :unmatched   (new flash.text.TextFormat nil nil 0xff0000 false)
+        :char        (new flash.text.TextFormat nil nil 0xccaa44 false)
+        :comment     (new flash.text.TextFormat nil nil 0xcc2200 false)
+        :lbracket    default ;(new flash.text.TextFormat nil nil 0x005577 true)
+        :rbracket    default ;(new flash.text.TextFormat nil nil 0x005577 true)
+        :keyword     (new flash.text.TextFormat nil nil 0x008888 false)
+        :int         (new flash.text.TextFormat nil nil 0x440088 false)
+        :float       (new flash.text.TextFormat nil nil 0x8800cc false)
+        :ratio       (new flash.text.TextFormat nil nil 0xcc00ff false)}))
 
 (defn string-parser [s]
   {:text s
@@ -275,15 +291,15 @@
   [tfp]
   (if (content-changed? tfp)
     (assoc (let [cpl (common-prefix-length (. (tfp :textfield) text) (tfp :text))]
-	     (if (> cpl (parse-index tfp))
-	       tfp
-	       (let [last-good-token-idx (dec (char->token-index tfp (max 0 (dec cpl))))]
-		 (if (and last-good-token-idx
-			  (> last-good-token-idx 0))
-		   (merge tfp
-			  {:tokens (subvec (tfp :tokens) 0 last-good-token-idx)
-			   :done false})
-		   (textfield-parser (tfp :textfield))))))
+             (if (> cpl (parse-index tfp))
+               tfp
+               (let [last-good-token-idx (dec (char->token-index tfp (max 0 (dec cpl))))]
+                 (if (and last-good-token-idx
+                          (> last-good-token-idx 0))
+                   (merge tfp
+                          {:tokens (subvec (tfp :tokens) 0 last-good-token-idx)
+                           :done false})
+                   (textfield-parser (tfp :textfield))))))
       :text (. (tfp :textfield) text))
     tfp))
 
@@ -317,7 +333,7 @@
                   p-bps)
 
             token (assoc token :open-lbrackets olbs :bracket-pairs bps)]
-	(assoc parser :tokens (conj tokens token)))
+        (assoc parser :tokens (conj tokens token)))
       (assoc parser :done true))))
 
 (defn parse-all [parser]
@@ -340,6 +356,20 @@
     (if (not (tfp :done))
       (highlight-last! tfp))
     tfp))
+
+;; tfp helpers
+
+(defn token-line 
+  "Returns the line number on which the token starts."
+  [tfp token]
+  (get-line-index-of-char (tfp :textfield) (token :index)))
+  
+(defn token-col
+  "Returns the column number on which the token starts."
+  [tfp token]
+  (let [line (token-line tfp token)
+        line-start (. (tfp :textfield) (getLineOffset line))]
+    (- (token :index) line-start)))
 
 ;; testing
 
@@ -377,7 +407,7 @@
 (defn delta [old-str new-str]
   (. comparator (compare old-str new-str))
   (let [cpl (. comparator commonPrefixLength)
-	csl (. comparator commonSuffixLength)]
+        csl (. comparator commonSuffixLength)]
     {:common-prefix-length cpl
      :common-suffix-length csl
      :old-content (sanitize (subs old-str cpl (- (count old-str) csl)))}))
@@ -400,7 +430,7 @@
 textfield is changed and before the parser's :text is updated."
   [buffer]
   (let [tf-text (. ((buffer :parser) :textfield) text)
-	parser-text ((buffer :parser) :text)]
+        parser-text ((buffer :parser) :text)]
     (if (= tf-text parser-text)
       buffer ;; return buffer if no change
       (assoc buffer :undo-stack (trim-stack (conj (buffer :undo-stack) (delta parser-text tf-text)))))))
@@ -409,19 +439,19 @@ textfield is changed and before the parser's :text is updated."
   "Updates texfield and returns a new buffer."
   [buffer]
   (let [{stack :undo-stack depth :undo-depth parser :parser} buffer
-	tf (parser :textfield)
-	stack-last (dec (count stack))]
+        tf (parser :textfield)
+        stack-last (dec (count stack))]
     (if (and (seq stack)
-	     (<= depth stack-last))
+             (<= depth stack-last))
       (let [delta (nth stack (- stack-last depth))
-	    start (delta :common-prefix-length)
-	    end (- (. tf length) (delta :common-suffix-length))
-	    old-text (delta :old-content)
-	    caret-idx (+ start (count old-text))]
-	(. tf (replaceText start end old-text))
-	(. tf (setSelection caret-idx caret-idx))
-	(update-in (create-undo-point (assoc buffer :undo-depth (+ depth 2)))
-		   [:parser] update-tfp))
+            start (delta :common-prefix-length)
+            end (- (. tf length) (delta :common-suffix-length))
+            old-text (delta :old-content)
+            caret-idx (+ start (count old-text))]
+        (. tf (replaceText start end old-text))
+        (. tf (setSelection caret-idx caret-idx))
+        (update-in (create-undo-point (assoc buffer :undo-depth (+ depth 2)))
+                   [:parser] update-tfp))
       buffer)))
 
 ;;;;;;;;;;;;;;;;;;;
@@ -451,11 +481,11 @@ textfield is changed and before the parser's :text is updated."
   [key modifiers handler]
   (def *kb-map*
        (assoc *kb-map*
-	 {:code (if (string? key)
-		  (. (. key (toUpperCase)) (charCodeAt 0))
-		  key)
-	  :modifiers (into #{} modifiers)}
-	 handler)))
+         {:code (if (string? key)
+                  (. (. key (toUpperCase)) (charCodeAt 0))
+                  key)
+          :modifiers (into #{} modifiers)}
+         handler)))
 
 ;;;;;;;;;;;;;;;;;;;
 
@@ -488,7 +518,7 @@ on failure. Doesn't check if bracket types match each other."
                                             (< (bp :r) token-idx)))
             (let [bracket-pairs (subvec bracket-pairs bp-idx)] ;; snip irrelevant bracket pairs
               (when-let bp (some (fn [bp] (when (= (bp :l) (first (token :open-lbrackets))) bp)) bracket-pairs)
-		(subvec tokens (bp :l) (inc (bp :r)))))))))))
+                (subvec tokens (bp :l) (inc (bp :r)))))))))))
 
 (defn get-coll-at
   "Returns a vector of all tokens including l/r brackets in the collection at pos, or nil
@@ -506,46 +536,46 @@ in the collection at pos, or nil on failure. Fails on mismatched brackets."
      (get-sexp-at buffer pos [:whitespace :comment]))
   ([buffer pos ignored-types]
      (let [parser (buffer :parser)
-	   ignored (into #{} ignored-types)]
+           ignored (into #{} ignored-types)]
        (when-let token-idx (char->token-index parser pos)
-	 (loop [token-idx token-idx]
-	   (when-not (neg? token-idx)
-	     (let [token ((parser :tokens) token-idx)
-		   type (token :type)]
-	       (if (ignored type)
-		 (recur (dec token-idx))
-		 (cond (= type :lbracket)
-		       (get-coll-at buffer (inc (token :index)))
+         (loop [token-idx token-idx]
+           (when-not (neg? token-idx)
+             (let [token ((parser :tokens) token-idx)
+                   type (token :type)]
+               (if (ignored type)
+                 (recur (dec token-idx))
+                 (cond (= type :lbracket)
+                       (get-coll-at buffer (inc (token :index)))
 
-		       (= type :rbracket)
-		       (get-coll-at buffer (token :index))
+                       (= type :rbracket)
+                       (get-coll-at buffer (token :index))
 
-		       :else
-		       [token])))))))))
+                       :else
+                       [token])))))))))
 
 (defn highlight-current-sexp! 
   "Draws char highlights on the buffer overlay sprite."
   [buffer]
   (let [tf ((buffer :parser) :textfield)
-	pos (clipped-caret-idx tf)
+        pos (clipped-caret-idx tf)
         g (. (buffer :overlay) graphics)]
     (. g (clear))
     (when-let sexp-tokens (get-bracket-enclosed-tokens-at buffer pos)
       (let [first-token (first sexp-tokens)
-	    last-token (vlast sexp-tokens)
-	    l (first-token :index)
-	    r (last-token :index)
-	    color (if (matching-brackets? (first-token :string)
-					  (last-token :string))
-		    *bracket-match-color*
-		    *bracket-mismatch-color*)
-	    highlight-char! (fn [idx]
-			      (let [[x y] (char-xy tf idx)]
-				(. g (beginFill color 0.5))
-				(. g (drawRect x y *char-width* *char-height*))
-				(. g (endFill))))]
-	(highlight-char! l)
-	(highlight-char! r)))))
+            last-token (vlast sexp-tokens)
+            l (first-token :index)
+            r (last-token :index)
+            color (if (matching-brackets? (first-token :string)
+                                          (last-token :string))
+                    *bracket-match-color*
+                    *bracket-mismatch-color*)
+            highlight-char! (fn [idx]
+                              (let [[x y] (char-xy tf idx)]
+                                (. g (beginFill color 0.5))
+                                (. g (drawRect x y *char-width* *char-height*))
+                                (. g (endFill))))]
+        (highlight-char! l)
+        (highlight-char! r)))))
 
 (defn attach-to-textfield-container
   "Returns a psymacs buffer. Container should have a readable textField property."
@@ -566,7 +596,7 @@ in the collection at pos, or nil on failure. Fails on mismatched brackets."
 (def parse-progress (new com.bit101.components.ProgressBar))
 (def stats (new net.hires.debug.Stats))
 (def buffer (assoc (attach-to-textfield-container code-pane)
-	      :runtime *runtime*))
+              :runtime *runtime*))
 
 (defn current-fn-name [buffer]
   (let [caret-idx (. ((buffer :parser) :textfield) caretIndex)
@@ -589,7 +619,7 @@ in the collection at pos, or nil on failure. Fails on mismatched brackets."
   "Like print-doc, with different formatting."
   [v]
   (println (str (ns-name (get ^v :ns)) "/" (get ^v :name) 
-		(if (get ^v :macro) " - Macro" "")))
+                (if (get ^v :macro) " - Macro" "")))
   (prn (get ^v :arglists))
   (println " " (get ^v :doc)))
 
@@ -601,16 +631,16 @@ in the collection at pos, or nil on failure. Fails on mismatched brackets."
     (set! (. tf text) "")
     (let [name (current-fn-name buffer)]
       (when name
-	(try (let [v (or (find-var (symbol (ns-name *ns*) name))
-			 (find-var (symbol 'las3r.core name)))
-		   arglists ((meta v) :arglists)]
-	       (binding [*out* (new com.las3r.io.OutputStream (. tf appendText))]
-		 (print-help v)))
-	     (catch Error e nil))))))
+        (try (let [v (or (find-var (symbol (ns-name *ns*) name))
+                         (find-var (symbol 'las3r.core name)))
+                   arglists ((meta v) :arglists)]
+               (binding [*out* (new com.las3r.io.OutputStream (. tf appendText))]
+                 (print-help v)))
+             (catch Error e nil))))))
 
 (defn update-layout! [& _]
   (let [pbh (. parse-progress height)
-	w (. *stage* stageWidth)
+        w (. *stage* stageWidth)
         h (- (. *stage* stageHeight) pbh)
         cw (* w 3/4)   ;; code pane width
         ch (* h 4/5)]  ;; code pane height
@@ -665,44 +695,47 @@ in the collection at pos, or nil on failure. Fails on mismatched brackets."
       ;; sanitize (cleanup tabs and CRLFs)
       ;; don't touch anything before the 1st bad char, text might already be highlighted
       (let [text (buffer-string buffer)
-	    first-crlf (. text (indexOf "\r\n"))
-	    first-tab (. text (indexOf "\t"))]
-	(when (or (pos? first-crlf) (pos? first-tab)) ;; if bad chars found
-	  (let [bad-idx ((if (and (pos? first-crlf) (pos? first-tab))
-			   min
-			   max) first-crlf first-tab) ;; first bad char idx
-		bad-str (subs text bad-idx)
-		good-str (sanitize bad-str)]
-	    (. ((buffer :parser) :textfield) (replaceText bad-idx (count text) good-str)))))
+            first-crlf (. text (indexOf "\r\n"))
+            first-tab (. text (indexOf "\t"))]
+        (when (or (pos? first-crlf) (pos? first-tab)) ;; if bad chars found
+          (let [bad-idx ((if (and (pos? first-crlf) (pos? first-tab))
+                           min
+                           max) first-crlf first-tab) ;; first bad char idx
+                bad-str (subs text bad-idx)
+                good-str (sanitize bad-str)]
+            (. ((buffer :parser) :textfield) (replaceText bad-idx (count text) good-str)))))
       ;; update parser
       (def buffer (assoc (create-undo-point buffer) :undo-depth 0))
       (def buffer (assoc buffer :parser (update-tfp (buffer :parser))))))
 
 (defn- frame-handler [_]
+  ;; key-down-handler will set this on non-printables too, so we disable it on each frame.
+  (def #^{:private true} prevent-next-input false)
+
   (let [tf ((buffer :parser) :textfield)
-	moved? (not= (. tf caretIndex) *prev-position*)
-	scrolled? (not (and (= (. tf scrollV) *prev-scrollv*)
-			    (= (. tf scrollH) *prev-scrollh*)))
-	time (get-timer)
-	busy? (< (- time *last-action-time*) *idle-time*)]
+        moved? (not= (. tf caretIndex) *prev-position*)
+        scrolled? (not (and (= (. tf scrollV) *prev-scrollv*)
+                            (= (. tf scrollH) *prev-scrollh*)))
+        time (get-timer)
+        busy? (< (- time *last-action-time*) *idle-time*)]
     (when-not busy?
       (when-not ((buffer :parser) :done)
-	(let [limit (+ time *parser-time-limit*)]
-	  (repeat-until (or (> (get-timer) limit)
-			    ((buffer :parser) :done))
-			(def buffer (assoc buffer :parser (parse-and-highlight-next! (buffer :parser))))))
+        (let [limit (+ time *parser-time-limit*)]
+          (repeat-until (or (> (get-timer) limit)
+                            ((buffer :parser) :done))
+                        (def buffer (assoc buffer :parser (parse-and-highlight-next! (buffer :parser))))))
 
-	(when (seq ((buffer :parser) :tokens))
-	  (let [buffer-length (. tf length)]
-	    (mset! parse-progress [maximum buffer-length
-				   value (if ((buffer :parser) :done)
-					   buffer-length
-					   ((vlast ((buffer :parser) :tokens)) :next-index))]))))
+        (when (seq ((buffer :parser) :tokens))
+          (let [buffer-length (. tf length)]
+            (mset! parse-progress [maximum buffer-length
+                                   value (if ((buffer :parser) :done)
+                                           buffer-length
+                                           ((vlast ((buffer :parser) :tokens)) :next-index))]))))
       (when *ui-needs-update*
-	(def #^{:private true} *ui-needs-update* false)
-	(position-overlay! buffer)
-	(highlight-current-sexp! buffer)
-	(context-doc buffer)))
+        (def #^{:private true} *ui-needs-update* false)
+        (position-overlay! buffer)
+        (highlight-current-sexp! buffer)
+        (context-doc buffer)))
 
     (when (or changed? moved? scrolled?)
       (def changed? false)
@@ -720,58 +753,111 @@ in the collection at pos, or nil on failure. Fails on mismatched brackets."
   (defn key-down-handler [event]
     (let [keystroke (event->keystroke event)]
       (if (= keystroke undo-keystroke)
-	(do
-	  (def buffer (undo! buffer))
-	  (def changed? true)
-	  (def #^{:private true} prevent-next-input true)
-	  (. event (preventDefault))
-	  (dispatch-ignorable-change-event buffer))
-	(if-let cmd (*kb-map* keystroke)
-	  (do
-	    (let [orig-text (buffer-string buffer)]
-	      (def buffer (cmd buffer))
-	      (def #^{:private true} prevent-next-input true)
-	      (. event (preventDefault))
-	      (when-not (= orig-text (buffer-string buffer))
-		(dispatch-change-event buffer))))
-	  (def buffer (assoc buffer :undo-depth 0)))))))
+        (do
+          (def buffer (undo! buffer))
+          (def changed? true)
+          (def #^{:private true} prevent-next-input true)
+          (. event (preventDefault))
+          (dispatch-ignorable-change-event buffer))
+        (if-let cmd (*kb-map* keystroke)
+          (do
+            (let [orig-text (buffer-string buffer)]
+              (def buffer (cmd buffer))
+              (def #^{:private true} prevent-next-input true)
+              (. event (preventDefault))
+              (when-not (= orig-text (buffer-string buffer))
+                (dispatch-change-event buffer))))
+          (def buffer (assoc buffer :undo-depth 0)))))))
 
 (defn text-input-handler [event]
   (when prevent-next-input
-    (def #^{:private true} prevent-next-input false)
+    ;; done in enterFrame instead - (def #^{:private true} prevent-next-input false)
     (. event (preventDefault))))
+
+(defn- custom-indent [text]
+  (when-let first-word (second (re-match #"\W*(\S+)" text))
+    (if (contains? #{"assoc"
+                     "binding"
+                     "catch"
+                     "comment"
+                     "defmuti"
+                     "def"
+                     "defn"
+                     "defstruct"
+                     "do"
+                     "doseq"
+                     "dotimes"
+                     "doto"
+                     "for"
+                     "implement"
+                     "let"
+                     "loop"
+                     "proxy"
+                     "struct-map"}
+                   first-word)
+      1
+      (when-let first-part (second (re-match #"([^-]*)" first-word))
+        (when (contains? #{"when"
+                         "with"
+                         "def"
+                         "if"
+                         "defn"
+                         "def"
+                         "let"}
+                       first-part)
+          1)))))
+
+(defn- indent-for-text 
+  "Helper fn. Takes text starting with an open bracket, returns the number of chars to indent."
+  [text]
+  (inc (if (or (= (first text) "{")
+               (= (first text) "["))
+         0 ;; squares and curlies are easy
+         (let [text (subs text 1)] ;; parens aren't :(
+           (or (custom-indent text)
+               (count (second (re-match #"\W*\S+" text))))))))
 
 (defn indent-line!
   "Indents a line (caret line by default), returns a new buffer."
   ([buffer]
      (indent-line! buffer (let [tf ((buffer :parser) :textfield)]
-			    (. tf (getLineIndexOfChar (clipped-caret-idx tf))))))
+                            (get-line-index-of-char tf (. tf caretIndex)))))
   ([buffer line]
-     (let [parser (buffer :parser)
-	   {tf :textfield tokens :tokens} parser
-	   line-text (. tf (getLineText line))
-	   token-line (fn [t] (. tf (getLineIndexOfChar (t :index))))
-	   get-offset (. tf getLineOffset)
-	   line-start (get-offset line)
-	   _ (prn 'line-start line-start 'token (char->token-index parser line-start))
-	   bol-token (tokens (char->token-index parser line-start))
-	   indentation (if-let lbracket-token-idx (first (bol-token :open-lbrackets))
-			 (let [lbracket-token (tokens lbracket-token-idx)]
-			   _ (prn 'lbracket-token-idx lbracket-token-idx 'token lbracket-token)
-			   (- (lbracket-token :index)
-			      (get-offset (token-line lbracket-token))))
-			 0)
-	   _ (prn indentation)
-	   spaces (apply str (take indentation (repeat " ")))
-	   indented-line (str spaces (. line-text (replace #" *" "")))]
-       (. tf (replaceText line-start 
-			  (+ line-start (count line-text))
-			  indented-line)))
+     (let [tf ((buffer :parser) :textfield)
+           ;; indenting the last, empty line is a special case...
+           on-last-empty-line? (and (= (. tf numLines) (inc line))
+                                    (empty? (. tf (getLineText line)))
+                                    ((buffer :parser) :done))
+           buffer (if on-last-empty-line?
+                    (do (. tf (appendText " "))
+                        (assoc buffer :parser (parse-all (update-tfp (buffer :parser)))))
+                    buffer)
+           parser (buffer :parser)
+           tokens (parser :tokens)
+           line-offset (. tf (getLineOffset line))
+           line-text (. tf (getLineText line))]
+       ;; token refers to the 1st token on the line to be indented
+       (when-let token-idx (char->token-index parser line-offset)
+         (let [token (tokens token-idx)
+               token-start-line (get-line-index-of-char tf (token :index))]
+           ;; open-bracket is the first open bracket before the token's line
+           (when-let open-bracket-idx (first (filter (fn [idx] (not= (token-line parser (tokens idx)) line))
+                                                     (token :open-lbrackets)))
+             (let [open-bracket (tokens open-bracket-idx)
+                   open-bracket-line-text (. tf (getLineText (token-line parser open-bracket)))
+                   open-bracket-col (token-col parser open-bracket)
+                   open-bracket-text (subs open-bracket-line-text open-bracket-col)
+                   indentation (+ open-bracket-col (indent-for-text open-bracket-text))
+                   chars-to-replace (count (first (re-match #" *" line-text))) ;; number of old spaces
+                   spaces (apply str (take indentation (repeat " ")))]
+               (. tf (replaceText line-offset 
+                                  (+ line-offset chars-to-replace)
+                                  spaces)))))))
      buffer))
 (set-key-handler! (kb TAB) [] indent-line!)
        
-	   
-	   
+           
+           
 
 (defn prn-current-sexp [buffer]
   (prn (apply str (map :string (get-sexp-at buffer (clipped-caret-idx ((buffer :parser) :textfield))))))
@@ -797,7 +883,10 @@ in the collection at pos, or nil on failure. Fails on mismatched brackets."
     (. *stage* (addEventListener "enterFrame" frame-handler))
 
     ;; show repl on top
-    (. *stage* (addChild (. (get-def "MCompsTest") repl)))
+    (let [repl (. (get-def "MCompsTest") repl)]
+      (. *stage* (addChild repl))
+      (mset! repl [x (- (. *stage* stageWidth) (. repl width))
+                   y (- (. *stage* stageHeight) (. repl height))]))
 
     (measure-font! tf)
     (update-layout!)
