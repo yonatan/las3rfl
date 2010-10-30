@@ -20,7 +20,7 @@ package {
 	jp.psyark.utils.StringComparator;
 	net.hires.debug.Stats;
 
-    [SWF(width=950,height=600,backgroundColor=0xFFFFFF,frameRate=30)]
+    [SWF(width=950,height=600,backgroundColor=0xFFFFFF,frameRate=60)]
     public class MCompsTest extends Sprite {
         [Embed(source="psymacs.parser.lsr", mimeType="application/octet-stream")]
         protected const PsymacsLsr:Class;

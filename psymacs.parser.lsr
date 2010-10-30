@@ -503,6 +503,11 @@ textfield is changed and before the parser's :text is updated."
 (defn buffer-string [buffer]
   (. ((buffer :parser) :textfield) text))
 
+(defn buffer-tf 
+  "Returns the buffer's textfield"
+  [buffer]
+  ((buffer :parser) :textfield))
+
 (defn get-bracket-enclosed-tokens-at
   "Returns a vector of all tokens including l/r brackets in the sexp at pos, or nil
 on failure. Doesn't check if bracket types match each other."
@@ -815,7 +820,7 @@ in the collection at pos, or nil on failure. Fails on mismatched brackets."
          0 ;; squares and curlies are easy
          (let [text (subs text 1)] ;; parens aren't :(
            (or (custom-indent text)
-               (count (second (re-match #"\W*\S+" text))))))))
+               (count (second (re-match #"(\W*\S+\W+)\S" text))))))))
 
 (defn indent-line!
   "Indents a line (caret line by default), returns a new buffer."
@@ -854,8 +859,22 @@ in the collection at pos, or nil on failure. Fails on mismatched brackets."
                                   (+ line-offset chars-to-replace)
                                   spaces)))))))
      buffer))
-(set-key-handler! (kb TAB) [] indent-line!)
-       
+
+(defn move-end-of-line [buffer]
+  (let [tf (buffer-tf buffer)
+	eol (. (. tf text) (indexOf "\r" (. tf caretIndex)))
+	eol (if (= eol -1) (. tf length) eol)]
+    (. tf (setSelection eol eol)))
+  buffer)
+(set-key-handler! "e" [:ctrl] move-end-of-line)
+
+(defn insert [buffer s]
+  (let [tf (buffer-tf buffer)
+	idx (. tf caretIndex)]
+    (. tf (replaceText idx idx s))))
+
+
+  
            
            
 
@@ -867,8 +886,8 @@ in the collection at pos, or nil on failure. Fails on mismatched brackets."
   (prn "hello")
   buffer)
 
-(set-key-handler! "h" [:ctrl] prn-hello)
 (set-key-handler! "s" [:ctrl] prn-current-sexp)
+(set-key-handler! "e" [:ctrl] move-end-of-line)
 (set-key-handler! (kb TAB) [] indent-line!)
 
 (defn init []
