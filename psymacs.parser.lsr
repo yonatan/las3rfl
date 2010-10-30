@@ -780,7 +780,7 @@ in the collection at pos, or nil on failure. Fails on mismatched brackets."
     (. event (preventDefault))))
 
 (defn- custom-indent [text]
-  (when-let first-word (second (re-match #"\W*(\S+)" text))
+  (when-let first-word (second (re-match #"\s*(\S+)" text))
     (if (contains? #{"assoc"
                      "binding"
                      "catch"
@@ -815,12 +815,13 @@ in the collection at pos, or nil on failure. Fails on mismatched brackets."
 (defn- indent-for-text 
   "Helper fn. Takes text starting with an open bracket, returns the number of chars to indent."
   [text]
+  (prn 'indent-for-text text)
   (inc (if (or (= (first text) "{")
                (= (first text) "["))
          0 ;; squares and curlies are easy
          (let [text (subs text 1)] ;; parens aren't :(
            (or (custom-indent text)
-               (count (second (re-match #"(\W*\S+\W+)\S" text))))))))
+               (count (second (re-match #"(\s*\S+\s+)\S" text))))))))
 
 (defn indent-line!
   "Indents a line (caret line by default), returns a new buffer."
@@ -872,6 +873,16 @@ in the collection at pos, or nil on failure. Fails on mismatched brackets."
   (let [tf (buffer-tf buffer)
 	idx (. tf caretIndex)]
     (. tf (replaceText idx idx s))))
+
+(defn indent-for-ret-command [buffer]
+  (insert buffer "\n")
+  (let [tf (-> buffer :parser :textfield)
+	idx (inc (. tf caretIndex))
+	buffer (assoc buffer :parser (parse-next (buffer :parser)))]
+    (. tf (setSelection idx idx))
+    (indent-line! buffer)
+    (move-end-of-line buffer)))
+(set-key-handler! (kb ENTER) [] indent-for-ret-command)
 
 
   
