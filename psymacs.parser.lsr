@@ -303,38 +303,43 @@
       :text (. (tfp :textfield) text))
     tfp))
 
-(defn parse-next [parser]
-  "Parses the next token, returns updated parser."
-  (if (parser :done)
-    parser
-    (if-let token (parse (parser :text) (parse-index parser)) ;; get next token
-      (let [type (token :type)
-            tokens (parser :tokens)
-            cnt (count tokens)
-            prev (vlast tokens)
-            
-            [p-type p-olbs p-bps] 
-            (if (seq prev)
-              [(prev :type) (prev :open-lbrackets) (prev :bracket-pairs)]
-              [nil '() []])
+(defn parse-next
+  "Parses the next n (1 by defualt - must be positive) tokens, returns updated parser."
+  ([parser]
+     (parse-next parser 1))
+  ([parser n]
+     (if (> n 1)
+       (recur (parse-next parser 1) (dec n))
+       (if (parser :done)
+	 parser
+	 (if-let token (parse (parser :text) (parse-index parser)) ;; get next token
+	   (let [type (token :type)
+		 tokens (parser :tokens)
+		 cnt (count tokens)
+		 prev (vlast tokens)
+		 
+		 [p-type p-olbs p-bps] 
+		 (if (seq prev)
+		   [(prev :type) (prev :open-lbrackets) (prev :bracket-pairs)]
+		   [nil '() []])
 
-            ;; new open-lbrackets list
-            olbs (cond (= p-type :lbracket)
-                       (cons (dec cnt) p-olbs)
-                       
-                       (= p-type :rbracket)
-                       (rest p-olbs)
-                       
-                       :else
-                       p-olbs)
-            ;; new bracket-pairs vector
-            bps (if (and (= type :rbracket) (seq olbs))
-                  (conj p-bps {:l (first olbs) :r cnt})
-                  p-bps)
+		 ;; new open-lbrackets list
+		 olbs (cond (= p-type :lbracket)
+			    (cons (dec cnt) p-olbs)
+			    
+			    (= p-type :rbracket)
+			    (rest p-olbs)
+			    
+			    :else
+			    p-olbs)
+		 ;; new bracket-pairs vector
+		 bps (if (and (= type :rbracket) (seq olbs))
+		       (conj p-bps {:l (first olbs) :r cnt})
+		       p-bps)
 
-            token (assoc token :open-lbrackets olbs :bracket-pairs bps)]
-        (assoc parser :tokens (conj tokens token)))
-      (assoc parser :done true))))
+		 token (assoc token :open-lbrackets olbs :bracket-pairs bps)]
+	     (assoc parser :tokens (conj tokens token)))
+	   (assoc parser :done true))))))
 
 (defn parse-all [parser]
   (if (parser :done)
@@ -815,7 +820,6 @@ in the collection at pos, or nil on failure. Fails on mismatched brackets."
 (defn- indent-for-text 
   "Helper fn. Takes text starting with an open bracket, returns the number of chars to indent."
   [text]
-  (prn 'indent-for-text text)
   (inc (if (or (= (first text) "{")
                (= (first text) "["))
          0 ;; squares and curlies are easy
@@ -836,7 +840,7 @@ in the collection at pos, or nil on failure. Fails on mismatched brackets."
                                     ((buffer :parser) :done))
            buffer (if on-last-empty-line?
                     (do (. tf (appendText " "))
-                        (assoc buffer :parser (parse-all (update-tfp (buffer :parser)))))
+                        (assoc buffer :parser (parse-next (update-tfp (buffer :parser)) 10)))
                     buffer)
            parser (buffer :parser)
            tokens (parser :tokens)
@@ -878,10 +882,11 @@ in the collection at pos, or nil on failure. Fails on mismatched brackets."
   (insert buffer "\n")
   (let [tf (-> buffer :parser :textfield)
 	idx (inc (. tf caretIndex))
-	buffer (assoc buffer :parser (parse-next (buffer :parser)))]
+	new-buffer (assoc buffer :parser (parse-all (update-tfp (buffer :parser))))]
     (. tf (setSelection idx idx))
-    (indent-line! buffer)
-    (move-end-of-line buffer)))
+    (let [new-buffer (indent-line! new-buffer)]
+      (move-end-of-line new-buffer)
+      buffer)))
 (set-key-handler! (kb ENTER) [] indent-for-ret-command)
 
 
