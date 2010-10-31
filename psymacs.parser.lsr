@@ -851,8 +851,8 @@ in the collection at pos, or nil on failure. Fails on mismatched brackets."
          (let [token (tokens token-idx)
                token-start-line (get-line-index-of-char tf (token :index))]
            ;; open-bracket is the first open bracket before the token's line
-           (when-let open-bracket-idx (first (filter (fn [idx] (not= (token-line parser (tokens idx)) line))
-                                                     (token :open-lbrackets)))
+           (if-let open-bracket-idx (first (filter (fn [idx] (not= (token-line parser (tokens idx)) line))
+						   (token :open-lbrackets)))
              (let [open-bracket (tokens open-bracket-idx)
                    open-bracket-line-text (. tf (getLineText (token-line parser open-bracket)))
                    open-bracket-col (token-col parser open-bracket)
@@ -862,7 +862,10 @@ in the collection at pos, or nil on failure. Fails on mismatched brackets."
                    spaces (apply str (take indentation (repeat " ")))]
                (. tf (replaceText line-offset 
                                   (+ line-offset chars-to-replace)
-                                  spaces)))))))
+                                  spaces)))
+	     (if on-last-empty-line? ;; if we added an extra space
+	       (let [len (. tf length)]  ;; remove it
+		 (. tf (replaceText (dec len) len ""))))))))
      buffer))
 
 (defn move-end-of-line [buffer]
