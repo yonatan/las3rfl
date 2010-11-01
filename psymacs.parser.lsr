@@ -516,25 +516,24 @@ textfield is changed and before the parser's :text is updated."
 (defn get-bracket-enclosed-tokens-at
   "Returns a vector of all tokens including l/r brackets in the sexp at pos, or nil
 on failure. Doesn't check if bracket types match each other."
-  [buffer pos]
-  (let [parser (buffer :parser)]
-    (when-let token-idx (char->token-index parser pos)
-      (let [tokens (parser :tokens)
-            token (tokens token-idx)
-            bracket-pairs ((vlast tokens) :bracket-pairs)]
-        (when (seq (token :open-lbrackets))
-          (when-let bp-idx (binary-search bracket-pairs ;; find 1st pair with rbracket after or at pos
-                                          (fn [bp] 
-                                            (< (bp :r) token-idx)))
-            (let [bracket-pairs (subvec bracket-pairs bp-idx)] ;; snip irrelevant bracket pairs
-              (when-let bp (some (fn [bp] (when (= (bp :l) (first (token :open-lbrackets))) bp)) bracket-pairs)
-                (subvec tokens (bp :l) (inc (bp :r)))))))))))
+  [parser pos]
+  (when-let token-idx (char->token-index parser pos)
+    (let [tokens (parser :tokens)
+	  token (tokens token-idx)
+	  bracket-pairs ((vlast tokens) :bracket-pairs)]
+      (when (seq (token :open-lbrackets))
+	(when-let bp-idx (binary-search bracket-pairs ;; find 1st pair with rbracket after or at pos
+					(fn [bp] 
+					  (< (bp :r) token-idx)))
+	  (let [bracket-pairs (subvec bracket-pairs bp-idx)] ;; snip irrelevant bracket pairs
+	    (when-let bp (some (fn [bp] (when (= (bp :l) (first (token :open-lbrackets))) bp)) bracket-pairs)
+	      (subvec tokens (bp :l) (inc (bp :r))))))))))
 
 (defn get-coll-at
   "Returns a vector of all tokens including l/r brackets in the collection at pos, or nil
 on failure."
-  [buffer pos]
-  (when-let enclosed (get-bracket-enclosed-tokens-at buffer pos)
+  [parser pos]
+  (when-let enclosed (get-bracket-enclosed-tokens-at parser pos)
     (when (matching-brackets? ((first enclosed) :string) ((vlast enclosed) :string))
       enclosed)))
 
@@ -544,11 +543,10 @@ dir, which should be inc or dec)  for the 1st good token. Returns a vector conta
 the token at pos, or all tokens including l/r brackets in the collection at pos, or nil on 
 failure. Fails on mismatched brackets. By default scans backward ignoring whitespace and
 comment tokens."
-  ([buffer pos]
-     (get-sexp-at buffer pos [:whitespace :comment] dec))
-  ([buffer pos ignored-types dir]
-     (let [parser (buffer :parser)
-           tokens (parser :tokens)
+  ([parser pos]
+     (get-sexp-at parser pos [:whitespace :comment] dec))
+  ([parser pos ignored-types dir]
+     (let [tokens (parser :tokens)
            ignored (into #{} ignored-types)
            tokens-cnt (count tokens)]
        (when-let token-idx (char->token-index parser pos)
@@ -559,10 +557,10 @@ comment tokens."
                (if (ignored type)
                  (recur (dir token-idx))
                  (cond (= type :lbracket)
-                       (get-coll-at buffer (inc (token :index)))
+                       (get-coll-at parser (inc (token :index)))
 
                        (= type :rbracket)
-                       (get-coll-at buffer (token :index))
+                       (get-coll-at parser (token :index))
 
                        :else
                        [token])))))))))
@@ -570,11 +568,12 @@ comment tokens."
 (defn highlight-current-sexp! 
   "Draws char highlights on the buffer overlay sprite."
   [buffer]
-  (let [tf ((buffer :parser) :textfield)
+  (let [parser (buffer :parser)
+	tf (parser :textfield)
         pos (clipped-caret-idx tf)
         g (. (buffer :overlay) graphics)]
     (. g (clear))
-    (when-let sexp-tokens (get-bracket-enclosed-tokens-at buffer pos)
+    (when-let sexp-tokens (get-bracket-enclosed-tokens-at parser pos)
       (let [first-token (first sexp-tokens)
             last-token (vlast sexp-tokens)
             l (first-token :index)
@@ -828,11 +827,11 @@ comment tokens."
                    open-bracket-col (token-col parser open-bracket)
                    open-bracket-line (token-line parser open-bracket)
                    indentation (or (when (= bracket "(")
-                                     (when-let sexp-1 (get-sexp-at buffer (open-bracket :next-index)
+                                     (when-let sexp-1 (get-sexp-at parser (open-bracket :next-index)
                                                                    [:comment :whitespace] inc)
                                        (or (custom-indent ((first sexp-1) :string))
                                            (when (= open-bracket-line (token-line parser (vlast sexp-1)))
-                                             (when-let sexp-2 (get-sexp-at buffer (inc ((vlast sexp-1) :next-index))
+                                             (when-let sexp-2 (get-sexp-at parser (inc ((vlast sexp-1) :next-index))
                                                                            [:comment :whitespace] inc)
                                                (when (= open-bracket-line (token-line parser (first sexp-2)))
                                                  (token-col parser (first sexp-2))))))))
@@ -877,7 +876,7 @@ comment tokens."
            
 
 (defn prn-current-sexp [buffer]
-  (prn (apply str (map :string (get-sexp-at buffer (clipped-caret-idx ((buffer :parser) :textfield))))))
+  (prn (apply str (map :string (get-sexp-at (buffer :parser) (clipped-caret-idx ((buffer :parser) :textfield))))))
   buffer)
 
 (defn prn-hello [buffer]
