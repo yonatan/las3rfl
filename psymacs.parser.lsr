@@ -829,7 +829,7 @@ comment tokens."
                    indentation (or (when (= bracket "(")
                                      (when-let sexp-1 (get-sexp-at parser (open-bracket :next-index)
                                                                    [:comment :whitespace] inc)
-                                       (or (custom-indent ((first sexp-1) :string))
+                                       (or (+ open-bracket-col (custom-indent ((first sexp-1) :string)))
                                            (when (= open-bracket-line (token-line parser (vlast sexp-1)))
                                              (when-let sexp-2 (get-sexp-at parser (inc ((vlast sexp-1) :next-index))
                                                                            [:comment :whitespace] inc)
