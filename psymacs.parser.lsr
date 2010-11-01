@@ -870,7 +870,17 @@ comment tokens."
       buffer)))
 (set-key-handler! (kb ENTER) [] indent-for-ret-command)
 
+(defn- eval-and-print [rt s]
+  (let [prn (fn [x] (println) (println x))]
+    (print (str (. (. rt (currentNS)) name) "=> "  s))
+    (. rt (evalStr s prn nil prn))))
 
+(defn eval-current-sexp [buffer]
+  (let [p (buffer :parser)
+	s (apply str (map :string (get-sexp-at p (clipped-caret-idx (p :textfield)))))]
+    (eval-and-print (buffer :runtime) s)
+    buffer))
+(set-key-handler! "j" [:ctrl] eval-current-sexp)
   
            
            
