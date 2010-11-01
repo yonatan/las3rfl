@@ -539,21 +539,25 @@ on failure."
       enclosed)))
 
 (defn get-sexp-at
-  "If the token at pos is of an ignorable type, scans backward for the 1st good token.
-Returns a vector containing either the token at pos, or all tokens including l/r brackets
-in the collection at pos, or nil on failure. Fails on mismatched brackets."
+  "If the token at pos is of an ignorable type, scans (backward or forward, depending on 
+dir, which should be inc or dec)  for the 1st good token. Returns a vector containing either
+the token at pos, or all tokens including l/r brackets in the collection at pos, or nil on 
+failure. Fails on mismatched brackets. By default scans backward ignoring whitespace and
+comment tokens."
   ([buffer pos]
-     (get-sexp-at buffer pos [:whitespace :comment]))
-  ([buffer pos ignored-types]
+     (get-sexp-at buffer pos [:whitespace :comment] dec))
+  ([buffer pos ignored-types dir]
      (let [parser (buffer :parser)
-           ignored (into #{} ignored-types)]
+	   tokens (parser :tokens)
+           ignored (into #{} ignored-types)
+	   tokens-cnt (count tokens)]
        (when-let token-idx (char->token-index parser pos)
          (loop [token-idx token-idx]
-           (when-not (neg? token-idx)
-             (let [token ((parser :tokens) token-idx)
+           (when (< -1 token-idx tokens-cnt)
+             (let [token (tokens token-idx)
                    type (token :type)]
                (if (ignored type)
-                 (recur (dec token-idx))
+                 (recur (dir token-idx))
                  (cond (= type :lbracket)
                        (get-coll-at buffer (inc (token :index)))
 
@@ -854,10 +858,18 @@ in the collection at pos, or nil on failure. Fails on mismatched brackets."
            (if-let open-bracket-idx (first (filter (fn [idx] (not= (token-line parser (tokens idx)) line))
 						   (token :open-lbrackets)))
              (let [open-bracket (tokens open-bracket-idx)
-                   open-bracket-line-text (. tf (getLineText (token-line parser open-bracket)))
+		   bracket (open-bracket :string)
                    open-bracket-col (token-col parser open-bracket)
-                   open-bracket-text (subs open-bracket-line-text open-bracket-col)
-                   indentation (+ open-bracket-col (indent-for-text open-bracket-text))
+                   open-bracket-line (token-line parser open-bracket)
+		   indentation (or (when (= bracket "(")
+				     (when-let sexp-1 (get-sexp-at buffer (open-bracket :next-index)
+								   [:comment :whitespace] inc)
+				       (when (= open-bracket-line (token-line parser (vlast sexp-1)))
+					 (when-let sexp-2 (get-sexp-at buffer (inc ((vlast sexp-1) :next-index))
+								       [:comment :whitespace] inc)
+					   (when (= open-bracket-line (token-line parser (first sexp-2)))
+					     (token-col parser (first sexp-2)))))))
+				   (inc open-bracket-col))
                    chars-to-replace (count (first (re-match #" *" line-text))) ;; number of old spaces
                    spaces (apply str (take indentation (repeat " ")))]
                (. tf (replaceText line-offset 
