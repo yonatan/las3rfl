@@ -311,35 +311,35 @@
      (if (> n 1)
        (recur (parse-next parser 1) (dec n))
        (if (parser :done)
-	 parser
-	 (if-let token (parse (parser :text) (parse-index parser)) ;; get next token
-	   (let [type (token :type)
-		 tokens (parser :tokens)
-		 cnt (count tokens)
-		 prev (vlast tokens)
-		 
-		 [p-type p-olbs p-bps] 
-		 (if (seq prev)
-		   [(prev :type) (prev :open-lbrackets) (prev :bracket-pairs)]
-		   [nil '() []])
+         parser
+         (if-let token (parse (parser :text) (parse-index parser)) ;; get next token
+           (let [type (token :type)
+                 tokens (parser :tokens)
+                 cnt (count tokens)
+                 prev (vlast tokens)
+                 
+                 [p-type p-olbs p-bps] 
+                 (if (seq prev)
+                   [(prev :type) (prev :open-lbrackets) (prev :bracket-pairs)]
+                   [nil '() []])
 
-		 ;; new open-lbrackets list
-		 olbs (cond (= p-type :lbracket)
-			    (cons (dec cnt) p-olbs)
-			    
-			    (= p-type :rbracket)
-			    (rest p-olbs)
-			    
-			    :else
-			    p-olbs)
-		 ;; new bracket-pairs vector
-		 bps (if (and (= type :rbracket) (seq olbs))
-		       (conj p-bps {:l (first olbs) :r cnt})
-		       p-bps)
+                 ;; new open-lbrackets list
+                 olbs (cond (= p-type :lbracket)
+                            (cons (dec cnt) p-olbs)
+                            
+                            (= p-type :rbracket)
+                            (rest p-olbs)
+                            
+                            :else
+                            p-olbs)
+                 ;; new bracket-pairs vector
+                 bps (if (and (= type :rbracket) (seq olbs))
+                       (conj p-bps {:l (first olbs) :r cnt})
+                       p-bps)
 
-		 token (assoc token :open-lbrackets olbs :bracket-pairs bps)]
-	     (assoc parser :tokens (conj tokens token)))
-	   (assoc parser :done true))))))
+                 token (assoc token :open-lbrackets olbs :bracket-pairs bps)]
+             (assoc parser :tokens (conj tokens token)))
+           (assoc parser :done true))))))
 
 (defn parse-all [parser]
   (if (parser :done)
@@ -548,9 +548,9 @@ comment tokens."
      (get-sexp-at buffer pos [:whitespace :comment] dec))
   ([buffer pos ignored-types dir]
      (let [parser (buffer :parser)
-	   tokens (parser :tokens)
+           tokens (parser :tokens)
            ignored (into #{} ignored-types)
-	   tokens-cnt (count tokens)]
+           tokens-cnt (count tokens)]
        (when-let token-idx (char->token-index parser pos)
          (loop [token-idx token-idx]
            (when (< -1 token-idx tokens-cnt)
@@ -788,48 +788,14 @@ comment tokens."
     ;; done in enterFrame instead - (def #^{:private true} prevent-next-input false)
     (. event (preventDefault))))
 
-(defn- custom-indent [text]
-  (when-let first-word (second (re-match #"\s*(\S+)" text))
-    (if (contains? #{"assoc"
-                     "binding"
-                     "catch"
-                     "comment"
-                     "defmuti"
-                     "def"
-                     "defn"
-                     "defstruct"
-                     "do"
-                     "doseq"
-                     "dotimes"
-                     "doto"
-                     "for"
-                     "implement"
-                     "let"
-                     "loop"
-                     "proxy"
-                     "struct-map"}
-                   first-word)
-      1
-      (when-let first-part (second (re-match #"([^-]*)" first-word))
-        (when (contains? #{"when"
-                         "with"
-                         "def"
-                         "if"
-                         "defn"
-                         "def"
-                         "let"}
-                       first-part)
-          1)))))
-
-(defn- indent-for-text 
-  "Helper fn. Takes text starting with an open bracket, returns the number of chars to indent."
-  [text]
-  (inc (if (or (= (first text) "{")
-               (= (first text) "["))
-         0 ;; squares and curlies are easy
-         (let [text (subs text 1)] ;; parens aren't :(
-           (or (custom-indent text)
-               (count (second (re-match #"(\s*\S+\s+)\S" text))))))))
+(defn- custom-indent 
+  "Returns custom indentation for symbol or nil."
+  [symbol-string]
+  (when (or (contains? #{"assoc" "binding" "catch" "comment" "defmuti" "def" "defn" "defstruct" "do" "doseq" "dotimes" "doto" "for" "implement" "let" "loop" "proxy" "struct-map"}
+                       symbol-string)
+            (contains? #{"when" "with" "def" "if" "defn" "def" "let"}
+                       (second (re-match #"([^-]*)" symbol-string))))
+    2))
 
 (defn indent-line!
   "Indents a line (caret line by default), returns a new buffer."
@@ -856,48 +822,49 @@ comment tokens."
                token-start-line (get-line-index-of-char tf (token :index))]
            ;; open-bracket is the first open bracket before the token's line
            (if-let open-bracket-idx (first (filter (fn [idx] (not= (token-line parser (tokens idx)) line))
-						   (token :open-lbrackets)))
+                                                   (token :open-lbrackets)))
              (let [open-bracket (tokens open-bracket-idx)
-		   bracket (open-bracket :string)
+                   bracket (open-bracket :string)
                    open-bracket-col (token-col parser open-bracket)
                    open-bracket-line (token-line parser open-bracket)
-		   indentation (or (when (= bracket "(")
-				     (when-let sexp-1 (get-sexp-at buffer (open-bracket :next-index)
-								   [:comment :whitespace] inc)
-				       (when (= open-bracket-line (token-line parser (vlast sexp-1)))
-					 (when-let sexp-2 (get-sexp-at buffer (inc ((vlast sexp-1) :next-index))
-								       [:comment :whitespace] inc)
-					   (when (= open-bracket-line (token-line parser (first sexp-2)))
-					     (token-col parser (first sexp-2)))))))
-				   (inc open-bracket-col))
+                   indentation (or (when (= bracket "(")
+                                     (when-let sexp-1 (get-sexp-at buffer (open-bracket :next-index)
+                                                                   [:comment :whitespace] inc)
+                                       (or (custom-indent ((first sexp-1) :string))
+                                           (when (= open-bracket-line (token-line parser (vlast sexp-1)))
+                                             (when-let sexp-2 (get-sexp-at buffer (inc ((vlast sexp-1) :next-index))
+                                                                           [:comment :whitespace] inc)
+                                               (when (= open-bracket-line (token-line parser (first sexp-2)))
+                                                 (token-col parser (first sexp-2))))))))
+                                   (inc open-bracket-col))
                    chars-to-replace (count (first (re-match #" *" line-text))) ;; number of old spaces
                    spaces (apply str (take indentation (repeat " ")))]
                (. tf (replaceText line-offset 
                                   (+ line-offset chars-to-replace)
                                   spaces)))
-	     (if on-last-empty-line? ;; if we added an extra space
-	       (let [len (. tf length)]  ;; remove it
-		 (. tf (replaceText (dec len) len ""))))))))
+             (if on-last-empty-line? ;; if we added an extra space
+               (let [len (. tf length)]  ;; remove it
+                 (. tf (replaceText (dec len) len ""))))))))
      buffer))
 
 (defn move-end-of-line [buffer]
   (let [tf (buffer-tf buffer)
-	eol (. (. tf text) (indexOf "\r" (. tf caretIndex)))
-	eol (if (= eol -1) (. tf length) eol)]
+        eol (. (. tf text) (indexOf "\r" (. tf caretIndex)))
+        eol (if (= eol -1) (. tf length) eol)]
     (. tf (setSelection eol eol)))
   buffer)
 (set-key-handler! "e" [:ctrl] move-end-of-line)
 
 (defn insert [buffer s]
   (let [tf (buffer-tf buffer)
-	idx (. tf caretIndex)]
+        idx (. tf caretIndex)]
     (. tf (replaceText idx idx s))))
 
 (defn indent-for-ret-command [buffer]
   (insert buffer "\n")
   (let [tf (-> buffer :parser :textfield)
-	idx (inc (. tf caretIndex))
-	new-buffer (assoc buffer :parser (parse-all (update-tfp (buffer :parser))))]
+        idx (inc (. tf caretIndex))
+        new-buffer (assoc buffer :parser (parse-all (update-tfp (buffer :parser))))]
     (. tf (setSelection idx idx))
     (let [new-buffer (indent-line! new-buffer)]
       (move-end-of-line new-buffer)
