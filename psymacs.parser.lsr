@@ -790,7 +790,7 @@ comment tokens."
 (defn- custom-indent 
   "Returns custom indentation for symbol or nil."
   [symbol-string]
-  (when (or (contains? #{"assoc" "binding" "catch" "comment" "defmuti" "def" "defn" "defstruct" "do" "doseq" "dotimes" "doto" "for" "implement" "let" "loop" "proxy" "struct-map"}
+  (when (or (contains? #{"assoc" "binding" "catch" "comment" "defmuti" "def" "defmacro" "defn" "defstruct" "do" "doseq" "dotimes" "doto" "fn" "for" "implement" "let" "loop" "proxy" "struct-map"}
                        symbol-string)
             (contains? #{"when" "with" "def" "if" "defn" "def" "let"}
                        (second (re-match #"([^-]*)" symbol-string))))
