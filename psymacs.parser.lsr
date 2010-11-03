@@ -768,7 +768,7 @@ comment tokens."
       (if (= keystroke undo-keystroke)
         (do
           (def buffer (undo! buffer))
-          (def changed? true)
+          ;(def changed? true)
           (def #^{:private true} prevent-next-input true)
           (. event (preventDefault))
           (dispatch-ignorable-change-event buffer))
@@ -829,7 +829,8 @@ comment tokens."
                    indentation (or (when (= bracket "(")
                                      (when-let sexp-1 (get-sexp-at parser (open-bracket :next-index)
                                                                    [:comment :whitespace] inc)
-                                       (or (+ open-bracket-col (custom-indent ((first sexp-1) :string)))
+                                       (or (when-let x (custom-indent ((first sexp-1) :string))
+					     (+ open-bracket-col x))
                                            (when (= open-bracket-line (token-line parser (vlast sexp-1)))
                                              (when-let sexp-2 (get-sexp-at parser (inc ((vlast sexp-1) :next-index))
                                                                            [:comment :whitespace] inc)
