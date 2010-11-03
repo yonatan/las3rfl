@@ -27,22 +27,55 @@ package {
         protected var las3rCode:String
 
         public static var repl:Repl;
+        public static var out:Function;
+        public static var err:Function;
         public var rt:RT;
-        
+
+		private var progressCounter:int = 0;
+
+		private function outWrapper(s:String):void {out(s);};
+		private function errWrapper(s:String):void {err(s);};
+
         public function MCompsTest() {
             stage.scaleMode = StageScaleMode.NO_SCALE;
             stage.align = StageAlign.TOP_LEFT;
 
+			out = err = trace;
+
             las3rCode = ByteArray(new PsymacsLsr).toString();
 
-			repl = new Repl(400, 400, stage);
-			stage.addChild(repl);
-			repl.addEventListener("inited", init);
+			rt = new RT(stage, new OutputStream(outWrapper), new OutputStream(errWrapper));
+			rt.loadStdLib(stdlibLoaded, trace, trace);
 		}
 
-		private function init(e:Event):void {
-			repl.evalLibrary(las3rCode, trace);
+		private function stdlibLoaded(val:*):void {
+			rt.evalStr(las3rCode, editorLoaded, progress, trace);
         }
+
+		private static const LINES:uint = 20;
+		private function progress():void {
+			var cx:Number = stage.stageWidth / 2;
+			var cy:Number = stage.stageHeight / 2;
+			progressCounter++;
+
+			graphics.clear();
+
+			for(var i:uint = 0; i < LINES; i++) {
+				var z:Number = (i+progressCounter) / LINES * (Math.PI * 2);
+				var sz:Number = Math.sin(z);
+				var cz:Number = Math.cos(z);
+				var c:uint = i / LINES * 0xff;
+				c = 0xff ^ c;
+				c = c << 16 | c << 8 | c;
+				graphics.lineStyle(3, c);
+				graphics.moveTo(cx - sz * 25, cy + cz * 25);
+				graphics.lineTo(cx - sz * 40, cy + cz * 40);
+			}
+		}
+
+		private function editorLoaded(val:*):void {
+			graphics.clear();
+		}
     }
 }
 

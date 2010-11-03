@@ -871,8 +871,14 @@ comment tokens."
 (set-key-handler! (kb ENTER) [] indent-for-ret-command)
 
 (defn- eval-and-print [rt s]
-  (let [prn (fn [x] (println) (println x))]
-    (print (str (. (. rt (currentNS)) name) "=> "  s))
+  (let [tf (. out-pane textField)
+	fmt (new flash.text.TextFormat)
+	set-fmt! (fn [c]
+		   (set! (. fmt color) c)
+		   (set! (. tf defaultTextFormat) fmt))]
+    (set-fmt! 0x808080)
+    (println (str (. (. rt (currentNS)) name) "=> "  s))
+    (set-fmt! 0)
     (. rt (evalStr s prn nil prn))))
 
 (defn eval-current-sexp [buffer]
@@ -898,7 +904,12 @@ comment tokens."
 (set-key-handler! (kb TAB) [] indent-line!)
 
 (defn init []
-  (let [tf ((buffer :parser) :textfield)]
+  (let [tf ((buffer :parser) :textfield)
+	make-printer (fn [pane]
+		       (fn [s]
+			 (let [tf (. pane textField)]
+			   (. tf (appendText (sanitize s)))
+			   (set! (. tf scrollV) (. tf maxScrollV)))))]
     (doseq obj [code-pane help-pane out-pane err-pane parse-progress stats]
       (. *stage* (addChild obj)))
 
@@ -909,10 +920,15 @@ comment tokens."
     (. *stage* (addEventListener "enterFrame" frame-handler))
 
     ;; show repl on top
-    (let [repl (. (get-def "MCompsTest") repl)]
-      (. *stage* (addChild repl))
-      (mset! repl [x (- (. *stage* stageWidth) (. repl width))
-                   y (- (. *stage* stageHeight) (. repl height))]))
+    ;; (let [repl (. (get-def "MCompsTest") repl)]
+    ;;   (. *stage* (addChild repl))
+    ;;   (mset! repl [x (- (. *stage* stageWidth) (. repl width))
+    ;;                y (- (. *stage* stageHeight) (. repl height))]))
+
+    ;; setup out and err streams
+    (let [editor-class (get-def "MCompsTest")]
+      (set! (. editor-class out) (make-printer out-pane))
+      (set! (. editor-class err) (make-printer err-pane)))
 
     (measure-font! tf)
     (update-layout!)
