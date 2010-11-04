@@ -346,8 +346,9 @@
     parser
     (recur (parse-next parser))))
 
-(defn highlight-last! [tfp]
+(defn highlight-last!
   "Highlights the last parsed token."
+  [tfp]
   (let [token (vlast (tfp :tokens))]
     (when token
       (. (tfp :textfield) (setTextFormat (formats (token :type))
@@ -357,7 +358,7 @@
 (defn parse-and-highlight-next! 
   "Returns a new parser state."
   [tfp]
-  (let [tfp (parse-next tfp #_ (update-tfp tfp))] ;; debug
+  (let [tfp (parse-next tfp)]
     (if (not (tfp :done))
       (highlight-last! tfp))
     tfp))
