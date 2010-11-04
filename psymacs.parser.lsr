@@ -864,7 +864,7 @@ comment tokens."
   (insert buffer "\n")
   (let [tf (-> buffer :parser :textfield)
         idx (inc (. tf caretIndex))
-        new-buffer (assoc buffer :parser (parse-all (update-tfp (buffer :parser))))]
+        new-buffer (assoc buffer :parser (parse-next (update-tfp (buffer :parser)) 10))]
     (. tf (setSelection idx idx))
     (let [new-buffer (indent-line! new-buffer)]
       (move-end-of-line new-buffer)

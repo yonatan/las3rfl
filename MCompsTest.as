@@ -52,7 +52,7 @@ package {
 			rt.evalStr(las3rCode, editorLoaded, progress, trace);
         }
 
-		private static const LINES:uint = 20;
+		private static const LINES:uint = 24;
 		private function progress():void {
 			var cx:Number = stage.stageWidth / 2;
 			var cy:Number = stage.stageHeight / 2;
