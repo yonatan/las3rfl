@@ -474,7 +474,6 @@ textfield is changed and before the parser's :text is updated."
 
 ;;;;;;;;;;;;;;;;;;;
 
-
 (las3r.core/in-ns 'psymacs.keyboard)
 (las3r.core/refer 'las3r.core :exclude '(run-tests))
 (refer 'psymacs.undo)
@@ -800,12 +799,11 @@ comment tokens."
 (defn- custom-indent 
   "Returns custom indentation for symbol or nil."
   [symbol-string]
-  (when (or (contains? #{"assoc" "binding" "catch" "comment" "defmuti" "def" "defmacro" "defn" "defstruct" "do" "doseq" "dotimes" "doto" "fn" "for" "implement" "let" "loop" "proxy" "struct-map"}
+  (when (or (contains? #{"assoc" "binding" "catch" "comment" "defmuti" "def" "defmacro" "defn" "defstruct" "doseq" "dotimes" "doto" "fn" "for" "implement" "let" "loop" "proxy" "struct-map"}
                        symbol-string)
             (contains? #{"when" "with" "def" "if" "defn" "def" "let"}
                        (second (re-match #"([^-]*)" symbol-string))))
     2))
-
 
 (defn indent-line!
   "Indents a line (caret line by default), returns a new buffer."
@@ -851,8 +849,9 @@ comment tokens."
 				   (inc open-bracket-col))
                    chars-to-replace (count (first (re-match #" *" line-text))) ;; number of old spaces
                    spaces (apply str (take indentation (repeat " ")))]
-               (let [idx (+ (. tf caretIndex) (- indentation chars-to-replace) ;; calculate new caret index
-			    (if on-last-empty-line? 1 0))] ;; compensate for char added to last line
+               (let [idx (max line-offset
+			      (+ (. tf caretIndex) (- indentation chars-to-replace) ;; calculate new caret index
+				 (if on-last-empty-line? 1 0)))] ;; compensate for char added to last line
                  (. tf (replaceText line-offset 
                                     (+ line-offset chars-to-replace)
                                     spaces))
