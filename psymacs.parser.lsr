@@ -418,8 +418,8 @@
 
 (las3r.core/in-ns 'psymacs.undo)
 (las3r.core/refer 'las3r.core :exclude '(run-tests))
-(las3r.core/refer 'psymacs.parser :exclude '(run-tests))
-(las3r.core/refer 'psymacs.utils :exclude '(run-tests))
+(refer 'psymacs.parser :exclude '(run-tests))
+(refer 'psymacs.utils :exclude '(run-tests))
 
 (def comparator (new jp.psyark.utils.StringComparator))
 (defn delta [old-str new-str]
@@ -477,7 +477,7 @@ textfield is changed and before the parser's :text is updated."
 
 (las3r.core/in-ns 'psymacs.keyboard)
 (las3r.core/refer 'las3r.core :exclude '(run-tests))
-(las3r.core/refer 'psymacs.undo)
+(refer 'psymacs.undo)
 
 (defn event->keystroke [e]
   "Converts a KEY_DOWN event to a {:code ... :modifiers ...} map."
@@ -817,6 +817,7 @@ comment tokens."
            on-last-empty-line? (and (= (. tf numLines) (inc line))
                                     (empty? (. tf (getLineText line)))
                                     ((buffer :parser) :done))
+	   on-caret-line? (= line (get-line-index-of-char tf (. tf caretIndex)))
            buffer (if on-last-empty-line?
                     (do (. tf (appendText " "))
                         (assoc buffer :parser (parse-next (update-tfp (buffer :parser)) 10)))
@@ -846,12 +847,16 @@ comment tokens."
                                                                            [:comment :whitespace] inc)
                                                (when (= open-bracket-line (token-line parser (first sexp-2)))
                                                  (token-col parser (first sexp-2))))))))
-                                   (inc open-bracket-col))
+				   (inc open-bracket-col))
                    chars-to-replace (count (first (re-match #" *" line-text))) ;; number of old spaces
                    spaces (apply str (take indentation (repeat " ")))]
                (. tf (replaceText line-offset 
                                   (+ line-offset chars-to-replace)
-                                  spaces)))
+                                  spaces))
+	       (when on-caret-line? ;; do we need to move the caret?
+		 (let [idx (+ (. tf caretIndex) (- indentation chars-to-replace)
+			      (if on-last-empty-line? 1 0))] ;; compensate for char added to last line
+		   (. tf (setSelection idx idx)))))
              (if on-last-empty-line? ;; if we added an extra space
                (let [len (. tf length)]  ;; remove it
                  (. tf (replaceText (dec len) len ""))))))))
@@ -877,7 +882,6 @@ comment tokens."
         new-buffer (assoc buffer :parser (parse-next (update-tfp (buffer :parser)) 10))]
     (. tf (setSelection idx idx))
     (let [new-buffer (indent-line! new-buffer)]
-      (move-end-of-line new-buffer)
       buffer)))
 (set-key-handler! (kb ENTER) [] indent-for-ret-command)
 
