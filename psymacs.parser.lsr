@@ -381,7 +381,7 @@
   "Returns the line number on which the token starts."
   [tfp token]
   (get-line-index-of-char (tfp :textfield) (token :index)))
-  
+
 (defn token-col
   "Returns the column number on which the token starts."
   [tfp token]
@@ -714,22 +714,22 @@ comment tokens."
 ;; noticed by update-tfp. but it's not worth the cpu cost imo.
 (defn- change-handler [& _]
   (when-not ignore-change-events
-      (def changed? true)
-      ;; sanitize (cleanup tabs and CRLFs)
-      ;; don't touch anything before the 1st bad char, text might already be highlighted
-      (let [text (buffer-string buffer)
-            first-crlf (. text (indexOf "\r\n"))
-            first-tab (. text (indexOf "\t"))]
-        (when (or (pos? first-crlf) (pos? first-tab)) ;; if bad chars found
-          (let [bad-idx ((if (and (pos? first-crlf) (pos? first-tab))
-                           min
-                           max) first-crlf first-tab) ;; first bad char idx
-                bad-str (subs text bad-idx)
-                good-str (sanitize bad-str)]
-            (. ((buffer :parser) :textfield) (replaceText bad-idx (count text) good-str)))))
-      ;; update parser
-      (def buffer (assoc (create-undo-point buffer) :undo-depth 0))
-      (def buffer (assoc buffer :parser (update-tfp (buffer :parser))))))
+    (def changed? true)
+    ;; sanitize (cleanup tabs and CRLFs)
+    ;; don't touch anything before the 1st bad char, text might already be highlighted
+    (let [text (buffer-string buffer)
+	  first-crlf (. text (indexOf "\r\n"))
+	  first-tab (. text (indexOf "\t"))]
+      (when (or (pos? first-crlf) (pos? first-tab)) ;; if bad chars found
+	(let [bad-idx ((if (and (pos? first-crlf) (pos? first-tab))
+			 min
+			 max) first-crlf first-tab) ;; first bad char idx
+	      bad-str (subs text bad-idx)
+	      good-str (sanitize bad-str)]
+	  (. ((buffer :parser) :textfield) (replaceText bad-idx (count text) good-str)))))
+    ;; update parser
+    (def buffer (assoc (create-undo-point buffer) :undo-depth 0))
+    (def buffer (assoc buffer :parser (update-tfp (buffer :parser))))))
 
 (defn- frame-handler [_]
   ;; key-down-handler will set this on non-printables too, so we disable it on each frame.
@@ -778,7 +778,7 @@ comment tokens."
       (if (= keystroke undo-keystroke)
         (do
           (def buffer (undo! buffer))
-          ;(def changed? true)
+					;(def changed? true)
           (def #^{:private true} prevent-next-input true)
           (. event (preventDefault))
           (dispatch-ignorable-change-event buffer))
@@ -805,6 +805,7 @@ comment tokens."
             (contains? #{"when" "with" "def" "if" "defn" "def" "let"}
                        (second (re-match #"([^-]*)" symbol-string))))
     2))
+
 
 (defn indent-line!
   "Indents a line (caret line by default), returns a new buffer."
@@ -850,13 +851,13 @@ comment tokens."
 				   (inc open-bracket-col))
                    chars-to-replace (count (first (re-match #" *" line-text))) ;; number of old spaces
                    spaces (apply str (take indentation (repeat " ")))]
-               (. tf (replaceText line-offset 
-                                  (+ line-offset chars-to-replace)
-                                  spaces))
-	       (when on-caret-line? ;; do we need to move the caret?
-		 (let [idx (+ (. tf caretIndex) (- indentation chars-to-replace)
-			      (if on-last-empty-line? 1 0))] ;; compensate for char added to last line
-		   (. tf (setSelection idx idx)))))
+               (let [idx (+ (. tf caretIndex) (- indentation chars-to-replace) ;; calculate new caret index
+			    (if on-last-empty-line? 1 0))] ;; compensate for char added to last line
+                 (. tf (replaceText line-offset 
+                                    (+ line-offset chars-to-replace)
+                                    spaces))
+                 (when on-caret-line? ;; do we need to move the caret?
+                   (. tf (setSelection idx idx)))))
              (if on-last-empty-line? ;; if we added an extra space
                (let [len (. tf length)]  ;; remove it
                  (. tf (replaceText (dec len) len ""))))))))
@@ -902,9 +903,9 @@ comment tokens."
     (eval-and-print (buffer :runtime) s)
     buffer))
 (set-key-handler! "j" [:ctrl] eval-current-sexp)
-  
-           
-           
+
+
+
 
 (defn prn-current-sexp [buffer]
   (prn (apply str (map :string (get-sexp-at (buffer :parser) (clipped-caret-idx ((buffer :parser) :textfield))))))
