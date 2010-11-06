@@ -138,6 +138,14 @@
 (defn matching-brackets? [x y]
   (= (matching-bracket x) y))
 
+;; mutator shortcuts
+(defmacro assoc! [map-name & kvs]
+  `(def ~map-name (assoc ~map-name ~@kvs)))
+
+(defmacro dissoc! [map-name & ks]
+  `(def ~map-name (dissoc ~map-name ~@ks)))
+
+
 (defn run-tests []
   ;; common-prefix-length tests
   (assert-true (= (common-prefix-length "Hello World", "Hello World") 11))
@@ -528,15 +536,15 @@ on failure. Doesn't check if bracket types match each other."
   [parser pos]
   (when-let token-idx (char->token-index parser pos)
     (let [tokens (parser :tokens)
-	  token (tokens token-idx)
-	  bracket-pairs ((vlast tokens) :bracket-pairs)]
+          token (tokens token-idx)
+          bracket-pairs ((vlast tokens) :bracket-pairs)]
       (when (seq (token :open-lbrackets))
-	(when-let bp-idx (binary-search bracket-pairs ;; find 1st pair with rbracket after or at pos
-					(fn [bp] 
-					  (< (bp :r) token-idx)))
-	  (let [bracket-pairs (subvec bracket-pairs bp-idx)] ;; snip irrelevant bracket pairs
-	    (when-let bp (some (fn [bp] (when (= (bp :l) (first (token :open-lbrackets))) bp)) bracket-pairs)
-	      (subvec tokens (bp :l) (inc (bp :r))))))))))
+        (when-let bp-idx (binary-search bracket-pairs ;; find 1st pair with rbracket after or at pos
+                                        (fn [bp] 
+                                          (< (bp :r) token-idx)))
+          (let [bracket-pairs (subvec bracket-pairs bp-idx)] ;; snip irrelevant bracket pairs
+            (when-let bp (some (fn [bp] (when (= (bp :l) (first (token :open-lbrackets))) bp)) bracket-pairs)
+              (subvec tokens (bp :l) (inc (bp :r))))))))))
 
 (defn get-coll-at
   "Returns a vector of all tokens including l/r brackets in the collection at pos, or nil
@@ -578,7 +586,7 @@ comment tokens."
   "Draws char highlights on the buffer overlay sprite."
   [buffer]
   (let [parser (buffer :parser)
-	tf (parser :textfield)
+        tf (parser :textfield)
         pos (clipped-caret-idx tf)
         g (. (buffer :overlay) graphics)]
     (. g (clear))
@@ -717,18 +725,18 @@ comment tokens."
     ;; sanitize (cleanup tabs and CRLFs)
     ;; don't touch anything before the 1st bad char, text might already be highlighted
     (let [text (buffer-string buffer)
-	  first-crlf (. text (indexOf "\r\n"))
-	  first-tab (. text (indexOf "\t"))]
+          first-crlf (. text (indexOf "\r\n"))
+          first-tab (. text (indexOf "\t"))]
       (when (or (pos? first-crlf) (pos? first-tab)) ;; if bad chars found
-	(let [bad-idx ((if (and (pos? first-crlf) (pos? first-tab))
-			 min
-			 max) first-crlf first-tab) ;; first bad char idx
-	      bad-str (subs text bad-idx)
-	      good-str (sanitize bad-str)]
-	  (. ((buffer :parser) :textfield) (replaceText bad-idx (count text) good-str)))))
+        (let [bad-idx ((if (and (pos? first-crlf) (pos? first-tab))
+                         min
+                         max) first-crlf first-tab) ;; first bad char idx
+              bad-str (subs text bad-idx)
+              good-str (sanitize bad-str)]
+          (. ((buffer :parser) :textfield) (replaceText bad-idx (count text) good-str)))))
     ;; update parser
     (def buffer (assoc (create-undo-point buffer) :undo-depth 0))
-    (def buffer (assoc buffer :parser (update-tfp (buffer :parser))))))
+    (assoc! buffer :parser (update-tfp (buffer :parser)))))
 
 (defn- frame-handler [_]
   ;; key-down-handler will set this on non-printables too, so we disable it on each frame.
@@ -745,7 +753,7 @@ comment tokens."
         (let [limit (+ time *parser-time-limit*)]
           (repeat-until (or (> (get-timer) limit)
                             ((buffer :parser) :done))
-                        (def buffer (assoc buffer :parser (parse-and-highlight-next! (buffer :parser))))))
+                        (assoc! buffer :parser (parse-and-highlight-next! (buffer :parser)))))
 
         (when (seq ((buffer :parser) :tokens))
           (let [buffer-length (. tf length)]
@@ -777,7 +785,7 @@ comment tokens."
       (if (= keystroke undo-keystroke)
         (do
           (def buffer (undo! buffer))
-					;(def changed? true)
+                                        ;(def changed? true)
           (def #^{:private true} prevent-next-input true)
           (. event (preventDefault))
           (dispatch-ignorable-change-event buffer))
@@ -789,12 +797,38 @@ comment tokens."
               (. event (preventDefault))
               (when-not (= orig-text (buffer-string buffer))
                 (dispatch-change-event buffer))))
-          (def buffer (assoc buffer :undo-depth 0)))))))
+          (assoc! buffer :undo-depth 0))))))
 
 (defn text-input-handler [event]
   (when prevent-next-input
     ;; done in enterFrame instead - (def #^{:private true} prevent-next-input false)
     (. event (preventDefault))))
+
+;; editor commands ;;;;;;;;;;;;
+
+
+(defn set-command! [name command]
+  (prn 'set-command! name command)
+  (def *commands*
+       (assoc *commands* name command)))
+
+(defmacro def-command [name arg-map & body]
+  "Defines an editor command (and a function of the same name)."
+  `(do (defn ~name 
+         ~(apply str (arg-map :doc)) ;; generate docstring from str/symbol vector
+         [~'buffer]
+         (let [orig-text# (buffer-string ~'buffer)]
+           (let [~'parser (~'buffer :parser)
+                 {~'tf :textfield ~'tokens :tokens} ~'parser]
+             ~@body)
+           (when-not (= orig-text# (buffer-string ~'buffer)) ;; if textfield content has changed
+             (dispatch-change-event ~'buffer))
+           (assoc ~'buffer :undo-depth 0))) ;; return buffer and set undo depth to 0
+       (set-key-handler! ~(arg-map :key) ~(arg-map :modifiers) ~name)
+       (set-command! (quote ~name) 
+                     (assoc (dissoc ~arg-map :key :modifiers) 
+                       :fn ~name))))
+
 
 (defn- custom-indent 
   "Returns custom indentation for symbol or nil."
@@ -816,7 +850,7 @@ comment tokens."
            on-last-empty-line? (and (= (. tf numLines) (inc line))
                                     (empty? (. tf (getLineText line)))
                                     ((buffer :parser) :done))
-	   on-caret-line? (= line (get-line-index-of-char tf (. tf caretIndex)))
+           on-caret-line? (= line (get-line-index-of-char tf (. tf caretIndex)))
            buffer (if on-last-empty-line?
                     (do (. tf (appendText " "))
                         (assoc buffer :parser (parse-next (update-tfp (buffer :parser)) 10)))
@@ -840,18 +874,19 @@ comment tokens."
                                      (when-let sexp-1 (get-sexp-at parser (open-bracket :next-index)
                                                                    [:comment :whitespace] inc)
                                        (or (when-let x (custom-indent ((first sexp-1) :string))
-					     (+ open-bracket-col x))
+                                             (+ open-bracket-col x))
                                            (when (= open-bracket-line (token-line parser (vlast sexp-1)))
                                              (when-let sexp-2 (get-sexp-at parser (inc ((vlast sexp-1) :next-index))
                                                                            [:comment :whitespace] inc)
                                                (when (= open-bracket-line (token-line parser (first sexp-2)))
                                                  (token-col parser (first sexp-2))))))))
-				   (inc open-bracket-col))
+                                   (inc open-bracket-col))
                    chars-to-replace (count (first (re-match #" *" line-text))) ;; number of old spaces
                    spaces (apply str (take indentation (repeat " ")))]
                (let [idx (max line-offset
-			      (+ (. tf caretIndex) (- indentation chars-to-replace) ;; calculate new caret index
-				 (if on-last-empty-line? 1 0)))] ;; compensate for char added to last line
+                              (+ (. tf caretIndex)
+                                 (- indentation chars-to-replace) ;; calculate new caret index
+                                 (if on-last-empty-line? 1 0)))] ;; compensate for char added to last line
                  (. tf (replaceText line-offset 
                                     (+ line-offset chars-to-replace)
                                     spaces))
@@ -861,6 +896,8 @@ comment tokens."
                (let [len (. tf length)]  ;; remove it
                  (. tf (replaceText (dec len) len ""))))))))
      buffer))
+
+(set-key-handler! (kb TAB) [] indent-line!)
 
 (defn move-end-of-line [buffer]
   (let [tf (buffer-tf buffer)
@@ -887,10 +924,10 @@ comment tokens."
 
 (defn- eval-and-print [rt s]
   (let [tf (. out-pane textField)
-	fmt (new flash.text.TextFormat)
-	set-fmt! (fn [c]
-		   (set! (. fmt color) c)
-		   (set! (. tf defaultTextFormat) fmt))]
+        fmt (new flash.text.TextFormat)
+        set-fmt! (fn [c]
+                   (set! (. fmt color) c)
+                   (set! (. tf defaultTextFormat) fmt))]
     (set-fmt! *output-cmd-color*)
     (println (str (. (. rt (currentNS)) name) "=> "  s))
     (set-fmt! *output-color*)
@@ -898,7 +935,7 @@ comment tokens."
 
 (defn eval-current-sexp [buffer]
   (let [p (buffer :parser)
-	s (apply str (map :string (get-sexp-at p (clipped-caret-idx (p :textfield)))))]
+        s (apply str (map :string (get-sexp-at p (clipped-caret-idx (p :textfield)))))]
     (eval-and-print (buffer :runtime) s)
     buffer))
 (set-key-handler! "j" [:ctrl] eval-current-sexp)
@@ -916,15 +953,14 @@ comment tokens."
 
 (set-key-handler! "s" [:ctrl] prn-current-sexp)
 (set-key-handler! "e" [:ctrl] move-end-of-line)
-(set-key-handler! (kb TAB) [] indent-line!)
 
 (defn init []
   (let [tf ((buffer :parser) :textfield)
-	make-printer (fn [pane]
-		       (fn [s]
-			 (let [tf (. pane textField)]
-			   (. tf (appendText (sanitize s)))
-			   (set! (. tf scrollV) (. tf maxScrollV)))))]
+        make-printer (fn [pane]
+                       (fn [s]
+                         (let [tf (. pane textField)]
+                           (. tf (appendText (sanitize s)))
+                           (set! (. tf scrollV) (. tf maxScrollV)))))]
     (doseq obj [code-pane help-pane out-pane err-pane parse-progress stats]
       (. *stage* (addChild obj)))
 
