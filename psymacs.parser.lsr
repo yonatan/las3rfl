@@ -18,13 +18,16 @@
     (v (dec (count v)))))
 
 (defmacro mset! 
-  "Sets multiple object properties."
+  "Sets multiple object properties. Returns the object."
   [obj name-vals]
-  (loop [nv name-vals
-         acc '()]
-    (if (seq nv)
-      (recur (rrest nv) (cons `(set! (. ~obj ~(first nv)) ~(second nv)) acc))
-      `(do ~@(reverse acc)))))
+  (let [sym (gensym)]
+    (loop [nv name-vals
+           acc '()]
+      (if (seq nv)
+        (recur (rrest nv) (cons `(set! (. ~sym ~(first nv)) ~(second nv)) acc))
+        `(let [~sym ~obj]
+           ~@(reverse acc)
+           ~sym)))))
 
 (def get-timer (get-def "flash.utils.getTimer"))
 
@@ -806,16 +809,16 @@ comment tokens."
 
 ;; editor commands ;;;;;;;;;;;;
 
+(def *commands* {})
 
 (defn set-command! [name command]
-  (prn 'set-command! name command)
   (def *commands*
        (assoc *commands* name command)))
 
 (defmacro def-command [name arg-map & body]
   "Defines an editor command (and a function of the same name)."
   `(do (defn ~name 
-         ~(apply str (arg-map :doc)) ;; generate docstring from str/symbol vector
+         ~(apply str (arg-map :doc)) ;; generate docstring from str/symbol vector -- TODO: doc viewer
          [~'buffer]
          (let [orig-text# (buffer-string ~'buffer)]
            (let [~'parser (~'buffer :parser)
@@ -897,30 +900,37 @@ comment tokens."
                  (. tf (replaceText (dec len) len ""))))))))
      buffer))
 
-(set-key-handler! (kb TAB) [] indent-line!)
+(def-command indent-current-line
+  {:doc ["Auto-indent the current line."]
+   :key (kb TAB)
+   :tags #{:indentation}}
+  (indent-line! buffer))
 
-(defn move-end-of-line [buffer]
-  (let [tf (buffer-tf buffer)
-        eol (. (. tf text) (indexOf "\r" (. tf caretIndex)))
+(def-command move-end-of-line
+  {:doc ["Moves the caret to the end of the current line."]
+   :key "e"
+   :modifiers [:ctrl]
+   :tags #{:movement}}
+  (let [eol (. (. tf text) (indexOf "\r" (. tf caretIndex)))
         eol (if (= eol -1) (. tf length) eol)]
-    (. tf (setSelection eol eol)))
-  buffer)
-(set-key-handler! "e" [:ctrl] move-end-of-line)
+    (. tf (setSelection eol eol))))
 
-(defn insert [buffer s]
+(defn insert 
+  "Inserts a string into the buffer's textfield at caret position."
+  [buffer s]
   (let [tf (buffer-tf buffer)
         idx (. tf caretIndex)]
     (. tf (replaceText idx idx s))))
 
-(defn indent-for-ret-command [buffer]
+(def-command indent-for-ret-command
+  {:doc ["Insert a newline and indent."]
+   :key (kb ENTER)
+   :tags #{:indentation}}
   (insert buffer "\n")
-  (let [tf (-> buffer :parser :textfield)
-        idx (inc (. tf caretIndex))
+  (let [idx (inc (. tf caretIndex))
         new-buffer (assoc buffer :parser (parse-next (update-tfp (buffer :parser)) 10))]
     (. tf (setSelection idx idx))
-    (let [new-buffer (indent-line! new-buffer)]
-      buffer)))
-(set-key-handler! (kb ENTER) [] indent-for-ret-command)
+    (indent-line! new-buffer)))
 
 (defn- eval-and-print [rt s]
   (let [tf (. out-pane textField)
@@ -933,15 +943,21 @@ comment tokens."
     (set-fmt! *output-color*)
     (. rt (evalStr s prn nil prn))))
 
-(defn eval-current-sexp [buffer]
-  (let [p (buffer :parser)
-        s (apply str (map :string (get-sexp-at p (clipped-caret-idx (p :textfield)))))]
-    (eval-and-print (buffer :runtime) s)
-    buffer))
-(set-key-handler! "j" [:ctrl] eval-current-sexp)
+(def-command eval-current-sexp
+  {:doc ["Evaluate the sexp at point and print the result."]
+   :key "j"
+   :modifiers [:ctrl]
+   :tags #{:evaluation}}
+  (let [s (apply str (map :string (get-sexp-at parser (clipped-caret-idx tf))))]
+    (eval-and-print (buffer :runtime) s)))
 
-
-
+(def-command mark-sexp
+  {:doc ["Selects the current sexp."]
+   :key "s"
+   :modifiers [:ctrl :alt]
+   :tags #{:selection}}
+  (when-let sexp (get-sexp-at parser (clipped-caret-idx tf))
+    (. tf (setSelection ((first sexp) :index) ((vlast sexp) :next-index)))))
 
 (defn prn-current-sexp [buffer]
   (prn (apply str (map :string (get-sexp-at (buffer :parser) (clipped-caret-idx ((buffer :parser) :textfield))))))
