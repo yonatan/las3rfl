@@ -987,6 +987,17 @@ comment tokens."
     (let [idx ((vlast sexp) :next-index)]
       (. tf (setSelection idx idx)))))
 
+(def-command kill-whitespace
+  {:doc "Removes whitespace at point."
+   :key "w"
+   :modifiers [:alt]}
+  (when-let idx (char->token-index parser (. tf caretIndex))
+    (let [token ((parser :tokens) idx)
+          {idx :index} token]
+      (when (= (token :type) :whitespace)
+        (. tf (replaceText idx (token :next-index) ""))
+        (. tf (setSelection idx idx))))))
+
 (defn prn-current-sexp [buffer]
   (prn (apply str (map :string (get-sexp-at (buffer :parser) (clipped-caret-idx ((buffer :parser) :textfield))))))
   buffer)
