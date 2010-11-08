@@ -527,6 +527,12 @@ textfield is changed and before the parser's :text is updated."
 (refer 'psymacs.keyboard :exclude '(run-tests))
 (refer 'psymacs.undo :exclude '(run-tests))
 
+(import '(flash.display Sprite)
+	'(flash.text TextFormat)
+	'(jp.psyark.psycode.core TextEditUI)
+	'(com.bit101.components TextArea Window ProgressBar)
+	'(net.hires.debug Stats))
+
 (defn buffer-string [buffer]
   (. ((buffer :parser) :textfield) text))
 
@@ -615,7 +621,7 @@ comment tokens."
 (defn attach-to-textfield-container
   "Returns a psymacs buffer. Container should have a readable textField property."
   [cont]
-  (let [overlay (new flash.display.Sprite)
+  (let [overlay (new Sprite)
         tf (. cont textField)]
     (. cont (addChild overlay))
     {:undo-stack []
@@ -624,12 +630,12 @@ comment tokens."
      :overlay overlay
      :parser (textfield-parser tf)}))
 
-(def code-pane (new jp.psyark.psycode.core.TextEditUI))
-(def help-pane (new com.bit101.components.TextArea))
-(def err-pane (new com.bit101.components.TextArea))
-(def out-pane (new com.bit101.components.TextArea))
-(def parse-progress (new com.bit101.components.ProgressBar))
-(def stats (new net.hires.debug.Stats))
+(def code-pane (new TextEditUI))
+(def help-pane (new TextArea))
+(def err-pane (new TextArea))
+(def out-pane (new TextArea))
+(def parse-progress (new ProgressBar))
+(def stats (new Stats))
 (def buffer (assoc (attach-to-textfield-container code-pane)
               :runtime *runtime*))
 
@@ -809,6 +815,24 @@ comment tokens."
     ;; done in enterFrame instead - (def #^{:private true} prevent-next-input false)
     (. event (preventDefault))))
 
+;; editor displayobject
+(def editor (new Sprite))
+
+(defn set-editor-tab-and-mouse-children! 
+  "Enables/disables the editor's UI."
+  [x]
+  (mset! editor [mouseChildren x
+		 tabChildren x]))
+
+;; modal dialogs stuff
+(def modal-window nil)
+
+(defn- modal-close-handler [_]
+  (when modal-window
+    (set-editor-tab-and-mouse-children! true)
+    (. modal-window (removeEventListener "close" modal-close-handler))
+    (. *stage* (removeChild modal-window))))
+
 ;; editor commands ;;;;;;;;;;;;
 
 (def *commands* {})
@@ -936,7 +960,7 @@ comment tokens."
 
 (defn- eval-and-print [rt s]
   (let [tf (. out-pane textField)
-        fmt (new flash.text.TextFormat)
+        fmt (new TextFormat)
         set-fmt! (fn [c]
                    (set! (. fmt color) c)
                    (set! (. tf defaultTextFormat) fmt))]
@@ -1009,6 +1033,18 @@ comment tokens."
 (set-key-handler! "s" [:ctrl] prn-current-sexp)
 (set-key-handler! "e" [:ctrl] move-end-of-line)
 
+(defn show-modal [w]
+  "Takes a Window object, adds it to stage and makes it modal."
+  [w]
+  (when-not modal-window
+    (def modal-window w)
+    (. w (addEventListener "close" modal-close-handler))
+    (set! (. w hasCloseButton) true)
+    (. *stage* (addChild w))
+    (set-editor-tab-and-mouse-children! false)))
+
+;;;;
+
 (defn init []
   (let [tf ((buffer :parser) :textfield)
         make-printer (fn [pane]
@@ -1017,7 +1053,9 @@ comment tokens."
                            (. tf (appendText (sanitize s)))
                            (set! (. tf scrollV) (. tf maxScrollV)))))]
     (doseq obj [code-pane help-pane out-pane err-pane parse-progress stats]
-      (. *stage* (addChild obj)))
+      (. editor (addChild obj)))
+
+    (. *stage* (addChild editor))
 
     (. *stage* (addEventListener "resize" update-layout!))
     (. tf (addEventListener "keyDown" key-down-handler))
