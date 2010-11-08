@@ -372,11 +372,13 @@
 (defn highlight-last!
   "Highlights the last parsed token."
   [tfp]
-  (let [token (vlast (tfp :tokens))]
+  (let [token (vlast (tfp :tokens))
+	tf (tfp :textfield)]
     (when token
-      (. (tfp :textfield) (setTextFormat (formats (token :type))
-                                         (token :index)
-                                         (token :next-index))))))
+      (. tf (setTextFormat (formats (token :type))
+			   (token :index)
+			   (min (token :next-index)
+				(. tf length)))))))
 
 (defn parse-and-highlight-next! 
   "Returns a new parser state."
@@ -939,7 +941,11 @@ comment tokens."
                    (set! (. fmt color) c)
                    (set! (. tf defaultTextFormat) fmt))]
     (set-fmt! *output-cmd-color*)
-    (println (str (. (. rt (currentNS)) name) "=> "  s))
+    (println (str (. (. rt (currentNS)) name) 
+		  (if (not= (. s (indexOf "\r")) -1)
+		    "=> \n"
+		    "=> ")  
+		  s))
     (set-fmt! *output-color*)
     (. rt (evalStr s prn nil prn))))
 
@@ -947,7 +953,7 @@ comment tokens."
   {:doc ["Evaluate the sexp at point and print the result."]
    :key "j"
    :modifiers [:ctrl]
-   :tags #{:evaluation}}
+   :tags #{:evaluation :sexps}}
   (let [s (apply str (map :string (get-sexp-at parser (clipped-caret-idx tf))))]
     (eval-and-print (buffer :runtime) s)))
 
@@ -955,9 +961,31 @@ comment tokens."
   {:doc ["Selects the current sexp."]
    :key "s"
    :modifiers [:ctrl :alt]
-   :tags #{:selection}}
+   :tags #{:selection :sexps}}
   (when-let sexp (get-sexp-at parser (clipped-caret-idx tf))
     (. tf (setSelection ((first sexp) :index) ((vlast sexp) :next-index)))))
+
+(def-command backward-or-up-sexp
+  {:doc "Move backward across one sexp, move up and back if at sexp beginning."
+   :key "b"
+   :modifiers [:ctrl :alt]
+   :tags #{:movement :sexps}}
+  (when-let sexp (get-sexp-at parser (max 0 (dec (. tf caretIndex))))
+    (let [idx ((first sexp) :index)]
+      (. tf (setSelection idx idx)))))
+
+(def-command forward-or-up-sexp
+  {:doc "Move forward across one sexp, move up and forward if at sexp end."
+   :key "f"
+   :modifiers [:ctrl :alt]
+   :tags #{:movement :sexps}}
+  (when-let sexp (get-sexp-at parser
+                              (min (dec (. tf length))
+                                   (inc (. tf caretIndex)))
+                              [:comment :whitespace]
+                              inc)
+    (let [idx ((vlast sexp) :next-index)]
+      (. tf (setSelection idx idx)))))
 
 (defn prn-current-sexp [buffer]
   (prn (apply str (map :string (get-sexp-at (buffer :parser) (clipped-caret-idx ((buffer :parser) :textfield))))))
