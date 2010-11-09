@@ -529,8 +529,9 @@ textfield is changed and before the parser's :text is updated."
 
 (import '(flash.display Sprite)
 	'(flash.text TextFormat)
+	'(flash.events Event)
 	'(jp.psyark.psycode.core TextEditUI)
-	'(com.bit101.components TextArea Window ProgressBar)
+	'(com.bit101.components Text TextArea Window ProgressBar PushButton Label)
 	'(net.hires.debug Stats))
 
 (defn buffer-string [buffer]
@@ -796,7 +797,6 @@ comment tokens."
       (if (= keystroke undo-keystroke)
         (do
           (def buffer (undo! buffer))
-                                        ;(def changed? true)
           (def #^{:private true} prevent-next-input true)
           (. event (preventDefault))
           (dispatch-ignorable-change-event buffer))
@@ -806,6 +806,7 @@ comment tokens."
               (def buffer (cmd buffer))
               (def #^{:private true} prevent-next-input true)
               (. event (preventDefault))
+              (. event (stopImmediatePropagation))
               (when-not (= orig-text (buffer-string buffer))
                 (dispatch-change-event buffer))))
           (assoc! buffer :undo-depth 0))))))
@@ -831,7 +832,19 @@ comment tokens."
   (when modal-window
     (set-editor-tab-and-mouse-children! true)
     (. modal-window (removeEventListener "close" modal-close-handler))
-    (. *stage* (removeChild modal-window))))
+    (. *stage* (removeChild modal-window))
+    (def modal-window nil)
+    (set! (. *stage* focus) (-> buffer :parser :textfield))))
+
+(defn show-modal [w]
+  "Takes a Window object, adds it to stage and makes it modal."
+  [w]
+  (when-not modal-window
+    (def modal-window w)
+    (. w (addEventListener "close" modal-close-handler))
+    (set! (. w hasCloseButton) true)
+    (. *stage* (addChild w))
+    (set-editor-tab-and-mouse-children! false)))
 
 ;; editor commands ;;;;;;;;;;;;
 
@@ -1022,6 +1035,74 @@ comment tokens."
         (. tf (replaceText idx (token :next-index) ""))
         (. tf (setSelection idx idx))))))
 
+;; isearch
+
+(def-command incremental-search
+  {:doc "Incremental search."
+   :key "s"
+   :modifiers [:ctrl]}
+  (let [window (mset! (new Window *stage* (- (. *stage* stageWidth) 260) 10
+                           "Incremental search")
+                      [width 250
+                       height 90])
+        text (mset! (new Text window 10 30)
+                    [width 230
+                     height 20])
+        stf (. text textField)
+        label (new Label window 10 50 
+                   "Use up/down arrows to move between matches.\nPress escape to quit.")
+
+        isearch-find 
+        (fn [forward? next?]
+          (let [haystack (. tf text)
+                needle (. stf text)
+                find-fn (get-property haystack (if forward? 
+                                                 "indexOf"
+                                                 "lastIndexOf"))
+                from (if next?
+                       (if forward? 
+                         (inc (. tf selectionEndIndex))
+                         (dec (. tf selectionBeginIndex)))
+                       (. tf selectionBeginIndex))
+                idx (find-fn needle from)
+                idx (if (= idx -1)
+                      (find-fn needle)
+                      idx)]
+            (when-not (= idx -1)
+              (. tf (setSelection idx (+ idx (. stf length)))))))
+        
+        isearch-change-handler (fn [e] (isearch-find true false))
+        
+        isearch-key-down-handler
+        (fn isearch-key-down-handler [e]
+          (let [ESC  {:code 27 :modifiers #{}}
+                UP   {:code 38 :modifiers #{}}
+                DOWN {:code 40 :modifiers #{}}
+                k (event->keystroke e)]
+            (cond (= k ESC)
+                  (let [idx (. tf caretIndex)]
+                    (. tf (setSelection idx idx))
+                    (. *stage* (removeEventListener "keyDown" isearch-key-down-handler))
+                    (. text (removeEventListener "change" isearch-change-handler))
+                    (modal-close-handler nil))
+                  
+                  (= k DOWN) (isearch-find true true)
+                  (= k UP)   (isearch-find false true))))]
+    
+    (let [stf (. text textField)]
+      (set! (. stf multiline) false)
+      (. *stage* (addEventListener "keyDown" isearch-key-down-handler))
+      (. stf (addEventListener "change" isearch-change-handler))
+      (show-modal window)
+    
+      (set! (. *stage* focus) stf)
+      ;; when we give focus to the search textfield it'll get the
+      ;; last keystroke, so we need to ignore it.
+      (. stf (addEventListener "textInput" 
+                               (fn tmp [e]
+                                 (. e (preventDefault))
+                                 (. stf (removeEventListener "textInput" tmp))))))))
+
 (defn prn-current-sexp [buffer]
   (prn (apply str (map :string (get-sexp-at (buffer :parser) (clipped-caret-idx ((buffer :parser) :textfield))))))
   buffer)
@@ -1030,18 +1111,8 @@ comment tokens."
   (prn "hello")
   buffer)
 
-(set-key-handler! "s" [:ctrl] prn-current-sexp)
+;(set-key-handler! "s" [:ctrl] prn-current-sexp)
 (set-key-handler! "e" [:ctrl] move-end-of-line)
-
-(defn show-modal [w]
-  "Takes a Window object, adds it to stage and makes it modal."
-  [w]
-  (when-not modal-window
-    (def modal-window w)
-    (. w (addEventListener "close" modal-close-handler))
-    (set! (. w hasCloseButton) true)
-    (. *stage* (addChild w))
-    (set-editor-tab-and-mouse-children! false)))
 
 ;;;;
 
@@ -1054,6 +1125,8 @@ comment tokens."
                            (set! (. tf scrollV) (. tf maxScrollV)))))]
     (doseq obj [code-pane help-pane out-pane err-pane parse-progress stats]
       (. editor (addChild obj)))
+
+    (set! (. tf alwaysShowSelection) true)
 
     (. *stage* (addChild editor))
 

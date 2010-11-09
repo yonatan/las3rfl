@@ -15,6 +15,8 @@ package {
 
 	// classes used by las3r code
 	com.bit101.components.TextArea;
+	com.bit101.components.Text;
+	com.bit101.components.PushButton;
 	com.bit101.components.ProgressBar;
 	com.bit101.components.Window;
 	jp.psyark.psycode.core.TextEditUI;
