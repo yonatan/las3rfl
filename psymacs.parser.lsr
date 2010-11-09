@@ -373,12 +373,12 @@
   "Highlights the last parsed token."
   [tfp]
   (let [token (vlast (tfp :tokens))
-	tf (tfp :textfield)]
+        tf (tfp :textfield)]
     (when token
       (. tf (setTextFormat (formats (token :type))
-			   (token :index)
-			   (min (token :next-index)
-				(. tf length)))))))
+                           (token :index)
+                           (min (token :next-index)
+                                (. tf length)))))))
 
 (defn parse-and-highlight-next! 
   "Returns a new parser state."
@@ -528,11 +528,11 @@ textfield is changed and before the parser's :text is updated."
 (refer 'psymacs.undo :exclude '(run-tests))
 
 (import '(flash.display Sprite)
-	'(flash.text TextFormat)
-	'(flash.events Event)
-	'(jp.psyark.psycode.core TextEditUI)
-	'(com.bit101.components Text TextArea Window ProgressBar PushButton Label)
-	'(net.hires.debug Stats))
+        '(flash.text TextFormat)
+        '(flash.events Event)
+        '(jp.psyark.psycode.core TextEditUI)
+        '(com.bit101.components Text TextArea Window ProgressBar PushButton Label)
+        '(net.hires.debug Stats))
 
 (defn buffer-string [buffer]
   (. ((buffer :parser) :textfield) text))
@@ -823,16 +823,16 @@ comment tokens."
   "Enables/disables the editor's UI."
   [x]
   (mset! editor [mouseChildren x
-		 tabChildren x]))
+                 tabChildren x]))
 
 ;; modal dialogs stuff
 (def modal-window nil)
 (def modal-filters 
      (to-array [(new flash.filters.ColorMatrixFilter
-		     (to-array [1, 0, 0, 0, -64 
-				0, 1, 0, 0, -64 
-				0, 0, 1, 0, -64 
-				0, 0, 0, 1, 0  ]))]))
+                     (to-array [1, 0, 0, 0, -64 
+                                0, 1, 0, 0, -64 
+                                0, 0, 1, 0, -64 
+                                0, 0, 0, 1, 0  ]))]))
 
 (defn- modal-close-handler [_]
   (when modal-window
@@ -987,10 +987,10 @@ comment tokens."
                    (set! (. tf defaultTextFormat) fmt))]
     (set-fmt! *output-cmd-color*)
     (println (str (. (. rt (currentNS)) name) 
-		  (if (not= (. s (indexOf "\r")) -1)
-		    "=> \n"
-		    "=> ")  
-		  s))
+                  (if (not= (. s (indexOf "\r")) -1)
+                    "=> \n"
+                    "=> ")  
+                  s))
     (set-fmt! *output-color*)
     (. rt (evalStr s prn nil prn))))
 
@@ -1097,19 +1097,18 @@ comment tokens."
                   (= k DOWN) (isearch-find true true)
                   (= k UP)   (isearch-find false true))))]
     
-    (let [stf (. text textField)]
-      (set! (. stf multiline) false)
-      (. *stage* (addEventListener "keyDown" isearch-key-down-handler))
-      (. stf (addEventListener "change" isearch-change-handler))
-      (show-modal window)
+    (set! (. stf multiline) false)
+    (. *stage* (addEventListener "keyDown" isearch-key-down-handler))
+    (. stf (addEventListener "change" isearch-change-handler))
+    (show-modal window)
     
-      (set! (. *stage* focus) stf)
-      ;; when we give focus to the search textfield it'll get the
-      ;; last keystroke, so we need to ignore it.
-      (. stf (addEventListener "textInput" 
-                               (fn tmp [e]
-                                 (. e (preventDefault))
-                                 (. stf (removeEventListener "textInput" tmp))))))))
+    (set! (. *stage* focus) stf)
+    ;; when we give focus to the search textfield it'll get the
+    ;; last keystroke, so we need to ignore it.
+    (. stf (addEventListener "textInput" 
+                             (fn tmp [e]
+                               (. e (preventDefault))
+                               (. stf (removeEventListener "textInput" tmp)))))))
 
 (defn prn-current-sexp [buffer]
   (prn (apply str (map :string (get-sexp-at (buffer :parser) (clipped-caret-idx ((buffer :parser) :textfield))))))
@@ -1119,8 +1118,8 @@ comment tokens."
   (prn "hello")
   buffer)
 
-;(set-key-handler! "s" [:ctrl] prn-current-sexp)
-(set-key-handler! "e" [:ctrl] move-end-of-line)
+                                        ;(set-key-handler! "s" [:ctrl] prn-current-sexp)
+(set-key-handler! "e" [:ctrl] move-end-of-line) ;; TODO: replace/remove
 
 ;;;;
 
