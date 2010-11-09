@@ -827,11 +827,17 @@ comment tokens."
 
 ;; modal dialogs stuff
 (def modal-window nil)
+(def modal-filters 
+     (to-array [(new flash.filters.ColorMatrixFilter
+		     (to-array [1, 0, 0, 0, -64 
+				0, 1, 0, 0, -64 
+				0, 0, 1, 0, -64 
+				0, 0, 0, 1, 0  ]))]))
 
 (defn- modal-close-handler [_]
   (when modal-window
     (set-editor-tab-and-mouse-children! true)
-    (set! (. editor alpha) 1)
+    (set! (. editor filters) nil)
     (. modal-window (removeEventListener "close" modal-close-handler))
     (. *stage* (removeChild modal-window))
     (def modal-window nil)
@@ -845,7 +851,7 @@ comment tokens."
     (. w (addEventListener "close" modal-close-handler))
     (set! (. w hasCloseButton) true)
     (. *stage* (addChild w))
-    (set! (. editor alpha) 0.6)
+    (set! (. editor filters) modal-filters)
     (set-editor-tab-and-mouse-children! false)))
 
 ;; editor commands ;;;;;;;;;;;;
