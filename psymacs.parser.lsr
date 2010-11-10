@@ -6,6 +6,8 @@
 (def #^{:private true} log-div (. Math (log 2)))
 (defmacro #^{:private true} log2 [x] `(/ (. Math (log ~x)) log-div))
 
+(def *platform* (first (. (. flash.system.Capabilities version) (split " "))))
+
 (defn get-def
   "flash.utils.getDefinitionByName"
   [name]
@@ -1103,13 +1105,14 @@ comment tokens."
     (show-modal window)
     
     (set! (. *stage* focus) stf)
-    ;; when we give focus to the search textfield it'll get the
-    ;; last keystroke, so we need to ignore it.
-    (. stf (addEventListener "textInput" 
-                             (fn tmp [e]
-                               (. e (preventDefault))
-                               (. stf (removeEventListener "textInput" tmp)))))))
-
+    (when (= *platform* "LNX")
+      ;; on linux, when we give focus to the search textfield it'll get the
+      ;; last keystroke, so we need to ignore it.
+      (. stf (addEventListener "textInput" 
+			       (fn tmp [e]
+				 (. e (preventDefault))
+				 (. stf (removeEventListener "textInput" tmp))))))))
+  
 (defn prn-current-sexp [buffer]
   (prn (apply str (map :string (get-sexp-at (buffer :parser) (clipped-caret-idx ((buffer :parser) :textfield))))))
   buffer)
