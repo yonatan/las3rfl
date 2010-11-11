@@ -24,8 +24,8 @@ package {
 	net.hires.debug.Stats;
 
     [SWF(width=950,height=600,backgroundColor=0xFFFFFF,frameRate=60)]
-    public class MCompsTest extends Sprite {
-        [Embed(source="psymacs.parser.lsr", mimeType="application/octet-stream")]
+    public class Nomacs extends Sprite {
+        [Embed(source="main.lsr", mimeType="application/octet-stream")]
         protected const PsymacsLsr:Class;
         protected var las3rCode:String
 
@@ -39,7 +39,7 @@ package {
 		private function outWrapper(s:String):void {out(s);};
 		private function errWrapper(s:String):void {err(s);};
 
-        public function MCompsTest() {
+        public function Nomacs() {
             stage.scaleMode = StageScaleMode.NO_SCALE;
             stage.align = StageAlign.TOP_LEFT;
 

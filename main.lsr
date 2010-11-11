@@ -1146,14 +1146,8 @@ comment tokens."
     (. tf (addEventListener "change" change-handler))
     (. *stage* (addEventListener "enterFrame" frame-handler))
 
-    ;; show repl on top
-    ;; (let [repl (. (get-def "MCompsTest") repl)]
-    ;;   (. *stage* (addChild repl))
-    ;;   (mset! repl [x (- (. *stage* stageWidth) (. repl width))
-    ;;                y (- (. *stage* stageHeight) (. repl height))]))
-
     ;; setup out and err streams
-    (let [editor-class (get-def "MCompsTest")]
+    (let [editor-class (get-def "Nomacs")]
       (set! (. editor-class out) (make-printer out-pane))
       (set! (. editor-class err) (make-printer err-pane)))
 
