@@ -1,0 +1,57 @@
+(def-command incremental-search
+  {:doc "Incremental search."
+   :key "s"
+   :modifiers [:ctrl]}
+  (let [window (mset! (new Window *stage* (- (. *stage* stageWidth) 260) 10
+                           "Incremental search")
+                      [width 250
+                       height 90])
+        text (mset! (new Text window 10 30)
+                    [width 230
+                     height 20])
+        label (new Label window 10 50 
+                   "Use up/down arrows to move between matches.\nPress escape to quit.")
+
+        isearch-text (fn [] (. (. text textField) text))
+
+        isearch-find 
+        (fn [forward? next?]
+          (let [haystack (. tf text)
+                needle (isearch-text)
+                find-fn (get-property haystack (if forward? 
+                                                 "indexOf"
+                                                 "lastIndexOf"))
+                from (if next?
+                       (if forward? 
+                         (inc (. tf selectionEndIndex))
+                         (dec (. tf selectionBeginIndex)))
+                       (. tf selectionBeginIndex))
+                idx (find-fn needle from)
+                idx (if (= idx -1)
+                      (find-fn needle)
+                      idx)]
+            (when-not (= idx -1)
+              (. tf (setSelection idx (+ idx (count (isearch-text))))))))
+        
+        isearch-change-handler (fn [e] (isearch-find true false))
+        
+        isearch-key-down-handler
+        (fn isearch-key-down-handler [e]
+          (let [ESC  {:code 27 :modifiers #{}}
+                UP   {:code 38 :modifiers #{}}
+                DOWN {:code 40 :modifiers #{}}
+                k (event->keystroke e)]
+            (cond (= k ESC)
+                  (let [idx (. tf caretIndex)]
+                    (. tf (setSelection idx idx))
+                    (. *stage* (removeEventListener "keyDown" isearch-key-down-handler))
+                    (. text (removeEventListener "change" isearch-change-handler))
+                    (modal-close-handler nil))
+                  
+                  (= k DOWN) (isearch-find true true)
+                  (= k UP)   (isearch-find false true))))]
+    (set! (. (. text textField) multiline) false)
+    (. *stage* (addEventListener "keyDown" isearch-key-down-handler))
+    (. text (addEventListener "change" isearch-change-handler))
+    (show-modal window)
+    (set! (. *stage* focus) (. text textField))))
