@@ -8,30 +8,34 @@ package {
 
     public class EvalSWF extends Sprite {
 		public static var rt:RT;
-        private var conn:LocalConnection;
+        private var inConn:LocalConnection;
+        private var outConn:LocalConnection;
         private var output:TextField;
 		private var parameters:Object;
-		private var connName:String;
+		private var connToken:String;
         
         public function EvalSWF() {
 			parameters = root.loaderInfo.parameters;
-			connName = "connection-" + (parameters.connToken || "");
+			connToken = (parameters.connToken || "");
 			
             buildUI();
             
-            conn = new LocalConnection();
-            conn.client = this;
+            inConn = new LocalConnection();
+            inConn.client = this;
             try {
-                conn.connect(connName);
+                inConn.connect("eval-in-" + connToken);
             } catch (error:ArgumentError) {
                 trace("Can't connect...the connection name is already being used by another SWF");
             }
+
+            outConn = new LocalConnection();
+
         }
         
         public function eval(code:String):void {
             output.appendText("eval: " + code + "\n");
-			conn.send(connName, "printToStdout", "Echo to stdout: " + code + "\n");
-			conn.send(connName, "printToStderr", "Echo to stderr: " + code + "\n");
+			outConn.send("eval-out-" + connToken, "printToStdout", "Echo to stdout: " + code + "\n");
+			outConn.send("eval-out-" + connToken, "printToStderr", "Echo to stderr: " + code + "\n");
         }
         
         private function buildUI():void {
@@ -45,4 +49,3 @@ package {
         }
     }
 }
-	

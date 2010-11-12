@@ -39,12 +39,29 @@ package {
 		private function outWrapper(s:String):void {out(s);};
 		private function errWrapper(s:String):void {err(s);};
 
+        public static var inConn:LocalConnection;
+        public static var outConn:LocalConnection;
+		private var parameters:Object;
+		public static var connToken:String;
+
         public function Nomacs() {
             stage.scaleMode = StageScaleMode.NO_SCALE;
             stage.align = StageAlign.TOP_LEFT;
 
-			out = err = trace;
+			// setup local connection
+			parameters = root.loaderInfo.parameters;
+			connToken = (parameters.connToken || "");
+            inConn = new LocalConnection();
+            outConn = new LocalConnection();
+            try {
+                inConn.connect("eval-out-" + connToken);
+            } catch (error:ArgumentError) {
+                trace("Can't connect...the connection name is already being used by another SWF");
+            }
+            inConn.client = new Connector;
 
+			// setup las3r
+			out = err = trace;
             las3rCode = ByteArray(new PsymacsLsr).toString();
 
 			rt = new RT(stage, new OutputStream(outWrapper), new OutputStream(errWrapper));
@@ -82,3 +99,7 @@ package {
     }
 }
 
+class Connector {
+	public function printToStdout(s:String):void {Nomacs.out(s);}
+	public function printToStderr(s:String):void {Nomacs.err(s);}
+}

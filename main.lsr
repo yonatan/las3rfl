@@ -1124,6 +1124,19 @@ comment tokens."
                                         ;(set-key-handler! "s" [:ctrl] prn-current-sexp)
 (set-key-handler! "e" [:ctrl] move-end-of-line) ;; TODO: replace/remove
 
+;; local connection ;;;;;;;;;;;;;;;;;
+
+(def-command eval-in-remote-swf
+  {:doc ""
+   :key "n"
+   :modifiers [:ctrl]}
+  (let [ec (get-def "Nomacs")
+	conn (. ec outConn)
+	name (str "eval-in-" (. ec connToken))
+	s (apply str (map :string (get-sexp-at parser (clipped-caret-idx tf))))]
+    (. conn (send name "eval" s))))
+  
+
 ;;;;
 
 (defn init []
