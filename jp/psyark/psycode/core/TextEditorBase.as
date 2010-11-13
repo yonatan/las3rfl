@@ -45,7 +45,6 @@ package jp.psyark.psycode.core {
 		* テキストが変更された
 		*/
 		private function changeHandler(event:Event):void {
-			Psymacs.instance.textChangeHook(this, event);
 			//trace("change", "changed=" + (prevText != text), "ignore=" + ignoreChange, "prevent=" + preventFollowingTextInput);
 			//trace("{" + escapeText(prevText) + "} => {" + escapeText(text) + "}");
 			if (prevText != text) {

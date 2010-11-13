@@ -1126,6 +1126,15 @@ comment tokens."
 
 ;; local connection ;;;;;;;;;;;;;;;;;
 
+(let [ec (get-def "Nomacs")]
+  (def *out-connection* (. ec outConn))
+  (def *in-connection* (. ec inConn)))
+
+(. *out-connection* (addEventListener "status" (partial prn "OUT: ")))
+(. *in-connection*  (addEventListener "status" (partial prn "IN: ")))
+(. *out-connection* (addEventListener "asyncError" (partial prn "ASYNCERR OUT: ")))
+(. *in-connection*  (addEventListener "asyncError" (partial prn "ASYNCERR IN: ")))
+
 (def-command eval-in-remote-swf
   {:doc ""
    :key "n"

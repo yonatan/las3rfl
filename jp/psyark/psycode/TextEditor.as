@@ -99,8 +99,6 @@ package jp.psyark.psycode {
 				prevSEI = selectionEndIndex;
 				return;
 			}
-
-			if(null != Psymacs.instance.keyDownHook) Psymacs.instance.keyDownHook(this, event);
 		}
 
 

@@ -26,7 +26,7 @@ package {
     [SWF(width=950,height=600,backgroundColor=0xFFFFFF,frameRate=60)]
     public class Nomacs extends Sprite {
         [Embed(source="main.lsr", mimeType="application/octet-stream")]
-        protected const PsymacsLsr:Class;
+        protected const Las3rCode:Class;
         protected var las3rCode:String
 
         public static var repl:Repl;
@@ -48,21 +48,21 @@ package {
             stage.scaleMode = StageScaleMode.NO_SCALE;
             stage.align = StageAlign.TOP_LEFT;
 
-			// setup local connection
+			// setup local connections
 			parameters = root.loaderInfo.parameters;
 			connToken = (parameters.connToken || "");
             inConn = new LocalConnection();
             outConn = new LocalConnection();
+            inConn.client = new Connector;
             try {
                 inConn.connect("eval-out-" + connToken);
             } catch (error:ArgumentError) {
-                trace("Can't connect...the connection name is already being used by another SWF");
+                trace("Can't connect... eval-out-" + connToken + " is already being used by another SWF");
             }
-            inConn.client = new Connector;
 
 			// setup las3r
 			out = err = trace;
-            las3rCode = ByteArray(new PsymacsLsr).toString();
+            las3rCode = ByteArray(new Las3rCode).toString();
 
 			rt = new RT(stage, new OutputStream(outWrapper), new OutputStream(errWrapper));
 			rt.loadStdLib(stdlibLoaded, trace, trace);
@@ -99,7 +99,9 @@ package {
     }
 }
 
-class Connector {
+import flash.net.LocalConnection;
+
+class Connector extends LocalConnection {
 	public function printToStdout(s:String):void {Nomacs.out(s);}
 	public function printToStderr(s:String):void {Nomacs.err(s);}
 }
