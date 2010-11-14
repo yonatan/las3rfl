@@ -39,8 +39,8 @@ package {
 		private function outWrapper(s:String):void {out(s);};
 		private function errWrapper(s:String):void {err(s);};
 
-        public static var inConn:LocalConnection;
-        public static var outConn:LocalConnection;
+        public static var recvConn:LocalConnection;
+        public static var sendConn:LocalConnection;
 		private var parameters:Object;
 		public static var connToken:String;
 
@@ -51,11 +51,15 @@ package {
 			// setup local connections
 			parameters = root.loaderInfo.parameters;
 			connToken = (parameters.connToken || "");
-            inConn = new LocalConnection();
-            outConn = new LocalConnection();
-            inConn.client = new Connector;
+            recvConn = new LocalConnection();
+            sendConn = new LocalConnection();
+            recvConn.client = {
+				printToStdout: function(s:String):void {out(s);},
+				printToStderr: function(s:String):void {err(s);}
+			}
+
             try {
-                inConn.connect("eval-out-" + connToken);
+                recvConn.connect("eval-out-" + connToken);
             } catch (error:ArgumentError) {
                 trace("Can't connect... eval-out-" + connToken + " is already being used by another SWF");
             }
@@ -97,11 +101,4 @@ package {
 			graphics.clear();
 		}
     }
-}
-
-import flash.net.LocalConnection;
-
-class Connector extends LocalConnection {
-	public function printToStdout(s:String):void {Nomacs.out(s);}
-	public function printToStderr(s:String):void {Nomacs.err(s);}
 }

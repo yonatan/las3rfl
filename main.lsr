@@ -1126,25 +1126,22 @@ comment tokens."
 
 ;; local connection ;;;;;;;;;;;;;;;;;
 
-(let [ec (get-def "Nomacs")]
-  (def *out-connection* (. ec outConn))
-  (def *in-connection* (. ec inConn)))
+(def *nomacs* (get-def "Nomacs"))
+(def *send-connection* (. *nomacs* sendConn))
+(def *recv-connection* (. *nomacs* recvConn))
 
-(. *out-connection* (addEventListener "status" (partial prn "OUT: ")))
-(. *in-connection*  (addEventListener "status" (partial prn "IN: ")))
-(. *out-connection* (addEventListener "asyncError" (partial prn "ASYNCERR OUT: ")))
-(. *in-connection*  (addEventListener "asyncError" (partial prn "ASYNCERR IN: ")))
+(. *send-connection* (addEventListener "status" (partial prn "OUT: ")))
+(. *recv-connection* (addEventListener "status" (partial prn "IN: ")))
+(. *send-connection* (addEventListener "asyncError" (partial prn "ASYNCERR OUT: ")))
+(. *recv-connection* (addEventListener "asyncError" (partial prn "ASYNCERR IN: ")))
 
 (def-command eval-in-remote-swf
   {:doc ""
    :key "n"
    :modifiers [:ctrl]}
-  (let [ec (get-def "Nomacs")
-	conn (. ec outConn)
-	name (str "eval-in-" (. ec connToken))
+  (let [name (str "eval-in-" (. *nomacs* connToken))
 	s (apply str (map :string (get-sexp-at parser (clipped-caret-idx tf))))]
-    (. conn (send name "eval" s))))
-  
+    (. *send-connection* (send name "eval" s))))
 
 ;;;;
 

@@ -8,8 +8,8 @@ package {
 
     public class EvalSWF extends Sprite {
 		public static var rt:RT;
-        private var inConn:LocalConnection;
-        private var outConn:LocalConnection;
+        private var recvConn:LocalConnection;
+        private var sendConn:LocalConnection;
         private var output:TextField;
 		private var parameters:Object;
 		private var connToken:String;
@@ -32,22 +32,23 @@ package {
 			);
 
 			// setup local connections
-            inConn = new LocalConnection();
-            outConn = new LocalConnection();
-            inConn.client = this;
+            recvConn = new LocalConnection();
+            sendConn = new LocalConnection();
+            recvConn.client = this;
             try {
-                inConn.connect("eval-in-" + connToken);
+                recvConn.connect("eval-in-" + connToken);
+				output.text = "Listening on eval-in-" + connToken;
             } catch (error:ArgumentError) {
                 trace("Can't connect... eval-in-" + connToken + " is already being used by another SWF");
             }
         }
 
 		private function stdout(s:String):void {
-			outConn.send("eval-out-" + connToken, "printToStdout", s || "nil");
+			sendConn.send("eval-out-" + connToken, "printToStdout", s || "nil");
 		}
 
 		private function stderr(s:String):void {
-			outConn.send("eval-out-" + connToken, "printToStderr", s || "nil");
+			sendConn.send("eval-out-" + connToken, "printToStderr", s || "nil");
 		}
         
         public function eval(code:String):void {
