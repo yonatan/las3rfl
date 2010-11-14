@@ -4,6 +4,9 @@
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-15">
     <title>Nomacs LocalConnection Test Page</title>
     <script type="text/javascript" src="swfobject/swfobject.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.4.4.min.js"></script>
+    <script type="text/javascript" src="nomacs.js"></script>
+    
     <script type="text/javascript">
       swfobject.embedSWF("Nomacs.swf", "editorSWF", "100%", "100%", "9.0.0");
       swfobject.embedSWF("EvalSWF.swf", "evaluatorSWF", "465", "465", "9.0.0");
@@ -11,7 +14,10 @@
     <style type="text/css">
       html, body, table, tr, td { 
       height: 100%; 
-      margin: 0; padding: 0; border: 0;
+      margin: 0; 
+      padding: 0; 
+      border: 0;
+      background: #eeeeee;
       }
       td { vertical-align: top; }
       #editor { width: 100%; }
@@ -22,10 +28,11 @@
     <table>
       <tr>
 	<td id="editor">
-	  <div id="editorSWF"/>
+	  <div id="editorSWF"></div>
 	</td>
 	<td id="evaluator">
-	  <div id="evaluatorSWF"/>
+	  <div id="evaluatorSWF"></div>
+	  <a id="resetBtn" href="#">Reset</a>
 	</td>
       </tr>
     </table>
