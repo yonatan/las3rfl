@@ -54,8 +54,8 @@ package {
             recvConn = new LocalConnection();
             sendConn = new LocalConnection();
             recvConn.client = {
-				printToStdout: function(s:String):void {out(s);},
-				printToStderr: function(s:String):void {err(s);}
+				printToStdout: outWrapper,
+				printToStderr: errWrapper
 			}
 
             try {

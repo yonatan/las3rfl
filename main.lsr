@@ -1130,10 +1130,10 @@ comment tokens."
 (def *send-connection* (. *nomacs* sendConn))
 (def *recv-connection* (. *nomacs* recvConn))
 
-(. *send-connection* (addEventListener "status" (partial prn "OUT: ")))
-(. *recv-connection* (addEventListener "status" (partial prn "IN: ")))
-(. *send-connection* (addEventListener "asyncError" (partial prn "ASYNCERR OUT: ")))
-(. *recv-connection* (addEventListener "asyncError" (partial prn "ASYNCERR IN: ")))
+;; (. *send-connection* (addEventListener "status" (partial prn "ON SEND CONNECTION: ")))
+(. *recv-connection* (addEventListener "status" (partial prn "ON RECV CONNECTION: ")))
+(. *send-connection* (addEventListener "asyncError" (partial prn "ASYNCERR ON SEND CONNECTION: ")))
+(. *recv-connection* (addEventListener "asyncError" (partial prn "ASYNCERR ON RECV CONNECTION: ")))
 
 (def-command eval-in-remote-swf
   {:doc ""
