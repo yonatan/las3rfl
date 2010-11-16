@@ -679,7 +679,8 @@ comment tokens."
   (println (str (ns-name (get ^v :ns)) "/" (get ^v :name) 
                 (if (get ^v :macro) " - Macro" "")))
   (prn (get ^v :arglists))
-  (println " " (get ^v :doc)))
+  ;; eat up whitespace in docstring
+  (println "\n" (. (get ^v :doc) (replace #"\s+"g " "))))
 
 ;; TODO: search all namespaces?
 (defn context-doc [buffer]
