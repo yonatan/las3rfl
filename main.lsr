@@ -875,6 +875,21 @@ comment tokens."
     (set! (. editor filters) modal-filters)
     (set-editor-tab-and-mouse-children! false)))
 
+;; Shared object (local storage)
+
+(def *so* (. flash.net.SharedObject (getLocal "backup" "/")))
+
+(defn save-to-lso!
+  "Save editor content to local storage. Returns the output of flush()."
+  []
+  (set! (. (. *so* data) code) (buffer-string buffer))
+  (. *so* (flush)))
+
+(defn read-lso
+  "Returns code from local storage."
+  []
+  (. (. *so* data) code))
+
 ;; editor commands ;;;;;;;;;;;;
 
 (def *commands* {})
@@ -969,13 +984,13 @@ comment tokens."
      buffer))
 
 (def-command indent-current-line
-  {:doc ["Auto-indent the current line."]
+  {:doc "Auto-indent the current line."
    :key (kb TAB)
    :tags #{:indentation}}
   (indent-line! buffer))
 
 (def-command move-end-of-line
-  {:doc ["Moves the caret to the end of the current line."]
+  {:doc "Moves the caret to the end of the current line."
    :key "e"
    :modifiers [:ctrl]
    :tags #{:movement}}
@@ -991,7 +1006,7 @@ comment tokens."
     (. tf (replaceText idx idx s))))
 
 (def-command indent-for-ret-command
-  {:doc ["Insert a newline and indent."]
+  {:doc "Insert a newline and indent."
    :key (kb ENTER)
    :tags #{:indentation}}
   (insert buffer "\n")
@@ -1001,6 +1016,7 @@ comment tokens."
     (indent-line! new-buffer)))
 
 (defn- eval-and-print [rt s]
+  (save-to-lso!)
   (let [tf (. out-pane textField)]
     (set-out-color! *output-cmd-color*)
     (println (str (. (. rt (currentNS)) name) 
@@ -1012,7 +1028,7 @@ comment tokens."
     (. rt (evalStr s prn nil prn))))
 
 (def-command eval-current-sexp
-  {:doc ["Evaluate the sexp at point and print the result."]
+  {:doc "Evaluate the sexp at point and print the result."
    :key "j"
    :modifiers [:ctrl]
    :tags #{:evaluation :sexps}}
@@ -1020,7 +1036,7 @@ comment tokens."
     (eval-and-print (buffer :runtime) s)))
 
 (def-command mark-sexp
-  {:doc ["Selects the current sexp."]
+  {:doc "Selects the current sexp."
    :key "s"
    :modifiers [:ctrl :alt]
    :tags #{:selection :sexps}}
@@ -1166,6 +1182,7 @@ comment tokens."
   {:doc "Evaluates current expression in remote SWF."
    :key "n"
    :modifiers [:ctrl]}
+  (save-to-lso!)
   (let [s (apply str (map :string (get-sexp-at parser (clipped-caret-idx tf))))]
     (send-to-eval-swf s)))
 
@@ -1174,6 +1191,7 @@ comment tokens."
   {:doc "Resets remote SWF and evaluates the current buffer."
    :key (kb ENTER)
    :modifiers [:ctrl]}
+  (save-to-lso!)
   (let [ei flash.external.ExternalInterface]
     (when (. ei available)
       ;; if we're already waiting for a reset, cancel the previous eval command
@@ -1184,6 +1202,12 @@ comment tokens."
 		    (def eval-cancel-thunk nil)
 		    (send-to-eval-swf (. tf text)))))))
 
+(def-command restore-backup
+  {:doc "Restores code saved to local storage."
+   :key "r"
+   :modifiers [:alt]}
+  (set! (. tf text) (sanitize (read-lso))))
+  
 ;;;;
 
 (defn init []
