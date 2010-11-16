@@ -203,6 +203,7 @@
 (def *bracket-mismatch-color* 0xFF0000)
 (def *output-cmd-color* 0x808080)
 (def *output-color* 0x000000)
+(def *error-color* 0xC00000)
 
 ;; This is a parser/highlighter for las3r syntax.
 
@@ -649,7 +650,6 @@ comment tokens."
 
 (def code-pane (new TextEditUI))
 (def help-pane (new TextArea))
-(def err-pane (new TextArea))
 (def out-pane (new TextArea))
 (def parse-progress (new ProgressBar))
 (def stats (new Stats))
@@ -700,16 +700,20 @@ comment tokens."
   (let [pbh (. parse-progress height)
         w (. *stage* stageWidth)
         h (- (. *stage* stageHeight) pbh)
-        cw (* w 3/4)   ;; code pane width
         ch (* h 4/5)]  ;; code pane height
     (mset! parse-progress [y h width w])
     (set! (. stats x) (- w (. stats width)))
 
-    (mset! code-pane [x 0  y 0       width cw       height ch])
-    (mset! help-pane [x 0  y ch      width cw       height (- h ch)])
-    (mset! out-pane  [x cw y 0       width (- w cw) height (/ h 2)])
-    (mset! err-pane  [x cw y (/ h 2) width (- w cw) height (/ h 2)]))
+    (mset! code-pane [x 0       y 0       width w              height ch])
+    (mset! help-pane [x 0       y ch      width (/ w 2)        height (- h ch)])
+    (mset! out-pane  [x (/ w 2) y ch      width (dec (/ w 2))  height (- h ch)]))
   (position-overlay! buffer))
+
+(defn set-out-color! [color]
+  (let [tf (. out-pane textField)
+	fmt (new TextFormat)]
+    (set! (. fmt color) color)
+    (set! (. tf defaultTextFormat) fmt)))
 
 (defmacro repeat-until
   "Executes body repeatedly (for side-effects) until condition is met."
@@ -996,18 +1000,14 @@ comment tokens."
     (indent-line! new-buffer)))
 
 (defn- eval-and-print [rt s]
-  (let [tf (. out-pane textField)
-        fmt (new TextFormat)
-        set-fmt! (fn [c]
-                   (set! (. fmt color) c)
-                   (set! (. tf defaultTextFormat) fmt))]
-    (set-fmt! *output-cmd-color*)
+  (let [tf (. out-pane textField)]
+    (set-out-color! *output-cmd-color*)
     (println (str (. (. rt (currentNS)) name) 
                   (if (not= (. s (indexOf "\r")) -1)
                     "=> \n"
-                    "=> ")  
+                    "=> ")
                   s))
-    (set-fmt! *output-color*)
+    (set-out-color! *output-color*)
     (. rt (evalStr s prn nil prn))))
 
 (def-command eval-current-sexp
@@ -1187,12 +1187,16 @@ comment tokens."
 
 (defn init []
   (let [tf ((buffer :parser) :textfield)
-        make-printer (fn [pane]
+        make-printer (fn [color add-newline?]
                        (fn [s]
-                         (let [tf (. pane textField)]
+			 (set-out-color! color)
+                         (let [tf (. out-pane textField)]
                            (. tf (appendText (sanitize s)))
-                           (set! (. tf scrollV) (. tf maxScrollV)))))]
-    (doseq obj [code-pane help-pane out-pane err-pane parse-progress stats]
+                           (set! (. tf scrollV) (. tf maxScrollV))
+			   (when add-newline?
+			     (. tf (appendText "\n"))))
+			 (set-out-color! *output-color*)))]
+    (doseq obj [code-pane help-pane out-pane parse-progress stats]
       (. editor (addChild obj)))
 
     (set! (. tf alwaysShowSelection) true)
@@ -1206,8 +1210,8 @@ comment tokens."
     (. *stage* (addEventListener "enterFrame" frame-handler))
 
     ;; setup out and err streams
-    (set! (. *nomacs* out) (make-printer out-pane))
-    (set! (. *nomacs* err) (make-printer err-pane))
+    (set! (. *nomacs* out) (make-printer *output-color* false))
+    (set! (. *nomacs* err) (make-printer *error-color* true))
 
     (measure-font! tf)
     (update-layout!)
