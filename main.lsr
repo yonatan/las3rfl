@@ -1066,7 +1066,7 @@ comment tokens."
   {:doc "Incremental search."
    :key "s"
    :modifiers [:ctrl]}
-  (let [window (mset! (new Window *stage* (- (. *stage* stageWidth) 260) 10
+  (let [window (mset! (new Window *stage* (- (. *stage* stageWidth) 260) (- (. *stage* stageHeight) 100)
                            "Incremental search")
                       [width 250
                        height 90])
