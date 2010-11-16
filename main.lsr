@@ -526,8 +526,6 @@ textfield is changed and before the parser's :text is updated."
 	 (if (m :alt) "Alt-" "")
 	 (if (m :shift) "Shift-" "")
 	 (keycode->str (k :code)))))
-	
-		
 
 (def *kb-map* {})
 
@@ -905,7 +903,7 @@ comment tokens."
   []
   (. (. *so* data) code))
 
-;; editor commands ;;;;;;;;;;;;
+;; editor commands stuff ;;;;;;;;;;;;
 
 (def *commands* {})
 
@@ -930,6 +928,46 @@ comment tokens."
                      (assoc (dissoc ~arg-map :key :modifiers) 
                        :fn ~name))))
 
+(defn bound-keys-as-str
+  "Returns a string describing the keys bound to func, or nil if none."
+  [func]
+  (let [ks (filter identity (map (fn [e] (when (= func (val e)) (key e))) *kb-map*))]
+    (when (seq ks)
+      (apply str (interleave (map keystroke->str ks) (repeat " "))))))
+
+(defn command-doc 
+  "Returns docs for command."
+  [cmd-name]
+  (let [cmd-name (symbol cmd-name)] ;; might be a string
+    (when-let cmd (*commands* cmd-name)
+      (str (get cmd :doc "Undocumented") "\n"
+	   (if-let bound-keys (bound-keys-as-str (cmd :fn))
+	     (str "Keyboard bindings: " bound-keys)
+	     "No keyboard bindings.")))))
+
+(def-command show-command-docs
+  {:doc "Shows documentation for all editor commands."
+   :key "h"
+   :modifiers [:ctrl]}
+  (let [sw (. *stage* stageWidth)
+        sh (. *stage* stageHeight)
+        ww (* sw 10/12)
+        wh (* sh 10/12)
+        window (mset! (new Window *stage* (* sw 1/12) (* sh 1/12)
+                           "Editor commands")
+                      [width ww
+                       height wh])
+        text (mset! (new TextArea (. window content) 10 10)
+                    [width (- ww 20)
+                     height (- wh 40)])
+        docs (map (fn [name]
+                    (str "Command: " name "\n"
+                         (command-doc name) "\n\n"))
+                    (keys *commands*))]
+    (mset! text
+           [editable false
+            text (apply str docs)])
+    (show-modal window)))
 
 (defn- custom-indent 
   "Returns custom indentation for symbol or nil."
@@ -1222,7 +1260,7 @@ comment tokens."
    :key "r"
    :modifiers [:alt]}
   (set! (. tf text) (sanitize (read-lso))))
-  
+
 ;;;;
 
 (defn init []
