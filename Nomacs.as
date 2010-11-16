@@ -7,7 +7,6 @@ package {
     import flash.utils.*;
 	import com.las3r.io.OutputStream;
 	import com.las3r.runtime.RT;
-	import com.las3r.repl.Repl;
 	import com.bit101.components.*;
 	import jp.psyark.psycode.core.TextEditUI;
 	import jp.psyark.utils.StringComparator;
@@ -29,9 +28,8 @@ package {
         protected const Las3rCode:Class;
         protected var las3rCode:String
 
-        public static var repl:Repl;
-        public static var out:Function;
-        public static var err:Function;
+        public var out:Function;
+        public var err:Function;
         public var rt:RT;
 
 		private var progressCounter:int = 0;
@@ -39,12 +37,14 @@ package {
 		private function outWrapper(s:String):void {out(s);};
 		private function errWrapper(s:String):void {err(s);};
 
-        public static var recvConn:LocalConnection;
-        public static var sendConn:LocalConnection;
+        public var recvConn:LocalConnection;
+        public var sendConn:LocalConnection;
+		public var connToken:String;
 		private var parameters:Object;
-		public static var connToken:String;
+		private static var _instance:Nomacs;
 
         public function Nomacs() {
+			_instance = this;
             stage.scaleMode = StageScaleMode.NO_SCALE;
             stage.align = StageAlign.TOP_LEFT;
 
@@ -54,8 +54,8 @@ package {
             recvConn = new LocalConnection();
             sendConn = new LocalConnection();
             recvConn.client = {
-				printToStdout: outWrapper,
-				printToStderr: errWrapper
+				printToStdout: function(s:String):void {dispatchEvent(new Event("recv")); out(s);},
+				printToStderr: function(s:String):void {dispatchEvent(new Event("recv")); err(s);}
 			}
 
             try {
@@ -70,6 +70,10 @@ package {
 
 			rt = new RT(stage, new OutputStream(outWrapper), new OutputStream(errWrapper));
 			rt.loadStdLib(stdlibLoaded, trace, trace);
+		}
+
+		public static function get instance():Nomacs {
+			return _instance;
 		}
 
 		private function stdlibLoaded(val:*):void {

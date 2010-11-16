@@ -12,7 +12,7 @@ package jp.psyark.psycode.controls {
 	public class ScrollBar extends UIControl {
 		public static const HORIZONTAL:String = "horizontal";
 		public static const VERTICAL:String = "vertical";
-		public static const BAR_THICKNESS:Number = 16;
+		public static const BAR_THICKNESS:Number = 12;
 		public static const MIN_HANDLE_LENGTH:Number = 14;
 		
 		

@@ -38,6 +38,7 @@ package {
             try {
                 recvConn.connect("eval-in-" + connToken);
 				output.text = "Listening on eval-in-" + connToken;
+				stdout("Evaluator ready.\n");
             } catch (error:ArgumentError) {
                 trace("Can't connect... eval-in-" + connToken + " is already being used by another SWF");
             }
@@ -47,12 +48,16 @@ package {
 			sendConn.send("eval-out-" + connToken, "printToStdout", s || "nil");
 		}
 
+		private function stdoutLine(s:String):void {
+			stdout(s + "\n");
+		}
+
 		private function stderr(s:String):void {
 			sendConn.send("eval-out-" + connToken, "printToStderr", s || "nil");
 		}
         
         public function eval(code:String):void {
-			rt.evalStr(code, stdout, null, stderr);
+			rt.evalStr(code, stdoutLine, null, stderr);
             output.appendText("eval: " + code + "\n");
         }
         

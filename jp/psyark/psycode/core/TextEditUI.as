@@ -36,7 +36,7 @@ package jp.psyark.psycode.core {
 			for (var i:int=1; i<20; i++) {
 				tabStops.push(13 * TAB_STOP_RATIO * i);
 			}
-			var fmt:TextFormat = new TextFormat("Courier New", 13, 0x000000);
+			var fmt:TextFormat = new TextFormat("Courier New, Courier, _typewriter", 12, 0x000000);
 			// tabstops slow the textfield down!!
 			// fmt.tabStops = tabStops;
 			fmt.leading = 1;
