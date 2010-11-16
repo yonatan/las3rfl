@@ -43,6 +43,11 @@
        -->
   </metadata>
 
+  <default-script-limits>
+    <max-recursion-depth>1200</max-recursion-depth>
+    <max-execution-time>5</max-execution-time>
+  </default-script-limits>
+
   <!-- licenses: specifies a list of product and serial number pairs. -->
   <!-- not set -->
   <!--
