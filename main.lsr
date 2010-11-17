@@ -1236,21 +1236,28 @@ comment tokens."
   (let [s (apply str (map :string (get-sexp-at parser (clipped-caret-idx tf))))]
     (send-to-eval-swf s)))
 
+
 (def eval-cancel-thunk nil)
+(def-command reset-remote-swf
+  {:doc "Resets remote SWF (via javascript)."
+   :key "r"
+   :modifiers [:ctrl]}
+  (let [ei flash.external.ExternalInterface]
+    (when (. ei available)
+      ;; if we're already waiting for a reset, cancel the previous eval command
+      (when eval-cancel-thunk (eval-cancel-thunk))
+      (. ei (call "resetEvalSWF")))))
+
 (def-command eval-buffer-in-new-remote-swf
   {:doc "Resets remote SWF and evaluates the current buffer."
    :key (kb ENTER)
    :modifiers [:ctrl]}
   (save-to-lso!)
-  (let [ei flash.external.ExternalInterface]
-    (when (. ei available)
-      ;; if we're already waiting for a reset, cancel the previous eval command
-      (when eval-cancel-thunk (eval-cancel-thunk))
-      (. ei (call "resetEvalSWF")) ;; reset
-      (def eval-cancel-thunk
-	   (on-next *nomacs* "recv" ;; wait for input on recv connection
-		    (def eval-cancel-thunk nil)
-		    (send-to-eval-swf (. tf text)))))))
+  (reset-remote-swf buffer)
+  (def eval-cancel-thunk
+       (on-next *nomacs* "recv" ;; wait for input on recv connection
+  (def eval-cancel-thunk nil)
+  (send-to-eval-swf (. tf text)))))
 
 (def-command restore-backup
   {:doc "Restores code saved to local storage."
