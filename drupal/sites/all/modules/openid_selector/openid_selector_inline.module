@@ -1,0 +1,34 @@
+<?php
+// $Id: openid_selector_inline.module,v 1.1 2010/10/18 13:27:34 agerasika Exp $
+
+/**
+ * @file
+ * integrates this website's login into OpenID Selector module.
+ * See http://www.gerixsoft.com/blog/drupal/openid-selector-drupal
+ *
+ * @author: Andriy Gerasika <www.gerixsoft.com/contact>
+ */
+
+/**
+ * Implementation of hook_form_alter().
+ *
+ * Inlines OpenID Selector removing "Login using OpenID" link.
+ */
+function openid_selector_inline_form_alter(&$form, $form_state, $form_id) {
+  if (module_exists('openid_selector_drupal')) {
+    return; // this module conflicts w/ OpenID Selector for Drupal module.
+  }
+  $forms = array(
+    'user_login_block' => 'user-login-form',
+    'user_login' => 'user-login',
+  );
+  if (array_key_exists($form_id, $forms)) {
+    $module_path = drupal_get_path('module', 'openid_selector_inline');
+    drupal_add_js($module_path . '/openid_selector_inline.js');
+    $settings = array(
+      'favicon' => theme_get_setting('toggle_favicon') ? theme_get_setting('favicon') : base_path() .'misc/favicon.ico',
+      'site_name' => variable_get('site_name', 'Drupal')
+    );
+    drupal_add_js(array('openid_selector_inline' => $settings), "setting");
+  }
+}

@@ -1,0 +1,13 @@
+; $Id: openid_selector_drupal.info,v 1.1 2010/10/18 13:27:34 agerasika Exp $
+name = OpenID Selector for Drupal login
+description = OPTIONAL. Integrates this website's login into OpenID Selector as new account provider using favicon. Excludes OpenID Selector Inline module.
+core = 6.x
+php = 5.1
+dependencies[] = openid_selector
+
+; Information added by drupal.org packaging script on 2010-10-18
+version = "6.x-1.3"
+core = "6.x"
+project = "openid_selector"
+datestamp = "1287409283"
+

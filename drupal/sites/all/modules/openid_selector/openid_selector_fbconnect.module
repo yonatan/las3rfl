@@ -1,0 +1,26 @@
+<?php
+// $Id: openid_selector_fbconnect.module,v 1.1 2010/10/09 10:14:02 agerasika Exp $
+
+/**
+ * @file
+ * integrates fbconnect module into OpenID Selector module.
+ * See http://www.gerixsoft.com/blog/drupal/openid-selector-fbconnect
+ *
+ * @author: Andriy Gerasika <www.gerixsoft.com/contact>
+ */
+
+/**
+ * Implementation of hook_form_alter().
+ *
+ * Adds fbconnect to the OpenID (Selector) forms.
+ */
+function openid_selector_fbconnect_form_alter(&$form, $form_state, $form_id) {
+  $forms = array(
+    'user_login_block' => 'user-login-form',
+    'user_login' => 'user-login',
+  );
+  if (array_key_exists($form_id, $forms)) {
+    $module_path = drupal_get_path('module', 'openid_selector_fbconnect');
+    drupal_add_js($module_path . '/openid_selector_fbconnect.js');
+  }
+}

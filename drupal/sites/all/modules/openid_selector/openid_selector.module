@@ -1,0 +1,46 @@
+<?php
+// $Id: openid_selector.module,v 1.2 2010/10/18 13:27:34 agerasika Exp $
+
+/**
+ * @file
+ * marries Javascript OpenID selector with Drupal's OpenID module.
+ * See http://www.gerixsoft.com/blog/drupal/openid-selector
+ *
+ * @author: Andriy Gerasika <www.gerixsoft.com/contact>
+ */
+
+/**
+ * Implementation of hook_form_alter().
+ *
+ * Adds OpenID selector to the OpenID forms.
+ */
+function openid_selector_form_alter(&$form, $form_state, $form_id) {
+  $forms = array(
+    'user_login_block' => 'user-login-form',
+    'user_login' => 'user-login',
+    'openid_user_add' => 'openid-user-add',
+  );
+  if (array_key_exists($form_id, $forms)) {
+    $library_path = libraries_get_path('openid-selector');
+    $module_path = drupal_get_path('module', 'openid_selector');
+    $style = variable_get('openid_selector_style', '');
+    if ($style != '' && file_exists($library_path . '/css/openid-' . $style . '.css')) {
+      $style = '-' . $style;
+    }
+    drupal_add_css($library_path . '/css/openid' . $style . '.css', 'module');
+    drupal_add_css($module_path . '/openid_selector.css', 'module');
+    drupal_add_js($library_path . '/js/openid-jquery.js');
+    $lang = 'en'; // default language
+    global $language;
+    if (file_exists($library_path . '/js/openid-jquery-' . $language->language . '.js')) {
+        $lang = $language->language;
+    }
+    drupal_add_js($library_path . '/js/openid-jquery-' . $lang . '.js');
+    drupal_add_js($module_path . '/openid_selector.js');
+    $settings = array(
+      'img_path' => $library_path . '/images/',
+      'form_id' => $forms[$form_id],
+    );
+    drupal_add_js(array('openid_selector' => $settings), "setting");
+  }
+}

@@ -1,0 +1,15 @@
+// $Id: CHANGELOG.txt,v 1.2.2.1 2009/12/30 16:30:42 sun Exp $
+
+Libraries x.x-x.x, xxxx-xx-xx
+-----------------------------
+
+
+Libraries 6.x-1.x, xxxx-xx-xx
+-----------------------------
+
+
+Libraries 6.x-1.0-ALPHA1, 2009-12-30
+------------------------------------
+#480440 by markus_petrux: Fixed base_path() not applied to default library path.
+#320562 by sun: Added basic functions.
+

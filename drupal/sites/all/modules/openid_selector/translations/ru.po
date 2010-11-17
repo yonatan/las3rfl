@@ -1,0 +1,75 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenID Selector\n"
+"POT-Creation-Date: 2010-10-18 14:47+0300\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Andriy Gerasika <andriy.gerasika@gmail.com>\n"
+"Language-Team: Andriy Gerasika <andriy.gerasika@gerixsoft.com>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Russian\n"
+"X-Poedit-Country: RUSSIAN FEDERATION\n"
+
+#: openid_selector.info:0
+msgid "OpenID Selector"
+msgstr "OpenID Selector"
+
+#: openid_selector.info:0
+msgid "Integrates Javascript OpenID Selector into Drupal"
+msgstr "Интегрирует Javascript OpenID Selector в Друпал"
+
+#: openid_selector_drupal.info:0
+msgid "OpenID Selector for Drupal login"
+msgstr "OpenID Selector для Друпал логина"
+
+#: openid_selector_drupal.info:0
+msgid "OPTIONAL. Integrates this website's login into OpenID Selector as new account provider using favicon. Excludes OpenID Selector Inline module."
+msgstr "ОПЦИОНАЛЬНО. Интегрирует логин этого сайта в OpenID Selector как нового аккаунт-провайдера использующего favicon. Исключает модуль OpenID Selector встроенный."
+
+#: openid_selector_fbconnect.info:0
+msgid "OpenID Selector for Facebook Connect"
+msgstr "OpenID Selector для Facebook Connect"
+
+#: openid_selector_fbconnect.info:0
+msgid "OPTIONAL. Integrates Facebook Connect into OpenID Selector"
+msgstr "ОПЦИОНАЛЬНО. Интегрирует Facebook Connect в OpenID Selector"
+
+#: openid_selector_inline.info:0
+msgid "OpenID Selector Inline"
+msgstr "OpenID Selector встроенный"
+
+#: openid_selector_inline.info:0
+msgid "OPTIONAL. Inlines OpenID Selector below regular login, hence removing \"Login using OpenID\" link. Excludes OpenID Selector for Drupal login module."
+msgstr "ОПЦИОНАЛЬНО. Встраивает OpenID Selector ниже обычного логина, следовательно, удаляя ссылку \"Войти с OpenID \". Исключает модуль OpenID Selector для Drupal логина."
+
+#: openid_selector.js:0;0
+msgid "What is OpenID?"
+msgstr "Что такое OpenID?"
+
+#: openid_selector.js:0
+#, fuzzy
+msgid "Click your account provider:"
+msgstr "Выберите вашего аккаунт-провайдера:"
+
+#: openid_selector.js:0
+msgid "Log in with !provider:"
+msgstr "Войти c !provider:"
+
+#: openid_selector.js:0
+msgid "Website configuration error:"
+msgstr "Ошибка в конфигурации веб-сайта:"
+
+#: openid_selector.js:0
+msgid "Drupal OpenID Selector requires Javascript OpenID Selector !version"
+msgstr "OpenID Selector для Друпала требует Javascript OpenID Selector !version"
+
+#: openid_selector.js:0
+msgid "Please contact website administrator."
+msgstr "Пожайлуста, обратитесь к администратору веб-сайта."
+
+#: openid_selector_drupal.js:0
+msgid "Log in with account provider:"
+msgstr "Войти c аккаунт-провайдером:"
+

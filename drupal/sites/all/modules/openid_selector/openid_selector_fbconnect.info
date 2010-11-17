@@ -1,0 +1,14 @@
+; $Id: openid_selector_fbconnect.info,v 1.2 2010/10/18 13:27:34 agerasika Exp $
+name = OpenID Selector for Facebook Connect
+description = OPTIONAL. Integrates Facebook Connect into OpenID Selector
+core = 6.x
+php = 5.1
+dependencies[] = openid_selector
+dependencies[] = fbconnect
+
+; Information added by drupal.org packaging script on 2010-10-18
+version = "6.x-1.3"
+core = "6.x"
+project = "openid_selector"
+datestamp = "1287409283"
+

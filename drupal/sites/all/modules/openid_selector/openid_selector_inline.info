@@ -1,0 +1,13 @@
+; $Id: openid_selector_inline.info,v 1.1 2010/10/18 13:27:34 agerasika Exp $
+name = OpenID Selector Inline
+description = OPTIONAL. Inlines OpenID Selector below regular login, hence removing "Login using OpenID" link. Excludes OpenID Selector for Drupal login module.
+core = 6.x
+php = 5.1
+dependencies[] = openid_selector
+
+; Information added by drupal.org packaging script on 2010-10-18
+version = "6.x-1.3"
+core = "6.x"
+project = "openid_selector"
+datestamp = "1287409283"
+

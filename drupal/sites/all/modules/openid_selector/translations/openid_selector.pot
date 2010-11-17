@@ -1,0 +1,85 @@
+# $Id: openid_selector.pot,v 1.1 2010/10/18 13:27:34 agerasika Exp $
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  openid_selector.info,v 1.1 2010/10/06 20:21:46 agerasika
+#  openid_selector_drupal.info: n/a
+#  openid_selector_fbconnect.info,v 1.1 2010/10/09 10:14:02 agerasika
+#  openid_selector_inline.info: n/a
+#  openid_selector.js,v 1.3 2010/10/10 10:09:29 agerasika
+#  openid_selector_drupal.js: n/a
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2010-10-18 14:47+0300\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: openid_selector.info:0
+msgid "OpenID Selector"
+msgstr ""
+
+#: openid_selector.info:0
+msgid "Integrates Javascript OpenID Selector into Drupal"
+msgstr ""
+
+#: openid_selector_drupal.info:0
+msgid "OpenID Selector for Drupal login"
+msgstr ""
+
+#: openid_selector_drupal.info:0
+msgid "OPTIONAL. Integrates this website's login into OpenID Selector as new account provider using favicon. Excludes OpenID Selector Inline module."
+msgstr ""
+
+#: openid_selector_fbconnect.info:0
+msgid "OpenID Selector for Facebook Connect"
+msgstr ""
+
+#: openid_selector_fbconnect.info:0
+msgid "OPTIONAL. Integrates Facebook Connect into OpenID Selector"
+msgstr ""
+
+#: openid_selector_inline.info:0
+msgid "OpenID Selector Inline"
+msgstr ""
+
+#: openid_selector_inline.info:0
+msgid "OPTIONAL. Inlines OpenID Selector below regular login, hence removing \"Login using OpenID\" link. Excludes OpenID Selector for Drupal login module."
+msgstr ""
+
+#: openid_selector.js:0;0
+msgid "What is OpenID?"
+msgstr ""
+
+#: openid_selector.js:0
+msgid "Click your account provider:"
+msgstr ""
+
+#: openid_selector.js:0
+msgid "Log in with !provider:"
+msgstr ""
+
+#: openid_selector.js:0
+msgid "Website configuration error:"
+msgstr ""
+
+#: openid_selector.js:0
+msgid "Drupal OpenID Selector requires Javascript OpenID Selector !version"
+msgstr ""
+
+#: openid_selector.js:0
+msgid "Please contact website administrator."
+msgstr ""
+
+#: openid_selector_drupal.js:0
+msgid "Log in with account provider:"
+msgstr ""
+

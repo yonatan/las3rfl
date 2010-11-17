@@ -1,0 +1,12 @@
+/* $Id: openid_selector_drupal.css,v 1.1 2010/10/18 13:27:34 agerasika Exp $ */
+
+a.openid_large_btn.drupal,
+a.openid_large_btn.drupal:active,
+a.openid_large_btn.drupal:visited,
+a.openid_large_btn.drupal:hover {
+  text-decoration: none;
+  text-align: center;
+  font-size: 14px;
+  line-height: 60px;
+  background: white;
+}

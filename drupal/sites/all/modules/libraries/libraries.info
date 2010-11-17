@@ -1,0 +1,11 @@
+; $Id: libraries.info,v 1.1 2009/06/01 18:09:00 sun Exp $
+name = Libraries
+description = External library handling for Drupal modules.
+core = 6.x
+
+; Information added by drupal.org packaging script on 2009-12-30
+version = "6.x-1.0-alpha1"
+core = "6.x"
+project = "libraries"
+datestamp = "1262190965"
+
