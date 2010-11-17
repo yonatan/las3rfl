@@ -1,10 +1,12 @@
 package {
-    import flash.display.Sprite;
+    import flash.display.*;
     import flash.net.LocalConnection;
     import flash.text.TextField;
+	import flash.utils.ByteArray;
 	import com.las3r.io.OutputStream;
 	import com.las3r.io.InputStream;
 	import com.las3r.runtime.RT;
+	import com.adobe.images.JPGEncoder;
 
     public class EvalSWF extends Sprite {
 		public static var rt:RT;
@@ -60,7 +62,29 @@ package {
 			rt.evalStr(code, stdoutLine, null, stderr);
             output.appendText("eval: " + code + "\n");
         }
-        
+
+		public function capture():void {
+			var bmd:BitmapData = new BitmapData(465, 465, false);
+			var jpeg:ByteArray;
+			var encoder:JPGEncoder;
+
+			bmd.draw(stage);
+
+			// LocalConnection is only good for < 40k
+			// try lower quality compression if neccesary
+			for(var quality:int = 50; quality > 4; quality /= 2) {
+				encoder = new JPGEncoder(quality);
+				jpeg = encoder.encode(bmd);
+				if(jpeg.length < 40000) break; 
+			}
+			
+			if(quality > 4) {
+				output.appendText("jpeg quality: " + quality + "\n");
+				output.appendText("jpeg size: " + jpeg.length + "\n");
+				sendConn.send("eval-out-" + connToken, "updateCapture", jpeg);
+			}
+		}
+
         private function buildUI():void {
             output = new TextField();
             output.background = true;

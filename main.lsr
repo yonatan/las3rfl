@@ -701,14 +701,13 @@ comment tokens."
   []
   (let [tf (. help-pane textField)]
     (set! (. tf text) "")
-    (let [name (current-fn-name buffer)]
-      (when name
-        (try (let [v (or (find-var (symbol (ns-name *ns*) name))
-                         (find-var (symbol 'las3r.core name)))
-                   arglists ((meta v) :arglists)]
-               (binding [*out* (new com.las3r.io.OutputStream (. tf appendText))]
-                 (print-help v)))
-             (catch Error e nil))))))
+    (when-let name (current-fn-name buffer)
+      (when-let v (or (find-var (symbol (ns-name *ns*) name))
+                      (find-var (symbol 'las3r.core name)))
+          (try
+           (binding [*out* (new com.las3r.io.OutputStream (. tf appendText))]
+             (print-help v))
+           (catch Error e nil))))))
 
 (defn update-layout! [& _]
   (let [pbh (. parse-progress height)

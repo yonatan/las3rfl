@@ -55,7 +55,9 @@ package {
             sendConn = new LocalConnection();
             recvConn.client = {
 				printToStdout: function(s:String):void {dispatchEvent(new Event("recv")); out(s);},
-				printToStderr: function(s:String):void {dispatchEvent(new Event("recv")); err(s);}
+				printToStderr: function(s:String):void {dispatchEvent(new Event("recv")); err(s);},
+				updateCapture: function(jpeg:ByteArray):void {out("Received a " + jpeg.length + " byte jpeg.\n");}
+
 			}
 
             try {
