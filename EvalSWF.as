@@ -8,6 +8,7 @@ package {
 	import com.las3r.runtime.RT;
 	import com.adobe.images.JPGEncoder;
 
+	[SWF(width="465", height="465")]
     public class EvalSWF extends Sprite {
 		public static var rt:RT;
         private var recvConn:LocalConnection;
