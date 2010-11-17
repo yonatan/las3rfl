@@ -704,8 +704,11 @@ comment tokens."
     (when-let name (current-fn-name buffer)
       (when-let v (or (find-var (symbol (ns-name *ns*) name))
                       (find-var (symbol 'las3r.core name)))
+	(def old-out *out*) ;; debug
         (binding [*out* (new com.las3r.io.OutputStream (. tf appendText))]
-          (print-help v))))))
+          (print-help v))
+	(when-not (= *out* old-out)
+	  (prn "ARGHHHHH!!!!!!!!!!!!!!!!!!!1!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")))))) ;; debug
 
 (defn update-layout! [& _]
   (let [pbh (. parse-progress height)
@@ -1256,8 +1259,8 @@ comment tokens."
   (reset-remote-swf buffer)
   (def eval-cancel-thunk
        (on-next *nomacs* "recv" ;; wait for input on recv connection
-  (def eval-cancel-thunk nil)
-  (send-to-eval-swf (. tf text)))))
+		(def eval-cancel-thunk nil)
+		(send-to-eval-swf (. tf text)))))
 
 (def-command restore-backup
   {:doc "Restores code saved to local storage."
