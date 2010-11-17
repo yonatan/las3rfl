@@ -1,0 +1,12 @@
+; $Id: riddler.info,v 1.5 2009/07/07 15:54:30 awolfey Exp $
+name = Captcha Riddler
+description = Allows site administrators to add a simple question to form validation
+package = Spam control
+dependencies[] = captcha
+core = 6.x
+; Information added by drupal.org packaging script on 2009-07-08
+version = "6.x-1.1"
+core = "6.x"
+project = "riddler"
+datestamp = "1247054513"
+
