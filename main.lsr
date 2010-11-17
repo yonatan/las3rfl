@@ -1085,8 +1085,10 @@ comment tokens."
    :key "j"
    :modifiers [:ctrl]
    :tags #{:evaluation :sexps}}
-  (let [s (apply str (map :string (get-sexp-at parser (clipped-caret-idx tf))))]
-    (eval-and-print (buffer :runtime) s)))
+  (if-let sexp (get-sexp-at parser (clipped-caret-idx tf))
+    (let [s (apply str (map :string sexp))]
+      (eval-and-print (buffer :runtime) s))
+    (println "Can't get current sexp, waiting for parser.")))
 
 (def-command mark-sexp
   {:doc "Selects the current sexp."
@@ -1236,9 +1238,10 @@ comment tokens."
    :key "n"
    :modifiers [:ctrl]}
   (save-to-lso!)
-  (let [s (apply str (map :string (get-sexp-at parser (clipped-caret-idx tf))))]
-    (send-to-eval-swf s)))
-
+  (if-let sexp (get-sexp-at parser (clipped-caret-idx tf))
+    (let [s (apply str (map :string sexp))]
+      (send-to-eval-swf s))
+    (println "Can't get current sexp, waiting for parser.")))
 
 (def eval-cancel-thunk nil)
 (def-command reset-remote-swf
@@ -1263,7 +1266,7 @@ comment tokens."
 		(send-to-eval-swf (. tf text)))))
 
 (def-command restore-backup
-  {:doc "Restores code saved to local storage."
+  {:doc "Restores code saved to local storage (code is saved before every eval operation)."
    :key "r"
    :modifiers [:alt]}
   (set! (. tf text) (sanitize (read-lso))))
