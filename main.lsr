@@ -666,6 +666,7 @@ comment tokens."
 (def out-pane (new TextArea))
 (def parse-progress (new ProgressBar))
 (def stats (new Stats))
+(set! (. stats visible) false)
 (def buffer (assoc (attach-to-textfield-container code-pane)
               :runtime *runtime*))
 
@@ -1270,6 +1271,12 @@ comment tokens."
    :key "r"
    :modifiers [:alt]}
   (set! (. tf text) (sanitize (read-lso))))
+
+(def-command toggle-stats
+  {:doc "Shows/hides player stats."
+   :key "q"
+   :modifiers [:ctrl :alt]}
+  (set! (. stats visible) (not (. stats visible))))
 
 ;;;;
 
