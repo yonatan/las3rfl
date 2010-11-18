@@ -1,0 +1,96 @@
+@CHARSET "UTF-8";
+
+/**
+ * Deco theme
+ *
+ * Override rules in style.css and layout.css for better printing
+ * 
+ */
+
+#header .region-content, #sidebar-wrapper, #breadcrumb .region-content
+, #featured .region-content, #content-bottom .region-content
+, #footer .region-content, #top-bar .region-content {
+  min-width: 0;
+}
+
+body, label, fieldset legend, #header h1
+, #header h1 a:link, #header h1 a:visited, #header h1 a:hover
+, #featured .region-content, #featured h2, #featured h3, #featured h4
+, #footer, #footer h2, #footer h3, #footer h4, #footer #footer-message
+, dl dt, #content h2.content-title, #content h1
+, .content-bar ul li a, .content-bar ul li.active a
+, .content-bar ul li a:hover, .content-bar ul li a:visited
+, div.forum-topic-navigation a, div.forum-topic-navigation a:hover
+, div.forum-topic-navigation a:visited
+, .content-bar ul li.active a, .content-bar ul li.active a:link
+, .content-bar ul li.active a:visited, .content-bar ul li a:hover, .content-bar ul li.pager-current
+, div.forum-topic-navigation a:hover, .node .title a, .comment h3.title a
+, .comment h3.title a.active {
+  color: #000;
+}
+
+body, fieldset, fieldset .top, fieldset .bottom, fieldset .bottom-ornament
+, h1, h2, h3, h4, h5, h6, #header, #featured, #breadcrumb, #main
+, .sidebar-double #sidebar-wrapper, .sidebar-right #sidebar-wrapper
+, .sidebar-right-double #sidebar-wrapper, .rightbar .top-corners
+, .rightbar .bottom-corners, #content-bottom, #footer, #footer .top-border
+, #footer .bottom-border, .content-bar, .content-bar .left
+, .content-bar ul, .content-bar div.forum-topic-navigation
+, .content-bar ul li.active a, .content-bar ul li.active a:link
+, .content-bar ul li.active a:visited, .content-bar ul li a:hover, .content-bar ul li.pager-current
+, div.forum-topic-navigation a:hover
+, .node h2.title, .node h2.title a, .node .submitted, .node .submitted .left, .node .submitted .right
+, .node-sticky .node-body, .node-sticky h2.title, .node-sticky .submitted, .node-sticky .submitted .left
+, .node-sticky .submitted .right, .comment, .comment-even, .terms ul.links li, .terms ul.links li a {
+  background: none;
+}
+
+#header h1, .rightbar .top-corners, .rightbar .bottom-corners {
+  position: static;
+}
+
+#top-bar, .node div.hr, .comment div.hr
+, ul.secondary-links, ul.primary-links, .sidebar
+, node-top {
+  display: none;
+}
+
+.sidebar-double #content, .sidebar-left #content
+, .sidebar-right #content
+, .sidebar-right-double #content
+, .sidebar-double #squeeze, .sidebar-left #squeeze
+, .sidebar-right #squeeze
+, .sidebar-right-double #squeeze {
+  margin: 0;
+}
+
+#header {
+  height: auto;
+}
+
+a:link, a:visited {
+  color: #1f5ca1;
+  text-decoration: underline;
+}
+
+dl dd
+, span.submitted, .description {
+  color: #333;
+}
+
+#breadcrumb {
+  font-size:1em;
+}
+
+.node .submitted {
+  position: static;
+  margin: 0;
+}
+
+.comment, .comment .comment-top, .comment-even, .comment-even .comment-top {
+  border-color: #bbb;
+}
+
+.terms ul.links li a:link, .terms ul.links li a:visited, .terms ul.links li a:hover {
+  text-decoration: underline;
+}

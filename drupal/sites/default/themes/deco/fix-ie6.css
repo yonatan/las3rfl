@@ -1,0 +1,139 @@
+@CHARSET "UTF-8";
+
+/**
+*   Deco Internet Explorer CSS
+*   Overrides styles for Internet Explorer 6 or lower
+*
+*/
+
+/**
+ * min-height fixes
+ */
+
+#featured {
+  height: 21px;
+}
+
+.rightbar .top-corners {
+  height: 12px;
+}
+
+.rightbar  .bottom-corners {
+  height: 7px;
+}
+
+#content-bottom {
+  height: 21px;
+}
+
+#footer .bottom-border {
+  height: 5px;
+}
+
+#footer .region-content {
+  height: 1%;
+}
+
+/**
+ * line-height fixes
+ */
+
+#header ul.primary-links li a, #header ul.primary-links li a:link
+, #header ul.primary-links li a:visited {
+  line-height: 1em;
+  padding-top: 18px;
+  height: 27px;
+}
+
+#header ul.primary-links li a.active, #header ul.primary-links li a:link.active
+, #header ul.primary-links li a:visited.active {
+  line-height: 1em;
+  padding-top: 12px;
+  height: 33px;
+}
+
+#breadcrumb {
+  line-height: 1em;
+  height: 20px;
+  padding-top: 5px;
+}
+
+/**
+ * right sidebars fixes. This fixes right sidebars being pushed under eachother
+ * because of content this is wider than its container.
+ */
+
+#content {
+  /* Reduce amount of damage done by extremely wide content */
+  overflow: hidden;
+}
+
+/**
+ * Triple sidebar layout fixes
+ */
+.sidebar-triple #sidebar-wrapper .sidebar {
+  width: 29%;
+}
+
+.sidebar-triple #sidebar-left .block-title .blockinner,
+.sidebar-triple #sidebar-right .block-title .blockinner,
+.sidebar-triple #sidebar-right-sec .block-title .blockinner {
+  position: relative;
+}
+
+/**
+ * node fixes
+ */
+.node .submitted .right, .node .submitted .left {
+  /* prevents author or date to span full page width */
+  display: block;
+  float: left;
+}
+
+.node h2.title, .node-sticky h2.title {
+  /* give elements layout to fix IE6  */
+  height: 1%;
+  position: relative;
+}
+
+.node .node-top .top-middle, .node .node-top, .node .node-top .top-right {
+  position: relative;
+}
+
+.node .node-top .top-middle {
+  margin-bottom: -4px;
+}
+
+/**
+ * List fixes
+ */
+ul li, ul.menu li, .item-list ul li {
+ height: 1%;
+}
+
+/**
+ * Terms fixes
+ */
+.terms ul.links li a {
+  margin-left: -3px;
+}
+
+/* Prevent fieldsets from shifting when changing collapsed state. */
+html.js fieldset.collapsible {
+  position: relative;
+  top: -1em;
+}
+html.js fieldset.collapsed {
+  top: 0;
+  margin-bottom: 1em;
+}
+
+td.menu-disabled {
+  /* Use filter to emulate CSS3 opacity */
+  filter: alpha(opacity=50);
+}
+
+/* Block admin page fixes */
+.block-admin #sidebar-wrapper {
+  height: 1%;
+}

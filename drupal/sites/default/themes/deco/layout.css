@@ -1,0 +1,237 @@
+/**
+*  LAYOUT STYLES
+*
+*  Define CSS classes to create a table-free,
+*  3-column, 2-column, or single column layout 
+*  depending on whether blocks are enabled in the 
+*  left or right columns.
+*/
+
+/**
+ * Layout
+ */
+
+body {
+  margin:0;
+}
+
+#header {
+  height: 139px;
+}
+
+#top-bar {
+  height: 22px;
+}
+
+#top-bar ul.secondary-links {
+  margin:0;
+  padding:0;
+  float:right;
+  height: 22px;
+}
+
+#header .region-content, #sidebar-wrapper, #breadcrumb .region-content
+, #featured .region-content, #content-bottom .region-content
+, #footer .region-content, #top-bar .region-content {
+  min-width: 765px;
+  max-width: 1165px;
+  margin: 0 auto;
+}
+
+#header .region-content, #main, #breadcrumb
+, #featured, #content-bottom, #footer .region-content
+, #top-bar .region-content {
+  padding: 0 48px;
+}
+
+#header h1 {
+  height: 117px;
+  margin: 0;
+  position: absolute;
+}
+
+#header ul.primary-links {
+  height: 45px;
+  float: right;
+  margin: 72px 0 0 0;
+  padding: 0;
+  position: relative;
+}
+
+#featured {
+  min-height: 21px;
+}
+
+#breadcrumb {
+  height: 25px;
+}
+
+/* CONTENT layout */
+
+#content {
+  float: left;
+  width: 100%;
+  padding-bottom: 2em;
+}
+
+.sidebar-double #content, .sidebar-left #content {
+  margin-left: -221px;
+}
+
+.sidebar-double #content, .sidebar-right #content {
+  margin-right: -271px;
+}
+
+.sidebar-right-double #content {
+  margin-right: -448px;
+}
+
+/* Add blanks left and right for the sidebars to fill */
+
+.sidebar-double #squeeze, .sidebar-left #squeeze {
+  margin-left: 221px;
+}
+
+.sidebar-double #squeeze, .sidebar-right #squeeze {
+  margin-right: 271px;
+}
+
+.sidebar-right-double #squeeze {
+  margin-right: 448px;
+}
+
+/* Add whitespace to content area */
+
+#squeeze {
+  padding: 1em 0 1.5em;
+  overflow: hidden;
+}
+
+.sidebar-double #squeeze, .sidebar-left #squeeze {
+  padding-left: 2em;
+}
+
+.rightbar #squeeze {
+  padding-right: 2em;
+}
+
+/* SIDEBAR layout */
+
+#sidebar-wrapper .sidebar {
+  float: left;
+  z-index: 2;
+  position: relative;
+}
+
+#sidebar-left {
+  width: 221px;
+}
+
+#sidebar-right-sec {
+  width: 177px;
+  padding: 1.2em 0;
+}
+
+#sidebar-right {
+  width: 271px;
+  padding: 1.2em 0;
+}
+
+.rightbar .top-corners {
+  right: -8px;
+  top: -3px;
+  padding-right: 8px;
+  position: relative;
+  min-height: 12px;
+}
+
+.rightbar .bottom-corners {
+  right: 0;
+  bottom: -4px;
+  position: relative;
+  min-height: 7px;
+}
+
+/** 
+ * TRIPLE COLUMN layout
+ * Overrides some previously declared css rules
+ */
+
+.sidebar-triple #content {
+  float: none;
+}
+
+.sidebar-triple #sidebar-wrapper .sidebar {
+  width: 30%;
+  padding: 1.2em 0;
+}
+
+.sidebar-triple #content {
+  clear: both;
+}
+
+.sidebar-triple #sidebar-right-sec {
+  margin: 0 4%;
+}
+
+/* BOTTOM CONTENT region */
+
+#content-bottom {
+  min-height: 21px;
+}
+
+#content-bottom .region-content {
+  padding: 2em;
+}
+
+/* FOOTER region */
+
+#footer .bottom-border {
+  min-height: 25px;
+  padding: 30px 2em;
+}
+
+#footer #footer-message {
+  margin: 0 0 0 2em;
+  float: right;
+}
+
+
+#footer .primary-links {
+  float: left;
+}
+
+.clear {
+  display:block;
+  clear:both;
+}
+
+/* BLOCK ADMIN */
+
+.block-admin #content {
+  float: left;
+  width: 100%;
+}
+
+.block-admin #content {
+  margin-left: -167px;
+  margin-right: -336px;
+}
+
+.block-admin #squeeze {
+  margin-left: 167px;
+  margin-right: 336px;
+  padding: 2em;
+}
+
+.block-admin #sidebar-right-sec {
+  width: 133px;
+}
+
+.block-admin #sidebar-right {
+  width: 203px;
+}
+
+.block-admin #sidebar-left {
+  width: 167px;
+}

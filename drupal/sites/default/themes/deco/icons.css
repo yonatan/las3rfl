@@ -1,0 +1,100 @@
+/**
+*  ICON STYLES
+*
+*  Adds icons to the Deco theme. You can make your own icons.css file
+*  based on this one to use other icons.
+*
+*/
+
+/**
+ * Icons, change the image paths here
+ */
+
+/*.block-user .item-list ul li {
+  background-image: url(images/icons/lullacons_pack1/user-plain-blue.png);
+}
+
+.block-comment .item-list ul li {
+  background-image: url(images/icons/lullacons_pack1/mini-comment.png);
+}
+
+.block-blog .item-list ul li {
+  background-image: url(images/icons/lullacons_pack1/date-plain.png);
+}*/
+
+#content div.messages {
+  background-image: url(images/icons/lullacons_pack1/large-alert.png);
+}
+
+#content div.error {
+  background-image: url(images/icons/lullacons_pack1/large-stop.png);
+}
+
+#content div.status {
+  background-image: url(images/icons/lullacons_pack1/large-info.png);
+}
+
+.links li.blog_usernames_blog {
+  background-image: url(images/icons/lullacons_pack1/date-plain.png);
+}
+
+.links li.comment_add {
+  background-image: url(images/icons/lullacons_pack1/mini-comment.png);
+}
+
+.links li.comment_reply {
+  background-image: url(images/icons/lullacons_pack1/mini-comment.png);
+}
+
+.links li.comment_edit {
+  background-image: url(images/icons/lullacons_pack1/mini-edit.png);
+}
+
+.links li.comment_delete {
+  background-image: url(images/icons/lullacons_pack1/mini-trash.png);
+}
+
+.links li.comment_comments {
+  background-image: url(images/icons/lullacons_pack1/mini-comment.png);
+}
+
+.links li.forum {
+  background-image: url(images/icons/lullacons_pack1/mini-comment.png);
+}
+
+#forum tr td.forum div.name {
+  background-image: url(images/icons/drupal/forum-default.png);
+}
+
+#forum tr.new-topics td.forum div.name {
+  background-image: url(images/icons/drupal/forum-new.png);
+}
+
+/**
+ * Icon positioning
+ */
+
+/*.block-user .item-list ul li, .block-comment .item-list ul li
+, .block-blog .item-list ul li {
+  background-position: 0 2px;
+  padding-left: 20px;
+}*/
+
+#content div.messages {
+  background-position: 1em 50%;
+  background-repeat: no-repeat;
+  padding-left: 62px;
+}
+
+#content .links li {
+  background-position: 0 0;
+  padding-left: 18px;
+  background-repeat: no-repeat;
+}
+
+#forum tr td.forum div.name {
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  padding-left: 24px;
+  padding-top: 0;
+}

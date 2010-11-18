@@ -1,0 +1,27 @@
+name = Deco
+description = Modern, tableless, multi-column, fluid width theme with art deco looks.
+core = 6.x
+engine = phptemplate
+regions[sidebar_right] = Right sidebar
+regions[sidebar_left] = Left sidebar
+regions[sidebar_right_sec] = Secondary right sidebar
+regions[pre_content] = Before content
+regions[content] = Content
+regions[featured] = Featured
+regions[content_bottom] = Bottom content
+regions[header] = Header
+regions[footer_region] = Footer
+features[] = logo
+features[] = favicon
+features[] = name
+features[] = slogan
+features[] = mission
+features[] = comment_user_picture
+stylesheets[all][] = style.css
+stylesheets[print][] = print.css
+; Information added by drupal.org packaging script on 2008-08-07
+version = "6.x-1.1"
+core = "6.x"
+project = "deco"
+datestamp = "1218130212"
+

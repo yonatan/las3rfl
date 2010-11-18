@@ -1,0 +1,39 @@
+@CHARSET "UTF-8";
+
+/**
+*   Deco Internet Explorer CSS
+*   Overrides styles for Internet Explorer 5+
+*
+*/
+
+/**
+ * Collapsible fieldsets
+ * Fieldset legens look bad in ie6 and ie7
+ */
+fieldset, fieldset .top {
+  background: none;
+}
+
+/**
+ * Typography fixes
+ */
+body {
+ font-size: .75em;
+}
+
+#content h1 {
+  font-size: 2.25em;
+}
+
+h3, h4, h5 {
+  font-weight: 700;
+}
+
+#sidebar-right-sec h2, #sidebar-right-sec h3 {
+  font-weight: 700;
+  height: 1%;
+}
+
+.sidebar-triple #sidebar-right-sec h2 {
+  font-weight: normal;
+}
