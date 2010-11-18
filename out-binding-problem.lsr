@@ -1,0 +1,9 @@
+(def-command insert-parens
+  {:doc "asdasd"
+   :key "a" ;; (
+   :modifiers [:shift]}
+  (prn 'lparen)
+  (insert buffer "()"))
+
+
+;; after this prn output goes to help pane
