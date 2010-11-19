@@ -1,0 +1,12 @@
+table, tr, td 
+{ 
+  height: 100%; 
+  margin: 0; 
+  padding: 0; 
+  border: 0;
+  /* background: #DDD7CD; */
+  }
+td { vertical-align: top; }
+#editor { width: 100%; }
+#evaluatorSWF { width: 465px; height: 465px; }
+#resetBtn { display: block; text-align: center; }

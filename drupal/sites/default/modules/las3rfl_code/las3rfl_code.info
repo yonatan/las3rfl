@@ -1,0 +1,8 @@
+core = "6.x"
+dependencies[] = "features"
+dependencies[] = "imagefield"
+description = "Las3r code node"
+features[content][] = "code-field_capture"
+features[node][] = "code"
+name = "Las3rfl code"
+package = "Features"
