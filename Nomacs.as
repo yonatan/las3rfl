@@ -37,18 +37,12 @@ package {
 		private function outWrapper(s:String):void {out(s);};
 		private function errWrapper(s:String):void {err(s);};
 
-		public var connToken:String;
-		private var parameters:Object;
 		private static var _instance:Nomacs;
 
         public function Nomacs() {
 			_instance = this;
             stage.scaleMode = StageScaleMode.NO_SCALE;
             stage.align = StageAlign.TOP_LEFT;
-
-			// setup local connections
-			parameters = root.loaderInfo.parameters;
-			connToken = (parameters.connToken || "");
 
 			// setup las3r
 			out = err = trace;
