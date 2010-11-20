@@ -1211,15 +1211,15 @@ comment tokens."
 
 ;; local connection ;;;;;;;;;;;;;;;;;
 
-(def parameters (.. *nomacs* root loaderInfo parameters))
+(def *parameters* (.. *nomacs* root loaderInfo parameters))
 (def *send-connection* (new LocalConnection))
 (def *recv-connection* (new LocalConnection))
 (def captured-image nil)
 
 (defn init-connections []
-  (try (. *recv-connection* (connect (str "eval-out-" (. parameters connToken))))
+  (try (. *recv-connection* (connect (str "eval-out-" (. *parameters* connToken))))
        (catch Error e (trace "Can't connect, eval-out-" 
-			     (. parameters connToken)
+			     (. *parameters* connToken)
 			     " is already being used by another SWF")))
 
   (set! (. *recv-connection* client)
@@ -1250,7 +1250,7 @@ comment tokens."
 (defn send-to-eval-swf
   "Send code to evaluator swf."
   [code]
-  (. *send-connection* (send (str "eval-in-" (. *nomacs* connToken)) "eval" code)))
+  (. *send-connection* (send (str "eval-in-" (. *parameters* connToken)) "eval" code)))
 
 (def-command eval-in-remote-swf
   {:doc "Evaluates current expression in remote SWF."
@@ -1283,6 +1283,50 @@ comment tokens."
        (on-next *nomacs* "recv" ;; wait for input on recv connection
 		(def eval-cancel-thunk nil)
 		(send-to-eval-swf (. tf text)))))
+
+;; Drupal interface
+
+(defmacro with-remote-response
+  "RPC helper - conn is the connection, rpc is a standard function call form. Inside body response is bound to the response object and error? is true if an error occured."
+  [conn rpc & body]
+  `(let [handler# (fn [~'error? ~'response]
+                    ~@body)
+         responder# (new flash.net.Responder (partial handler# false) (partial handler# true))]
+     (. ~conn (call ~(str (first rpc)) responder# ~@(rest rpc)))))
+
+(def *nid* (int (. *parameters* nid)))
+(def *fork* (= (. *parameters* fork) "true"))
+(def *title* "Untitled")
+
+(when-not (nil? *nid*) ;; when there is a drupal backend to talk to
+  (def drupal (new flash.net.NetConnection))
+  (set! (. drupal objectEncoding) "amf3")
+  ;; TODO: find endpoint url at runtime
+  (. drupal (connect "http://10.0.0.1/www-play/las3rfl/drupal/services/amfphp"))
+  
+  (defn node-load [nid]
+    ;; disable UI
+    (mset! *stage* [mouseChildren false
+                    tabChildren false])
+    ;; do rpc
+    (with-remote-response drupal (node.get nid)
+      ;; enable UI
+      (mset! *stage* [mouseChildren true
+                      tabChildren true])
+      (if error?
+        (prn response)
+        (do
+	  (set! (.. code-pane textField text)
+		(. response body))
+	  (def *title* (str (when *fork* "Forked from: ") (. response title)))))))
+  
+  (when (pos? *nid*) ;; when there's a node that should be loaded (0 means new node)
+    (set! (.. code-pane textField text) "Loading code...")
+    (node-load *nid*)))
+
+
+
+;;;;
 
 (def-command restore-backup
   {:doc "Restores code saved to local storage (code is saved before every eval operation)."
