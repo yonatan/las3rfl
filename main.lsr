@@ -1217,10 +1217,11 @@ comment tokens."
 (def captured-image nil)
 
 (defn init-connections []
-  (try (. *recv-connection* (connect (str "eval-out" (. parameters connToken))))
+  (try (. *recv-connection* (connect (str "eval-out-" (. parameters connToken))))
        (catch Error e (trace "Can't connect, eval-out-" 
-			     (str "eval-out" (. parameters connToken))
+			     (. parameters connToken)
 			     " is already being used by another SWF")))
+
   (set! (. *recv-connection* client)
 	(mset! (new Object)
 	       [printToStdout (fn [s] 
