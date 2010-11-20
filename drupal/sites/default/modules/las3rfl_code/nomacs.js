@@ -9,12 +9,13 @@ function resetEvalSWF() {
   swfobject.embedSWF(modulePath + "EvalSWF.swf", "evaluatorSWF", "465", "465", "9.0.0", null, {connToken: token});
 }
 
-$(function() {
-    function init() {
-      $("#fullscreenBtn").click(enterFullscreen);
-      enterFullscreen();
-    }
+// Enables/disables a warning about unsaved changes when leaving the page.
+var _warnOnLeave = false;
+function warnOnLeave(val) {
+  _warnOnLeave = val;
+}
 
+$(function() {
     function enterFullscreen() {
       var saved = [];
       function setAndSave(selector, property, value) {
@@ -57,7 +58,14 @@ $(function() {
       $("#editor-container").css({height: $(window).height()});
     }
 
-    init();
+    $(window).bind('beforeunload',
+		   function() {
+		     if(_warnOnLeave) return 'You have unsaved changes.';
+		   });
+
+    $("#fullscreenBtn").click(enterFullscreen);
+    enterFullscreen();
+
     var params = {
       connToken: token,
       nid: nid,
