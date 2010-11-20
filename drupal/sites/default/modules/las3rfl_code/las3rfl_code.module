@@ -6,6 +6,12 @@ include_once('las3rfl_code.features.inc');
  * Implementation of hook_menu_alter()
  */
 function las3rfl_code_menu_alter(&$items) {
+  // The add code menu item should be shown to anonymous users too,
+  // las3rfl_code_add_node does more checks and redirects to the
+  // login page if neccesary.
+  $items['node/add/code']['access callback'] = 'user_access';
+  $items['node/add/code']['access arguments'] = array('access content');
+
   $items['node/add/code']['page callback'] = 'las3rfl_code_add_node';
   $items['node/%node/edit']['page callback'] = 'las3rfl_code_edit_node';
 }
@@ -32,13 +38,11 @@ function las3rfl_code_menu() {
 }
 
 /*
- * fork menu item access callback, checks if node type is code, and if the user
- * may create a new one.
- *
- * maybe wrong? -- http://drupal.org/node/307510#comment-2795186
+ * fork menu item access callback, checks if node type is code.
  */
 function las3rfl_code_is_forkable($node) {
-  if($node->type == 'code' && node_access('create', 'code')) {
+  return $node;
+  if($node->type == 'code') {
     return $node;
   } else {
     return FALSE;
@@ -61,12 +65,29 @@ function las3rfl_code_editor($node = null, $fork = FALSE) {
   return $contents;
 }
 
+/*
+ * Wrapper for las3rfl_code_editor, checks permissions and redirects to login
+ * page if neccesary. Used by add and fork functions.
+ */
+function las3rfl_code_check_perms_and_edit($node = null, $fork = FALSE) {
+  if(user_is_logged_in()) {
+    if(node_access('create', 'code')) {
+      return las3rfl_code_editor($node, $fork);
+    } else { // logged in, but no create code permission - should never happen
+      drupal_set_title('403 Access Denied');
+      return ('This is probably a bug, but you are not authorized to access this page.');
+    }
+  } else { // not logged in
+    drupal_goto('user', drupal_get_destination());
+  }
+}
+
 function las3rfl_code_add_node() {
-  return las3rfl_code_editor();
+  return las3rfl_code_check_perms_and_edit();
 }
 
 function las3rfl_code_fork_node($node) {
-  return las3rfl_code_editor($node, TRUE);
+  return las3rfl_code_check_perms_and_edit($node, TRUE);
 }
 
 function las3rfl_code_edit_node($node) {

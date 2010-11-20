@@ -235,3 +235,9 @@ body {
 .block-admin #sidebar-left {
   width: 167px;
 }
+
+/* Custom Las3rfl stuff */
+
+#openid_highlight { 
+  padding: inherit;
+}
