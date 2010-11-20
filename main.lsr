@@ -1212,7 +1212,7 @@ comment tokens."
 ;; local connection ;;;;;;;;;;;;;;;;;
 
 (def parameters (.. *nomacs* root loaderInfo parameters))
-(def *send-connection* (. *nomacs* sendConn))
+(def *send-connection* (new LocalConnection))
 (def *recv-connection* (new LocalConnection))
 (def captured-image nil)
 

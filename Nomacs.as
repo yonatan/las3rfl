@@ -37,7 +37,6 @@ package {
 		private function outWrapper(s:String):void {out(s);};
 		private function errWrapper(s:String):void {err(s);};
 
-        public var sendConn:LocalConnection;
 		public var connToken:String;
 		private var parameters:Object;
 		private static var _instance:Nomacs;
@@ -50,7 +49,6 @@ package {
 			// setup local connections
 			parameters = root.loaderInfo.parameters;
 			connToken = (parameters.connToken || "");
-            sendConn = new LocalConnection();
 
 			// setup las3r
 			out = err = trace;
