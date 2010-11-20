@@ -1,12 +1,13 @@
-table, tr, td 
+#editor-container, #editor-container tr, #editor-container td 
 { 
   height: 100%; 
   margin: 0; 
-  padding: 0; 
+  padding: 5px; 
   border: 0;
   /* background: #DDD7CD; */
   }
 td { vertical-align: top; }
+#editor-anchor { display: block; height: 0px; }
 #editor { width: 100%; }
-#evaluatorSWF { width: 465px; height: 465px; }
+#evaluatorSWF, #evaluator-container { width: 465px; height: 465px; }
 #resetBtn { display: block; text-align: center; }
