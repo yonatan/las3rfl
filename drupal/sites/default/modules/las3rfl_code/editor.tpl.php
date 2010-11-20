@@ -1,9 +1,17 @@
 <?php
 $module_path = drupal_get_path('module', 'las3rfl_code');
-$js =  'var modulePath = "'. base_path() . $module_path .'/";';
-$js .= 'var nid = '. ($node ? $node->nid : 0) .';';
-$js .= 'var fork = '. ($fork ? 'true' : 'false')  .';';
-drupal_add_js($js, 'inline');
+// parameters to be passed to editor swf.
+global $user;
+$params = array('nid' => ($node ? $node->nid : 0),
+		'fork' => $fork,
+		'uid' => $user->uid,
+		);
+// Settings to be passed to js
+$settings = array('modulePath' => $module_path,
+		  'editorParams' => $params,
+		  );
+
+drupal_add_js($settings, 'setting');
 drupal_add_js($module_path .'/swfobject/swfobject.js');
 drupal_add_js($module_path .'/nomacs.js');
 drupal_add_css($module_path .'/nomacs.css');
@@ -31,7 +39,7 @@ drupal_add_css($module_path .'/nomacs.css');
 	  </ul>
 	</div>
       </div>
-  <p>In the event of a crash; reload the page and press Alt-R in the editor to recover the last version. Ctrl-Enter to run, Ctrl-H for help.</p>
+      <p>In the event of a crash; reload the page and press Alt-R in the editor to recover the last version. Ctrl-Enter to run, Ctrl-H for help.</p>
     </td>
   </tr>
 </table>

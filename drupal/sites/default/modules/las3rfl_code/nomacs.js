@@ -1,7 +1,7 @@
 // js code for nomacs, requires jQuery and SWFObject
+var modulePath = "";
 
 // unique id for LocalConnection objects: timestamp + random number
-
 var token = (new Date).getTime() + "-" + Math.floor(Math.random() * 1e+16);
 
 // Reloads evaluator swf
@@ -66,11 +66,12 @@ $(function() {
     $("#fullscreenBtn").click(enterFullscreen);
     enterFullscreen();
 
-    var params = {
-      connToken: token,
-      nid: nid,
-      fork: fork
-    };
+    if(Drupal) {
+      modulePath = Drupal.settings.basePath + Drupal.settings.modulePath + '/';
+    }
+
+    var params = Drupal ? Drupal.settings.editorParams : {};
+    params.connToken = token;
     // Embed the editor
     swfobject.embedSWF(modulePath + "Nomacs.swf", "editorSWF", "100%", "100%", "9.0.0", null, params);
     // Embed the evaluator
