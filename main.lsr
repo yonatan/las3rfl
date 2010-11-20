@@ -1298,6 +1298,7 @@ comment tokens."
 ;;;;
 
 (defn init []
+  (init-connections)
   (let [tf ((buffer :parser) :textfield)
         make-printer (fn [color add-newline?]
                        (fn [s]
