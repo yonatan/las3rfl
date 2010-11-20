@@ -3,6 +3,49 @@
 include_once('las3rfl_code.features.inc');
 
 /*
+ * Implementation of hook_menu_alter()
+ */
+function las3rfl_code_menu_alter(&$items) {
+  $items['node/add/code']['page callback'] = 'las3rfl_code_add_node';
+  $items['node/%node/edit']['page callback'] = 'las3rfl_code_edit_node';
+}
+
+/*
+ * Implementation of hook_menu()
+ */
+function las3rfl_code_menu() {
+  $items = array();
+
+  // las3r editor callback.
+  $items['node/%node/fork'] = array(
+    'title' => t('Fork'),
+    'title callback' => 'check_plain',
+    'page callback' => 'las3rfl_code_fork_node',
+    'page arguments' => array(1),
+    'access callback' => 'las3rfl_code_is_forkable',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 90,
+  );
+
+  return $items;
+}
+
+/*
+ * fork menu item access callback, checks if node type is code, and if the user
+ * may create a new one.
+ *
+ * maybe wrong? -- http://drupal.org/node/307510#comment-2795186
+ */
+function las3rfl_code_is_forkable($node) {
+  if($node->type == 'code' && node_access('create', 'code')) {
+    return $node;
+  } else {
+    return FALSE;
+  }
+}
+
+/*
  * Returns HTML with a code editor. $fork should be true if we're forking an 
  * existing code. $node should be null on add, the node to edit if $fork is
  * false, or the node to be forked if $fork is true.
@@ -34,68 +77,3 @@ function las3rfl_code_edit_node($node) {
     return drupal_get_form($node->type . '_node_form', $node);
   }
 }
-
-/*
- * Implementation of hook_menu_alter()
- */
-function las3rfl_code_menu_alter(&$items) {
-  $items['node/add/code']['page callback'] = 'las3rfl_code_add_node';
-  $items['node/%node/edit']['page callback'] = 'las3rfl_code_edit_node';
-}
-
-/*
- * fork menu item access callback, checks if node type is code, and if the user
- * may create a new one.
- *
- * maybe wrong? -- http://drupal.org/node/307510#comment-2795186
- */
-function las3rfl_code_is_forkable($node) {
-  if($node->type == 'code' && node_access('create', 'code')) {
-    return $node;
-  } else {
-    return FALSE;
-  }
-}
-
-/*
- * Implementation of hook_menu()
- */
-function las3rfl_code_menu() {
-  $items = array();
-
-  // las3r editor callback.
-  $items['node/%node/fork'] = array(
-    'title' => t('Fork'),
-    'title callback' => 'check_plain',
-    'page callback' => 'las3rfl_code_fork_node',
-    'page arguments' => array(1),
-    'access callback' => 'las3rfl_code_is_forkable',
-    'access arguments' => array(1),
-    'type' => MENU_LOCAL_TASK,
-    'weight' => 90,
-  );
-
-  return $items;
-}
-
-// /*
-//  * Implementation of hook_theme()
-//  */
-// function las3rfl_code_theme() {
-//   return array(
-//     'las3rfl_code_editor' => array(
-//       'arguments' => array('nid' => NULL, 'forked' => NULL),
-//       'template' => 'editor',
-//     ),
-//   );
-// }
-
-// // function template_preprocess_editor(&$variables) {
-// //   $variables['nid'] = check_plain($variables['title']);
-// //   $variables['forked_from'] = check_plain($variables['forked_from']);
-// // }
-
-// function theme_las3rfl_code_editor($nid, $forked) {
-//   print_r("theme_las3rfl_code_editor");
-//   return("themed las3rfl_code_editor goes here");
-// }

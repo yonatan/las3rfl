@@ -58,7 +58,14 @@ $(function() {
     }
 
     init();
-    swfobject.embedSWF(modulePath + "Nomacs.swf", "editorSWF", "100%", "100%", "9.0.0", null, {connToken: token});
+    var params = {
+      connToken: token,
+      nid: nid,
+      fork: fork
+    };
+    // Embed the editor
+    swfobject.embedSWF(modulePath + "Nomacs.swf", "editorSWF", "100%", "100%", "9.0.0", null, params);
+    // Embed the evaluator
     resetEvalSWF();
 
     $("#resetBtn").click(resetEvalSWF);
