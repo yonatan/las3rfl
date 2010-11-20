@@ -37,7 +37,6 @@ package {
 		private function outWrapper(s:String):void {out(s);};
 		private function errWrapper(s:String):void {err(s);};
 
-        public var recvConn:LocalConnection;
         public var sendConn:LocalConnection;
 		public var connToken:String;
 		private var parameters:Object;
@@ -51,20 +50,7 @@ package {
 			// setup local connections
 			parameters = root.loaderInfo.parameters;
 			connToken = (parameters.connToken || "");
-            recvConn = new LocalConnection();
             sendConn = new LocalConnection();
-            recvConn.client = {
-				printToStdout: function(s:String):void {dispatchEvent(new Event("recv")); out(s);},
-				printToStderr: function(s:String):void {dispatchEvent(new Event("recv")); err(s);},
-				updateCapture: function(jpeg:ByteArray):void {out("Received a " + jpeg.length + " byte jpeg.\n");}
-
-			}
-
-            try {
-                recvConn.connect("eval-out-" + connToken);
-            } catch (error:ArgumentError) {
-                trace("Can't connect... eval-out-" + connToken + " is already being used by another SWF");
-            }
 
 			// setup las3r
 			out = err = trace;

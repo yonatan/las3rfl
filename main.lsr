@@ -558,6 +558,7 @@ textfield is changed and before the parser's :text is updated."
 (import '(flash.display Sprite)
         '(flash.text TextFormat)
         '(flash.events Event)
+        '(flash.net LocalConnection)
         '(jp.psyark.psycode.core TextEditUI)
         '(com.bit101.components Text TextArea Window ProgressBar PushButton Label)
         '(net.hires.debug Stats))
@@ -1213,21 +1214,40 @@ comment tokens."
 
 ;; local connection ;;;;;;;;;;;;;;;;;
 
+(def parameters (.. *nomacs* root loaderInfo parameters))
 (def *send-connection* (. *nomacs* sendConn))
-(def *recv-connection* (. *nomacs* recvConn))
+(def *recv-connection* (new LocalConnection))
+(def captured-image nil)
 
-(. *send-connection* (addEventListener "status" 
-				       (fn [e]
-					 (when-not (= (. e level) "status")
-					   (prn "ON SEND CONNECTION: " e)))))
+(defn init-connections []
+  (try (. *recv-connection* (connect (str "eval-out" (. parameters connToken))))
+       (catch Error e (trace "Can't connect, eval-out-" 
+			     (str "eval-out" (. parameters connToken))
+			     " is already being used by another SWF")))
+  (set! (. *recv-connection* client)
+	(mset! (new Object)
+	       [printToStdout (fn [s] 
+				(. *nomacs* (out s))
+				(. *nomacs* (dispatchEvent (new Event "recv"))))
+		printToStderr (fn [s] 
+				(. *nomacs* (err s))
+				(. *nomacs* (dispatchEvent (new Event "recv"))))
+		updateCapture (fn [jpeg] ;; TODO
+				(def captured-image jpeg)
+				(print "Received captured image from eval swf."))]))
 
-(. *recv-connection* (addEventListener "status" 
-				       (fn [e]
-					 (when-not (= (. e level) "status")
-					   (prn "ON RECV CONNECTION: " e)))))
+  (. *send-connection* (addEventListener "status" 
+					 (fn [e]
+					   (when-not (= (. e level) "status")
+					     (prn "ON SEND CONNECTION: " e)))))
 
-(. *send-connection* (addEventListener "asyncError" (partial prn "ASYNCERR ON SEND CONNECTION: ")))
-(. *recv-connection* (addEventListener "asyncError" (partial prn "ASYNCERR ON RECV CONNECTION: ")))
+  (. *recv-connection* (addEventListener "status" 
+					 (fn [e]
+					   (when-not (= (. e level) "status")
+					     (prn "ON RECV CONNECTION: " e)))))
+
+  (. *send-connection* (addEventListener "asyncError" (partial prn "ASYNCERR ON SEND CONNECTION: ")))
+  (. *recv-connection* (addEventListener "asyncError" (partial prn "ASYNCERR ON RECV CONNECTION: "))))
 
 (defn send-to-eval-swf
   "Send code to evaluator swf."
