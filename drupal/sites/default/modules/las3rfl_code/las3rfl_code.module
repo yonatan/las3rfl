@@ -38,10 +38,9 @@ function las3rfl_code_menu() {
 }
 
 /*
- * fork menu item access callback, checks if node type is code.
+ * Fork menu item access callback, checks if node type is code.
  */
 function las3rfl_code_is_forkable($node) {
-  return $node;
   if($node->type == 'code') {
     return $node;
   } else {
