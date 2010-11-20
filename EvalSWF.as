@@ -1,5 +1,6 @@
 package {
     import flash.display.*;
+    import flash.events.*;
     import flash.net.LocalConnection;
     import flash.text.TextField;
 	import flash.utils.ByteArray;
@@ -37,6 +38,14 @@ package {
 			// setup local connections
             recvConn = new LocalConnection();
             sendConn = new LocalConnection();
+			recvConn.addEventListener("status", 
+				function(e:StatusEvent):void {
+					if(e.type != "status") output.appendText('\nrecv status: ' + e);
+				});
+			sendConn.addEventListener("status", 
+				function(e:StatusEvent):void {
+					if(e.type != "status") output.appendText('\nsend status: ' + e);
+				});
             recvConn.client = this;
             try {
                 recvConn.connect("eval-in-" + connToken);
