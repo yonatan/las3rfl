@@ -1209,9 +1209,6 @@ comment tokens."
   (prn "hello")
   buffer)
 
-                                        ;(set-key-handler! "s" [:ctrl] prn-current-sexp)
-(set-key-handler! "e" [:ctrl] move-end-of-line) ;; TODO: replace/remove
-
 ;; local connection ;;;;;;;;;;;;;;;;;
 
 (def parameters (.. *nomacs* root loaderInfo parameters))
