@@ -3,6 +3,13 @@
 (las3r.core/in-ns 'psymacs.utils)
 (las3r.core/refer 'las3r.core :exclude '(run-tests))
 
+;; debug
+
+(defn prn-props [obj]
+  (prn 'obj obj)
+  (doseq p (get-property-names obj)
+    (prn p (get-property obj p))))
+
 (def #^{:private true} log-div (. Math (log 2)))
 (defmacro #^{:private true} log2 [x] `(/ (. Math (log ~x)) log-div))
 
@@ -560,7 +567,7 @@ textfield is changed and before the parser's :text is updated."
         '(flash.events Event)
         '(flash.net LocalConnection)
         '(jp.psyark.psycode.core TextEditUI)
-        '(com.bit101.components Text TextArea Window ProgressBar PushButton Label)
+        '(com.bit101.components Text InputText TextArea Window ProgressBar PushButton Label)
         '(net.hires.debug Stats))
 
 (def *nomacs* (. (get-def "Nomacs") instance))
@@ -825,27 +832,31 @@ comment tokens."
       (def #^{:private true} *prev-scrollv* (. tf scrollV))
       (def #^{:private true} *prev-position* (. tf caretIndex)))))
 
+
 ;; key handler
+
+(def modal-window nil) ;; declare here
 
 (let [undo-keystroke {:code (. "Z" (charCodeAt 0)) :modifiers #{:ctrl}}]
   (defn key-down-handler [event]
-    (let [keystroke (event->keystroke event)]
-      (if (= keystroke undo-keystroke)
-        (do
-          (def buffer (undo! buffer))
-          (def #^{:private true} prevent-next-input true)
-          (. event (preventDefault))
-          (dispatch-ignorable-change-event buffer))
-        (if-let cmd (*kb-map* keystroke)
-          (do
-            (let [orig-text (buffer-string buffer)]
-              (def buffer (cmd buffer))
-              (def #^{:private true} prevent-next-input true)
-              (. event (preventDefault))
-              (. event (stopImmediatePropagation))
-              (when-not (= orig-text (buffer-string buffer))
-                (dispatch-change-event buffer))))
-          (assoc! buffer :undo-depth 0))))))
+    (when-not modal-window ;; ignore if modal dialog is active
+      (let [keystroke (event->keystroke event)]
+	(if (= keystroke undo-keystroke)
+	  (do
+	    (def buffer (undo! buffer))
+	    (def #^{:private true} prevent-next-input true)
+	    (. event (preventDefault))
+	    (dispatch-ignorable-change-event buffer))
+	  (if-let cmd (*kb-map* keystroke)
+	    (do
+	      (let [orig-text (buffer-string buffer)]
+		(def buffer (cmd buffer))
+		(def #^{:private true} prevent-next-input true)
+		(. event (preventDefault))
+		(. event (stopImmediatePropagation))
+		(when-not (= orig-text (buffer-string buffer))
+		  (dispatch-change-event buffer))))
+	    (assoc! buffer :undo-depth 0)))))))
 
 (defn text-input-handler [event]
   (when prevent-next-input
@@ -855,14 +866,13 @@ comment tokens."
 ;; editor displayobject
 (def editor (new Sprite))
 
-(defn set-editor-tab-and-mouse-children! 
+(defn set-editor-tab-and-mouse-children!
   "Enables/disables the editor's UI."
   [x]
   (mset! editor [mouseChildren x
                  tabChildren x]))
 
 ;; modal dialogs stuff
-(def modal-window nil)
 (def modal-filters 
      (to-array [(new flash.filters.ColorMatrixFilter
                      (to-array [1, 0, 0, 0, -64 
@@ -884,6 +894,7 @@ comment tokens."
   [w]
   (when-not modal-window
     (def modal-window w)
+    (set! (. *stage* focus) nil)
     (. w (addEventListener "close" modal-close-handler))
     (set! (. w hasCloseButton) true)
     (. *stage* (addChild w))
@@ -1196,25 +1207,18 @@ comment tokens."
     (when (= *platform* "LNX")
       ;; on linux, when we give focus to the search textfield it'll get the
       ;; last keystroke, so we need to ignore it.
+      ;; TODO: use on-next instead of this...
       (. stf (addEventListener "textInput" 
 			       (fn tmp [e]
 				 (. e (preventDefault))
 				 (. stf (removeEventListener "textInput" tmp))))))))
   
-(defn prn-current-sexp [buffer]
-  (prn (apply str (map :string (get-sexp-at (buffer :parser) (clipped-caret-idx ((buffer :parser) :textfield))))))
-  buffer)
-
-(defn prn-hello [buffer]
-  (prn "hello")
-  buffer)
-
 ;; local connection ;;;;;;;;;;;;;;;;;
 
 (def *parameters* (.. *nomacs* root loaderInfo parameters))
 (def *send-connection* (new LocalConnection))
 (def *recv-connection* (new LocalConnection))
-(def captured-image nil)
+(def *captured-image* nil)
 
 (defn init-connections []
   (try (. *recv-connection* (connect (str "eval-out-" (. *parameters* connToken))))
@@ -1231,7 +1235,7 @@ comment tokens."
 				(. *nomacs* (err s))
 				(. *nomacs* (dispatchEvent (new Event "recv"))))
 		updateCapture (fn [jpeg] ;; TODO
-				(def captured-image jpeg)
+				(def *captured-image* jpeg)
 				(print "Received captured image from eval swf."))]))
 
   (. *send-connection* (addEventListener "status" 
@@ -1284,48 +1288,6 @@ comment tokens."
 		(def eval-cancel-thunk nil)
 		(send-to-eval-swf (. tf text)))))
 
-;; Drupal interface
-
-(defmacro with-remote-response
-  "RPC helper - conn is the connection, rpc is a standard function call form. Inside body response is bound to the response object and error? is true if an error occured."
-  [conn rpc & body]
-  `(let [handler# (fn [~'error? ~'response]
-                    ~@body)
-         responder# (new flash.net.Responder (partial handler# false) (partial handler# true))]
-     (. ~conn (call ~(str (first rpc)) responder# ~@(rest rpc)))))
-
-(def *nid* (int (. *parameters* nid)))
-(def *fork* (= (. *parameters* fork) "true"))
-(def *title* "Untitled")
-
-(when-not (nil? *nid*) ;; when there is a drupal backend to talk to
-  (def drupal (new flash.net.NetConnection))
-  (set! (. drupal objectEncoding) "amf3")
-  ;; TODO: find endpoint url at runtime
-  (. drupal (connect "http://10.0.0.1/www-play/las3rfl/drupal/services/amfphp"))
-  
-  (defn node-load [nid]
-    ;; disable UI
-    (mset! *stage* [mouseChildren false
-                    tabChildren false])
-    ;; do rpc
-    (with-remote-response drupal (node.get nid)
-      ;; enable UI
-      (mset! *stage* [mouseChildren true
-                      tabChildren true])
-      (if error?
-        (prn response)
-        (do
-	  (set! (.. code-pane textField text)
-		(. response body))
-	  (def *title* (str (when *fork* "Forked from: ") (. response title)))))))
-  
-  (when (pos? *nid*) ;; when there's a node that should be loaded (0 means new node)
-    (set! (.. code-pane textField text) "Loading code...")
-    (node-load *nid*)))
-
-
-
 ;;;;
 
 (def-command restore-backup
@@ -1340,6 +1302,107 @@ comment tokens."
    :modifiers [:ctrl :alt]}
   (set! (. stats visible) (not (. stats visible))))
 
+;; Drupal interface
+
+(defmacro with-remote-response
+  "RPC helper - conn is the connection, rpc is a standard function call form. Inside body response is bound to the response object and error? is true if an error occured."
+  [conn rpc & body]
+  `(let [handler# (fn [~'error? ~'response]
+                    ~@body)
+         responder# (new flash.net.Responder (partial handler# false) (partial handler# true))]
+     (. ~conn (call ~(str (first rpc)) responder# ~@(rest rpc)))))
+
+(def *nid* (int (. *parameters* nid)))
+(def *uid* (int (. *parameters* uid)))
+(def *fork* (= (. *parameters* fork) "true"))
+(def *title* "Untitled")
+(def *drupal* nil)
+
+;; init backend connection
+(when-not (nil? *nid*) ;; when there is a drupal backend to talk to
+  (def *drupal* (new flash.net.NetConnection))
+  (set! (. *drupal* objectEncoding) "amf3")
+  ;; TODO: find endpoint url at runtime
+  (. *drupal* (connect "http://10.0.0.1/www-play/las3rfl/drupal/services/amfphp")))
+
+(when *drupal* ;; define these only when a backend exists
+  (def-command drupal-node-load 
+    {:doc "Loads code from server."}
+    ;; disable UI
+    (mset! *stage* [mouseChildren false
+		    tabChildren false])
+    ;; do rpc
+    (with-remote-response *drupal* (node.get *nid*)
+      ;; enable UI
+      (mset! *stage* [mouseChildren true
+                      tabChildren true])
+      (if error?
+        (do (prn 'error) (prn-props response)) ;; debug
+        (do
+	  (def *title* (str (when *fork* "forked from: ") (. response title)))
+	  (set! (. tf text)
+		(str (when *fork* (str ";; " *title* "\n"))
+		     (. response body)))))))
+
+  (def-command drupal-node-save
+    {:doc "Saves code to server."
+     :key "s"
+     :modifiers [:alt]}
+    (let [sw (. *stage* stageWidth)
+          sh (. *stage* stageHeight)
+          ww 350
+          wh 200
+          window (mset! (new Window *stage* (* sw 1/12) 50
+                             "Save")
+                        [width ww
+                         height wh])
+          wc (. window content)
+          title (set! (. (new InputText wc 40 10 *title*) width) 300)
+          ldr (mset! (new flash.display.Loader) [x 10 y 30 scaleX 1/4 scaleY 1/4])
+          
+          save
+          (fn [& _]
+            (let [timestamp (. (new (get-def "Date")) (getTime))
+                  node (mset! (new Object)
+                              [title (. title text)
+                               body (sanitize (. tf text))
+                               status 1 ;; Set to 1 for Published. O for unpublished.
+                               ])]
+              (if (or *fork* (zero? *nid*))
+                ;; create new node
+                (mset! node [created timestamp
+                             type "code"])
+                ;; update existing node
+                (mset! node [changed timestamp
+                             nid *nid*]))
+   
+              (with-remote-response *drupal* (node.save node)
+                (if error?
+                  (do (prn 'error)
+                      (prn-props response)) ;; debug
+                  (when (or *fork* (zero? *nid*)) ;; don't create a new node next time
+                    (def *nid* (int response))
+                    (def *fork* false))))))
+   
+          take-capture
+          (fn [& _]
+            (set! (.. *recv-connection* client updateCapture)
+                  (fn [jpeg]
+                    (def *captured-image* jpeg)
+                    (. ldr (loadBytes jpeg))))
+            (. *send-connection* (send (str "eval-in-" (. *parameters* connToken)) "capture")))
+          
+          save-btn (new PushButton wc 240 150 "Save" save)
+          capture-btn (new PushButton wc 10 150 "Capture image" take-capture)]
+      (new Label wc 10 10 "Title:")
+      (. wc (addChild ldr))
+      (if *captured-image*
+        (. ldr (loadBytes *captured-image*))
+        (take-capture))
+      (show-modal window)))
+
+)
+  
 ;;;;
 
 (defn init []
@@ -1374,10 +1437,11 @@ comment tokens."
     (measure-font! tf)
     (update-layout!)
 
-    ;; tmp testing helpers
-    (def ctf tf)
-    (defn ui [] (prn "stack: " (buffer :undo-stack) "\ndepth: " (buffer :undo-depth)))
-    (defn undo [] (def buffer (undo! buffer)))
+    ;; load node via rpc
+    (when (and *drupal*
+	       (pos? *nid*)) ;; when there's a node that should be loaded (0 means new node)
+      (set! (.. code-pane textField text) "Loading code...")
+      (drupal-node-load buffer))
 
     ))
 
