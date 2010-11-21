@@ -173,11 +173,12 @@ function node_service_save($edit) {
  *   Boolean. TRUE if the user has the permission to save a node.
  */
 function node_service_save_access($node) {
-  $node = (array) $node;
-  if (isset($node['nid'])) {
-    return node_access('update', $node);
+  $node = (object)$node;
+  if ($node->nid) {
+    $node = node_load($node->nid);
+    return $node && node_access('update', $node);
   }
-  return node_access('create', $node['type']);
+  return node_access('create', $node->type);
 }
 
 /**
