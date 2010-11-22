@@ -250,3 +250,7 @@ body {
   margin: 1em 0;
   padding: 0.75em 1em 1.25em;
 }
+
+.node-page .content .captured-image { 
+  float: right;
+}
