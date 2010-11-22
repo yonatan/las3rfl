@@ -146,6 +146,7 @@ function node_service_save($edit) {
     if (!$edit['uid']) {
       global $user;
       $edit['uid'] = $user->uid;
+      $edit['name'] = $user->name;
     }
 
     // Setup form_state
