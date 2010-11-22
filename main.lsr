@@ -1320,6 +1320,21 @@ comment tokens."
 
 ;; init backend connection
 (when-not (nil? *nid*) ;; when there is a drupal backend to talk to
+  (defn serialize
+    "Las3r structure serializer for rpc, recursively converts maps to objects, vectors to arrays and anything else to a string."
+    [x]
+    (cond (map? x)
+	  (let [obj (new Object)]
+	    (doseq e x
+	      (set-property! obj (serialize (key e)) (serialize (val e))))
+	    obj)
+	  
+	  (vector? x)
+	  (to-array (map serialize x))
+	  
+	  :else
+	  (str x)))
+
   (def *drupal* (new flash.net.NetConnection))
   (set! (. *drupal* objectEncoding) "amf3")
   ;; TODO: find endpoint url at runtime
@@ -1358,48 +1373,56 @@ comment tokens."
                          height wh])
           wc (. window content)
           title (set! (. (new InputText wc 40 10 *title*) width) 300)
-          ldr (mset! (new flash.display.Loader) [x 10 y 30 scaleX 1/4 scaleY 1/4])
+          status-label (new Label wc 130 30)
+          ldr (mset! (new flash.display.Loader) [x 10 y 35 scaleX 0.22 scaleY 0.22])
+          status (fn [s] (set! (. status-label text) s))
           
           save
           (fn [& _]
+            (status "Saving...")
+            (def *title* (. title text))
             (let [timestamp (. (new (get-def "Date")) (getTime))
                   node (mset! (new Object)
-                              [title (. title text)
+                              [title *title*
                                body (sanitize (. tf text))
-                               status 1 ;; Set to 1 for Published. O for unpublished.
-                               ])]
+                               status 1])] ;; Set to 1 for Published. O for unpublished.
               (if (or *fork* (zero? *nid*))
                 ;; create new node
                 (mset! node [created timestamp
-                             type "code"])
+                             type "code"
+                             field_forked_from (when *fork* (serialize [{"nid" *nid*}]))])
                 ;; update existing node
                 (mset! node [changed timestamp
                              nid *nid*]))
    
               (with-remote-response *drupal* (node.save node)
                 (if error?
-                  (do (prn 'error)
+                  (do (status "Error while saving!")
+                      (prn 'error)
                       (prn-props response)) ;; debug
-                  (when (or *fork* (zero? *nid*)) ;; don't create a new node next time
-                    (def *nid* (int response))
-                    (def *fork* false))))))
+                  (do (status "Saved")
+                      (when (or *fork* (zero? *nid*)) ;; don't create a new node next time
+                        (def *nid* (int response))
+                        (def *fork* false)))))))
    
           take-capture
           (fn [& _]
+            (status "Capturing...")
             (set! (.. *recv-connection* client updateCapture)
                   (fn [jpeg]
+                    (status "")
                     (def *captured-image* jpeg)
                     (. ldr (loadBytes jpeg))))
             (. *send-connection* (send (str "eval-in-" (. *parameters* connToken)) "capture")))
           
           save-btn (new PushButton wc 240 150 "Save" save)
-          capture-btn (new PushButton wc 10 150 "Capture image" take-capture)]
+          capture-btn (new PushButton wc 10 150 "Update capture" take-capture)]
       (new Label wc 10 10 "Title:")
       (. wc (addChild ldr))
       (if *captured-image*
         (. ldr (loadBytes *captured-image*))
         (take-capture))
-      (show-modal window)))
+      (show-modal window)))  
 
 )
   
