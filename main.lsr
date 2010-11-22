@@ -1103,7 +1103,7 @@ comment tokens."
   (if-let sexp (get-sexp-at parser (clipped-caret-idx tf))
     (let [s (apply str (map :string sexp))]
       (eval-and-print (buffer :runtime) s))
-    (println "Can't get current sexp, waiting for parser.")))
+    (println "Can't get current sexp.")))
 
 (def-command mark-sexp
   {:doc "Selects the current sexp."
@@ -1266,7 +1266,7 @@ comment tokens."
   (if-let sexp (get-sexp-at parser (clipped-caret-idx tf))
     (let [s (apply str (map :string sexp))]
       (send-to-eval-swf s))
-    (println "Can't get current sexp, waiting for parser.")))
+    (println "Can't get current sexp.")))
 
 (def eval-cancel-thunk nil)
 (def-command reset-remote-swf
@@ -1381,8 +1381,8 @@ comment tokens."
           ldr (mset! (new flash.display.Loader) [x 10 y 35 scaleX 0.22 scaleY 0.22])
           status (fn [s] (set! (. status-label text) s))
           
-          save
-          (fn [& _]
+          save-node
+          (fn [image-file]
             (status "Saving...")
             (def *title* (. title text))
             (let [timestamp (. (new (get-def "Date")) (getTime))
@@ -1390,6 +1390,8 @@ comment tokens."
                               [title *title*
                                body (sanitize (. tf text))
                                status 1])] ;; Set to 1 for Published. O for unpublished.
+              (when image-file
+                (set! (. node field_capture) (serialize [image-file])))
               (if (or *fork* (zero? *nid*))
                 ;; create new node
                 (mset! node [created timestamp
@@ -1402,13 +1404,31 @@ comment tokens."
               (with-remote-response *drupal* (node.save node)
                 (if error?
                   (do (status "Error while saving!")
-                      (prn 'error)
+                      (println "Error while saving!")
                       (prn-props response)) ;; debug
                   (do (status "Saved")
                       (when (or *fork* (zero? *nid*)) ;; don't create a new node next time
                         (def *nid* (int response))
                         (def *fork* false)))))))
    
+          save
+          (fn [& _]
+            (if *captured-image*
+              (let [timestamp (/ (. (new (get-def "Date")) (getTime)) 1000) ;; secs, not millisecs
+                    file {"file" (. Base64Encoder (encodeByteArray *captured-image*))
+                          "filepath"  "sites/default/files/capture/cap.jpg"
+                          "filesize" (. *captured-image* length)
+                          "timestamp" timestamp
+                          "uid" *uid*
+                          "filemime" "image/jpeg"}]
+                (status "Saving captured image...")
+                (with-remote-response *drupal* (file.save (serialize file))
+                  (prn-props response) 
+                  (if error?
+                    (save-node nil)
+                    (save-node (assoc file "fid" (int response))))))
+              (save-node nil)))
+                  
           take-capture
           (fn [& _]
             (status "Capturing...")
