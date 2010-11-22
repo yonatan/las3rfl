@@ -26,9 +26,9 @@
   background-image: url(images/icons/lullacons_pack1/large-alert.png);
 }
 
-#content div.error {
-  background-image: url(images/icons/lullacons_pack1/large-stop.png);
-}
+/* #content div.error { */
+/*   background-image: url(images/icons/lullacons_pack1/large-stop.png); */
+/* } */
 
 #content div.status {
   background-image: url(images/icons/lullacons_pack1/large-info.png);
