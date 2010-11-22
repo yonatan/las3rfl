@@ -1352,12 +1352,14 @@ comment tokens."
       (mset! *stage* [mouseChildren true
                       tabChildren true])
       (if error?
-        (do (prn 'error) (prn-props response)) ;; debug
+        (do (println "Error loading node: ") (prn-props response)) ;; debug
         (do
 	  (def *title* (str (when *fork* "forked from: ") (. response title)))
 	  (set! (. tf text)
 		(str (when *fork* (str ";; " *title* "\n"))
-		     (. response body)))))))
+		     (. response body)))
+	  ;; this happens after the function returns, so call change-handler to restart the parser
+	  (change-handler)))))
 
   (def-command drupal-node-save
     {:doc "Saves code to server."
