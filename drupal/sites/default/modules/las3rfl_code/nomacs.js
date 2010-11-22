@@ -16,6 +16,14 @@ function warnOnLeave(val) {
 }
 
 $(function() {
+    function addMessageCloseBtn() {
+      $(".messages").prepend('<a class="closeBtn" title="Close" href="#">X</a>');
+      $(".closeBtn").click(function() {
+			     $(this).parent().css("display", "none");
+			     $(window).resize();
+			   });
+    }
+
     function enterFullscreen() {
       var saved = [];
       function setAndSave(selector, property, value) {
@@ -55,7 +63,7 @@ $(function() {
 
     // Resize handler - sets editor height to window height.
     function resize() {
-      $("#editor-container").css({height: $(window).height()});
+      $("#editor-container").css({ height: $(window).height() - $("#editor-container").position().top });
     }
 
     $(window).bind('beforeunload',
@@ -68,6 +76,7 @@ $(function() {
 
     if(Drupal) {
       modulePath = Drupal.settings.basePath + Drupal.settings.modulePath + '/';
+      addMessageCloseBtn();
     }
 
     var params = Drupal ? Drupal.settings.editorParams : {};
