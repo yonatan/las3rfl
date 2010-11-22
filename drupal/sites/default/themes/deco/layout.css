@@ -241,3 +241,12 @@ body {
 #openid_highlight { 
   padding: inherit;
 }
+
+.las3r-code { 
+  height: 200px;
+  overflow-y: scroll;
+  background-color: #E2DFD9;
+  border: 2px solid #E8E5DF;
+  margin: 1em 0;
+  padding: 0.75em 1em 1.25em;
+}
