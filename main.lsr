@@ -40,6 +40,8 @@
 
 (def get-timer (get-def "flash.utils.getTimer"))
 
+(def Base64Encoder (get-def "Base64Encoder"))
+
 (defn sanitize 
   "Sanitize a string - replace tabs w/spaces, newlines with \\n."
   [s]

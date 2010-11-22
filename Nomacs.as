@@ -22,6 +22,7 @@ package {
 	jp.psyark.psycode.core.TextEditUI;
 	jp.psyark.utils.StringComparator;
 	net.hires.debug.Stats;
+	Base64Encoder;
 
     [SWF(width=950,height=600,backgroundColor=0xFFFFFF,frameRate=60)]
     public class Nomacs extends Sprite {
