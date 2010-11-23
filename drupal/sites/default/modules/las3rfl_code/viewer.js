@@ -14,8 +14,6 @@ $(function() {
       Drupal.settings.nid +
       "/raw";
 
-    alert(modulePath);
-
     $("ul.tabs.primary").append(
       "<li id='playStop'><a href='javascript:void(0);'>Play</a></li>" +
       "<li id='reload'><a href='javascript:void(0);'>Reload</a></li>");

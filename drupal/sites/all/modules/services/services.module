@@ -92,11 +92,11 @@ function services_menu() {
     'access arguments'  => array('administer services'),
     'type'              => MENU_CALLBACK,
   );
-  $items['crossdomain.xml'] = array(
-    'access callback'   => 'services_access_menu',
-    'page callback'     => 'services_crossdomain_xml',
-    'type'              => MENU_CALLBACK,
-  );
+  // $items['crossdomain.xml'] = array(
+  //   'access callback'   => 'services_access_menu',
+  //   'page callback'     => 'services_crossdomain_xml',
+  //   'type'              => MENU_CALLBACK,
+  // );
   $items['services/%'] = array(
     'title'             => 'Services',
     'access callback'   => 'services_access_menu',
