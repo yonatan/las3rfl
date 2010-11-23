@@ -13,7 +13,7 @@ package {
 			this.outerRadius = outerRadius;
         }
 
-		public function spin():void {
+		public function spin(e:* = null):void {
 			cnt++;
 			graphics.clear();
 

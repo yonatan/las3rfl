@@ -26,7 +26,7 @@ package {
             
 			// setup las3r
 			rt = new RT(stage, new OutputStream(stdout), new OutputStream(stderr));
-			rt.loadStdLib(stdlibLoaded, trace, trace);
+			rt.loadStdLib(stdlibLoaded);
         }
 
 		private function stdlibLoaded(val:*):void {
