@@ -28,8 +28,8 @@ package {
 
 			parameters = root.loaderInfo.parameters;
 			
-			if(null == parameters.nid) {
-				throw(new Error("No nid parameter"));
+			if(null == parameters.url) {
+				throw(new Error("No url parameter"));
 			}
 
 			// setup las3r
@@ -41,7 +41,7 @@ package {
 			ldr = new URLLoader;
 			ldr.addEventListener("complete", codeLoaded);
 			ldr.addEventListener("progress", spinner.spin);
-			ldr.load(new URLRequest("/node/" + parameters.nid + "/raw"));
+			ldr.load(new URLRequest(parameters.url));
 		}
 
 		private function codeLoaded(e:Event):void {
