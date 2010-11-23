@@ -24,7 +24,7 @@ package {
 	net.hires.debug.Stats;
 	Base64Encoder;
 
-    [SWF(width=950,height=600,backgroundColor=0xFFFFFF,frameRate=60)]
+    [SWF(width=950,height=600,scaleMode="noScale",stageAlign="TL",backgroundColor=0xFFFFFF,frameRate=60)]
     public class Nomacs extends Sprite {
         [Embed(source="main.lsr", mimeType="application/octet-stream")]
         protected const Las3rCode:Class;
@@ -34,17 +34,24 @@ package {
         public var err:Function;
         public var rt:RT;
 
-		private var progressCounter:int = 0;
-
 		private function outWrapper(s:String):void {out(s);};
 		private function errWrapper(s:String):void {err(s);};
 
 		private static var _instance:Nomacs;
+		private var spinner:Spinner;
 
         public function Nomacs() {
+			addEventListener(Event.ADDED_TO_STAGE, init);
+			if(null != stage) init();
+		}
+
+		private function init(event: Event = null): void {
+			removeEventListener(Event.ADDED_TO_STAGE, init)
 			_instance = this;
-            stage.scaleMode = StageScaleMode.NO_SCALE;
-            stage.align = StageAlign.TOP_LEFT;
+
+			addChild(spinner = new Spinner);
+			spinner.x = stage.stageWidth/2;
+			spinner.y = stage.stageHeight/2;
 
 			// setup las3r
 			out = err = trace;
@@ -59,31 +66,11 @@ package {
 		}
 
 		private function stdlibLoaded(val:*):void {
-			rt.evalStr(las3rCode, editorLoaded, progress, trace);
+			rt.evalStr(las3rCode, editorLoaded, spinner.spin, trace);
         }
 
-		private static const LINES:uint = 24;
-		private function progress():void {
-			var cx:Number = stage.stageWidth / 2;
-			var cy:Number = stage.stageHeight / 2;
-			progressCounter++;
-
-			graphics.clear();
-
-			for(var i:uint = 0; i < LINES; i++) {
-				var z:Number = (i+progressCounter) / LINES * (Math.PI * 2);
-				var sz:Number = Math.sin(z);
-				var cz:Number = Math.cos(z);
-				var c:uint = i / LINES * 0xff;
-				c = 0xff ^ c;
-				c = c << 16 | c << 8 | c;
-				graphics.lineStyle(3, c);
-				graphics.moveTo(cx - sz * 25, cy + cz * 25);
-				graphics.lineTo(cx - sz * 40, cy + cz * 40);
-			}
-		}
-
 		private function editorLoaded(val:*):void {
+			stage.removeChild(spinner);
 			graphics.clear();
 		}
     }
