@@ -312,9 +312,14 @@ body #featured .region-content {
   padding-top: 10px;
 }
 
+.node-page .captured-image { 
+  width: 465px;
+  height: 465px;
+}
+
 #play-button { 
   position: absolute;
-  z-index: 999;
+  z-index: 99;
   width: 465px;
   height: 465px;
   background: url('capture-overlay.png');

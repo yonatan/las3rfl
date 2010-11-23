@@ -1,3 +1,14 @@
+<?php
+$module_path = drupal_get_path('module', 'las3rfl_code');
+// Settings to be passed to js
+$settings = array('modulePath' => $module_path,
+		  'nid' => $node->nid,
+		  );
+
+drupal_add_js($settings, 'setting');
+drupal_add_js($module_path .'/swfobject/swfobject.js');
+drupal_add_js($module_path .'/viewer.js');
+?>
 <div class="node node-page<?php if (!$status) { print ' node-unpublished'; } ?>">
   <div class="node-body">
     <?php $raw_node = node_load($node->nid) ?>
@@ -8,6 +19,7 @@
       <div class="captured-image">
 	<a href="javascript:void(0);" title="Play" id="play-button"></a>
 	<?php print $node->field_capture[0]['view'] ?>
+	<div id="viewer-swf"></div>
       </div>
       <div class="submitted"><p>Posted by:<br/><?php print $submitted; ?></p></div>
       <?php if ($node->field_forked_from[0]['nid']): ?>
