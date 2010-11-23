@@ -47,19 +47,16 @@ package {
 		private function codeLoaded(e:Event):void {
 			ldr.removeEventListener("complete", codeLoaded);
 			ldr.removeEventListener("progress", spinner.spin);
-			addChild(spinner = new Spinner);
-			spinner.x = stage.stageWidth/2;
-			spinner.y = stage.stageHeight/2;
 
 			var code:String = "" +
 			"(in-ns 'user)" +
 			"(las3r.core/refer 'las3r.core :exclude '(run-tests))" +
 			ldr.data;
 
-			rt.evalStr(code, evalDone, spinner.spin, trace);
+			rt.evalStr(code, clear, spinner.spin);
         }
 
-		private function evalDone(x:*):void {
+		private function clear(...x):void {
 			removeChild(spinner);
 		}
     }
