@@ -24,7 +24,7 @@ package {
 	net.hires.debug.Stats;
 	Base64Encoder;
 
-    [SWF(width=950,height=600,scaleMode="noScale",stageAlign="TL",backgroundColor=0xFFFFFF,frameRate=60)]
+    [SWF(width=950,height=600,backgroundColor=0xFFFFFF,frameRate=60)]
     public class Nomacs extends Sprite {
         [Embed(source="main.lsr", mimeType="application/octet-stream")]
         protected const Las3rCode:Class;
@@ -45,8 +45,10 @@ package {
 			if(null != stage) init();
 		}
 
-		private function init(event: Event = null): void {
-			removeEventListener(Event.ADDED_TO_STAGE, init)
+		private function init(e:Event = null):void {
+			removeEventListener(Event.ADDED_TO_STAGE, init);
+			stage.scaleMode = "noScale";
+			stage.align = "TL";
 			_instance = this;
 
 			addChild(spinner = new Spinner);
