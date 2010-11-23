@@ -2,6 +2,7 @@
 $module_path = drupal_get_path('module', 'las3rfl_code');
 // Settings to be passed to js
 $settings = array('modulePath' => $module_path,
+                  'swfDomain' => variable_get('swf_domain', NULL),
 		  'nid' => $node->nid,
 		  );
 

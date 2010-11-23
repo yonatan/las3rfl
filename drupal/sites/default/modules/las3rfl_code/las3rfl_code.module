@@ -119,3 +119,30 @@ function las3rfl_code_raw_node($node) {
     return NULL;
   }
 }
+
+/*
+ * Implementation of hook_boot, just to make sure noone mistakes the untrusted swf domain
+ * for the real site.
+ */
+
+
+// substr_compare(string1,string2,startpos,length,case)
+
+// Parameter 	Description
+// string1 	Required. Specifies the first string to compare
+// string2 	Required. Specifies the second string to compare
+// startpos 	Required. Specifies where to start comparing in string1
+// length 	Optional. Specifies how much of string1 to compare
+// case 	Optional. Specifies whether or not to perform a case-sensitive compare. Default is FALSE (case-sensitive)
+
+function las3rfl_code_boot() {
+  // If the request is not for the usual site domain (defined in settings.php)
+  $site_domain = variable_get('site_domain', NULL);
+  if ($_SERVER['HTTP_HOST'] != $site_domain) {
+    // And it's not after raw code or files (file request bypass drupal altogether)
+    if (substr($_GET['q'], -4) != '/raw') {
+      header('HTTP/1.1 400 Bad Request');
+      exit('Las3rfl error: Wrong domain. The site domain is '. $site_domain .'.');
+    }
+  }
+}

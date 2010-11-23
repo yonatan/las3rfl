@@ -1,5 +1,20 @@
 $(function() {
     var modulePath = Drupal.settings.basePath + Drupal.settings.modulePath + '/';
+    var viewerUrl =
+      "http://" +
+      Drupal.settings.swfDomain +
+      modulePath +
+      "Viewer.swf?" + (new Date).getTime();
+      // TODO: remove cachebuster
+
+    var codeUrl =
+      "http://" +
+      Drupal.settings.swfDomain +
+      "/node/" +
+      Drupal.settings.nid +
+      "/raw";
+
+    alert(modulePath);
 
     $("ul.tabs.primary").append(
       "<li id='playStop'><a href='javascript:void(0);'>Play</a></li>" +
@@ -10,8 +25,7 @@ $(function() {
       $("#reload").css("display", "inherit");
 
       $(".captured-image *").css("display", "none");
-      // TODO: remove cachebuster
-      swfobject.embedSWF(modulePath + "Viewer.swf?" + (new Date).getTime(), "viewer-swf", "465", "465", "9.0.0", null, {nid: Drupal.settings.nid});
+      swfobject.embedSWF(viewerUrl, "viewer-swf", "465", "465", "9.0.0", null, {url: codeUrl});
     }
 
     function stop() {
