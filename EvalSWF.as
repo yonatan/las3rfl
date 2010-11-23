@@ -19,6 +19,14 @@ package {
 		private var connToken:String;
         
         public function EvalSWF() {
+			addEventListener(Event.ADDED_TO_STAGE, init);
+			if(null != stage) init();
+		}
+
+		private function init(e:Event = null):void {
+			removeEventListener(Event.ADDED_TO_STAGE, init);
+			stage.scaleMode = "noScale";
+			stage.align = "TL";
 			parameters = root.loaderInfo.parameters;
 			connToken = (parameters.connToken || "");
 			
