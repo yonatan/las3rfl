@@ -1,8 +1,7 @@
 $(function() {
     var modulePath = Drupal.settings.basePath + Drupal.settings.modulePath + '/';
-    var tabs = $("ul.tabs.primary");
 
-    tabs.append(
+    $("ul.tabs.primary").append(
       "<li id='playStop'><a href='javascript:void(0);'>Play</a></li>" +
       "<li id='reload'><a href='javascript:void(0);'>Reload</a></li>");
 
@@ -11,6 +10,7 @@ $(function() {
       $("#reload").css("display", "inherit");
 
       $(".captured-image *").css("display", "none");
+      // TODO: remove cachebuster
       swfobject.embedSWF(modulePath + "Viewer.swf?" + (new Date).getTime(), "viewer-swf", "465", "465", "9.0.0", null, {nid: Drupal.settings.nid});
     }
 
