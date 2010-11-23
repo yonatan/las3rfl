@@ -16,8 +16,8 @@ function las3rfl_code_menu_alter(&$items) {
   $items['node/%node/edit']['page callback'] = 'las3rfl_code_edit_node';
 
   // Show delete item in tab when viewing a node.
-      $items['node/%node/delete']['type'] = MENU_LOCAL_TASK;
-      $items['node/%node/delete']['weight'] = 95;
+  $items['node/%node/delete']['type'] = MENU_LOCAL_TASK;
+  $items['node/%node/delete']['weight'] = 95;
 }
 
 /*
@@ -36,6 +36,13 @@ function las3rfl_code_menu() {
     'access arguments' => array(1),
     'type' => MENU_LOCAL_TASK,
     'weight' => 90,
+  );
+
+  $items['node/%node/raw'] = array(
+    'page callback' => 'las3rfl_code_raw_node',
+    'page arguments' => array(1),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
   );
 
   return $items;
@@ -59,7 +66,7 @@ function las3rfl_code_is_forkable($node) {
  *
  * Since this is a one-site single use module, there are no theming hooks.
  */
-function las3rfl_code_editor($node = null, $fork = FALSE) {
+function las3rfl_code_editor($node = NULL, $fork = FALSE) {
   ob_start();                      // Start output buffering
   include "editor.tpl.php";        // Include the template file
   $contents = ob_get_contents();   // Get the contents of the buffer
@@ -72,7 +79,7 @@ function las3rfl_code_editor($node = null, $fork = FALSE) {
  * Wrapper for las3rfl_code_editor, checks permissions and redirects to login
  * page if neccesary. Used by add and fork functions.
  */
-function las3rfl_code_check_perms_and_edit($node = null, $fork = FALSE) {
+function las3rfl_code_check_perms_and_edit($node = NULL, $fork = FALSE) {
   if(user_is_logged_in()) {
     if(node_access('create', 'code')) {
       return las3rfl_code_editor($node, $fork);
@@ -99,5 +106,16 @@ function las3rfl_code_edit_node($node) {
     return las3rfl_code_editor($node);
   } else {
     return drupal_get_form($node->type . '_node_form', $node);
+  }
+}
+
+/*
+ * Menu callback, prints raw code as plain text.
+ */
+function las3rfl_code_raw_node($node) {
+  if ($node->type == 'code') {
+    drupal_set_header('Content-Type: text/plain');
+    print($node->body);
+    return NULL;
   }
 }
