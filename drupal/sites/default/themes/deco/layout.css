@@ -246,7 +246,7 @@ body {
 #header { height: 119px; }
 #header ul.primary-links { margin-top: 52px; }
 
-#noscript-warning {
+#big-warning {
   background-color:#AE0000;
   color:#FFFFFF;
   font-size:120%;

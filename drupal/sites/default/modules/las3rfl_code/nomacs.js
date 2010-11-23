@@ -16,6 +16,10 @@ function warnOnLeave(val) {
 }
 
 $(function() {
+    if($.browser.msie) {
+      $("body").append('<div id="big-warning">The editor doesn\'t work in Internet Explorer. Sorry.</div>');
+    }
+
     function addMessageCloseBtn() {
       $(".messages").prepend('<a class="closeBtn" title="Close" href="#">X</a>');
       $(".closeBtn").click(function() {
