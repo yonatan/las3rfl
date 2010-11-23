@@ -14,6 +14,10 @@ function las3rfl_code_menu_alter(&$items) {
 
   $items['node/add/code']['page callback'] = 'las3rfl_code_add_node';
   $items['node/%node/edit']['page callback'] = 'las3rfl_code_edit_node';
+
+  // Show delete item in tab when viewing a node.
+      $items['node/%node/delete']['type'] = MENU_LOCAL_TASK;
+      $items['node/%node/delete']['weight'] = 95;
 }
 
 /*

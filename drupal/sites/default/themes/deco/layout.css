@@ -242,9 +242,27 @@ body {
   padding: inherit;
 }
 
+#main { min-width: 955px; }
+#header { height: 119px; }
+#header ul.primary-links { margin-top: 52px; }
+
+#noscript-warning {
+  background-color:#AE0000;
+  color:#FFFFFF;
+  font-size:120%;
+  font-weight:bold;
+  left:0;
+  padding:8px 0;
+  position:fixed;
+  text-align:center;
+  top:0;
+  width:100%;
+  z-index:101;
+}
+
 .las3r-code { 
   height: 200px;
-  overflow-y: scroll;
+  overflow: scroll;
   background-color: #E2DFD9;
   border: 2px solid #E8E5DF;
   margin: 1em 0;
@@ -254,3 +272,53 @@ body {
 .node-page .content .captured-image { 
   float: right;
 }
+
+.code-teaser { 
+  width: 200px;
+  display: inline-block;
+  vertical-align: top;
+ }
+
+#featured .code-teaser { 
+  margin-bottom: 0;
+}
+
+.view-featured-code { width: 1200px; }
+#block-views-featured_code-block_1 .content { overflow: hidden }
+
+.view-featured-code .views-row { 
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 25px;
+}
+
+.view-latest-code .views-row { 
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 5px;
+}
+
+body #featured .block {
+  margin: 0;
+  padding: 0 2em;
+}
+
+body #featured .block .content {
+  padding: 0;
+  font-size: inherit;
+}
+
+body #featured .region-content {
+  padding-top: 10px;
+}
+
+#play-button { 
+  position: absolute;
+  z-index: 999;
+  width: 465px;
+  height: 465px;
+  background: url('capture-overlay.png');
+  opacity: 0.75;
+}
+
+a:hover#play-button { opacity: 0.5; }

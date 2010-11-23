@@ -119,6 +119,7 @@
 			</div>
 		</div></div></div> <!-- /footer -->
 	</div> <!-- /container -->
+	<noscript><div id="noscript-warning">This site <em>requires</em> Javascript and Flash.</div></noscript>
 	<?php print $closure ?>
 </body>
 </html>

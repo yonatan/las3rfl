@@ -31,10 +31,10 @@ drupal_add_css($module_path .'/nomacs.css');
 	<div class="left">
 	  <ul class="tabs primary">
 	    <li>
-	      <a id="resetBtn" href="#">Reset evaluator</a>
+	      <a id="resetBtn" href="javascript:void(0);">Reset evaluator</a>
 	    </li>
 	    <li id="fullscreen">
-	      <a id="fullscreenBtn" href="#">Fullscreen</a>
+	      <a id="fullscreenBtn" href="javascript:void(0);">Fullscreen</a>
 	    </li>
 	  </ul>
 	</div>
