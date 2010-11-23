@@ -1,4 +1,4 @@
-<div id="node-<?php print $node->nid; ?>" class="node code-teaser<?php if ($sticky) { print ' node-sticky'; } ?><?php if (!$status) { print ' node-unpublished'; } ?>">
+<div class="node code-teaser<?php if ($sticky) { print ' node-sticky'; } ?><?php if (!$status) { print ' node-unpublished'; } ?>">
   <div class="node-body">
 
     <div class="content">

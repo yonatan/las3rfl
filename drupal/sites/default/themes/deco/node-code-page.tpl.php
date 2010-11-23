@@ -1,4 +1,4 @@
-<div id="node-<?php print $node->nid; ?>" class="node node-page<?php if (!$status) { print ' node-unpublished'; } ?>">
+<div class="node node-page<?php if (!$status) { print ' node-unpublished'; } ?>">
   <div class="node-body">
     <?php $raw_node = node_load($node->nid) ?>
     <div class="node-title clear-block">
@@ -10,11 +10,13 @@
 	<?php print $node->field_capture[0]['view'] ?>
       </div>
       <div class="submitted"><p>Posted by:<br/><?php print $submitted; ?></p></div>
+      <?php if ($node->field_forked_from[0]['nid']): ?>
       <div class="forked-from"><p>Forked from:<br/><?php print $node->field_forked_from[0]['view'] ?></p></div>
+      <?php endif ?>
       <div class="clear-block"></div>
       <div class="code-container">
-	
-	<pre class="las3r-code"><div class="raw-link-container"><a class="raw-code-link" href="/node/<?php print $node->nid?>/raw">[View raw code]</a></div><?php print check_plain($raw_node->body) ?></pre>
+	<pre class="las3r-code"><?php print check_plain($raw_node->body) ?></pre>
+	<a class="raw-code-link" href="/node/<?php print $node->nid?>/raw">View raw code</a>
       </div>
     </div>
     <div class="hr"><span></span></div>

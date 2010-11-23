@@ -322,12 +322,4 @@ body #featured .region-content {
 }
 
 a:hover#play-button { opacity: 0.5; }
-
-.code-container .raw-link-container { 
-  display: none;
-  position: relative;
-  z-index: 999;
-}
-
-.las3r-code:hover .raw-link-container { display: block; }
-.raw-code-link { float: right; }
+.raw-code-link { float: right; font-size: 0.8em; line-height: 0; }
