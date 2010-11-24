@@ -23,7 +23,8 @@ $(function() {
       $("#reload").css("display", "inherit");
 
       $(".captured-image *").css("display", "none");
-      swfobject.embedSWF(viewerUrl, "viewer-swf", "465", "465", "9.0.0", null, {url: codeUrl});
+      var params = {allowscriptaccess: "never", allowfullscreen: "true"};
+      swfobject.embedSWF(viewerUrl, "viewer-swf", "465", "465", "9.0.0", false,	{url: codeUrl}, params);
     }
 
     function stop() {
