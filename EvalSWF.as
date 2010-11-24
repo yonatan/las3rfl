@@ -56,16 +56,16 @@ package {
 				});
             recvConn.client = this;
             try {
-                recvConn.connect("eval-in-" + connToken);
-				output.text = "Listening on eval-in-" + connToken;
+                recvConn.connect("_eval-in-" + connToken);
+				output.text = "Listening on _eval-in-" + connToken;
 				stdout("Evaluator ready.\n");
             } catch (error:ArgumentError) {
-                trace("Can't connect... eval-in-" + connToken + " is already being used by another SWF");
+                trace("Can't connect... _eval-in-" + connToken + " is already being used by another SWF");
             }
         }
 
 		private function stdout(s:String):void {
-			sendConn.send("eval-out-" + connToken, "printToStdout", s || "nil");
+			sendConn.send("_eval-out-" + connToken, "printToStdout", s || "nil");
 		}
 
 		private function stdoutLine(s:String):void {
@@ -73,7 +73,7 @@ package {
 		}
 
 		private function stderr(s:String):void {
-			sendConn.send("eval-out-" + connToken, "printToStderr", s || "nil");
+			sendConn.send("_eval-out-" + connToken, "printToStderr", s || "nil");
 		}
         
         public function eval(code:String):void {
@@ -99,7 +99,7 @@ package {
 			if(quality > 4) {
 				output.appendText("jpeg quality: " + quality + "\n");
 				output.appendText("jpeg size: " + jpeg.length + "\n");
-				sendConn.send("eval-out-" + connToken, "updateCapture", jpeg);
+				sendConn.send("_eval-out-" + connToken, "updateCapture", jpeg);
 			}
 		}
 

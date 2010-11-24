@@ -1231,8 +1231,8 @@ comment tokens."
 (def *captured-image* nil)
 
 (defn init-connections []
-  (try (. *recv-connection* (connect (str "eval-out-" (. *parameters* connToken))))
-       (catch Error e (trace "Can't connect, eval-out-" 
+  (try (. *recv-connection* (connect (str "_eval-out-" (. *parameters* connToken))))
+       (catch Error e (trace "Can't connect, _eval-out-" 
 			     (. *parameters* connToken)
 			     " is already being used by another SWF")))
 
@@ -1264,7 +1264,7 @@ comment tokens."
 (defn send-to-eval-swf
   "Send code to evaluator swf."
   [code]
-  (. *send-connection* (send (str "eval-in-" (. *parameters* connToken)) "eval" code)))
+  (. *send-connection* (send (str "_eval-in-" (. *parameters* connToken)) "eval" code)))
 
 (def-command eval-in-remote-swf
   {:doc "Evaluates current expression (marked in blue) in remote SWF."
@@ -1445,7 +1445,7 @@ comment tokens."
                     (status "")
                     (def *captured-image* jpeg)
                     (. ldr (loadBytes jpeg))))
-            (. *send-connection* (send (str "eval-in-" (. *parameters* connToken)) "capture")))
+            (. *send-connection* (send (str "_eval-in-" (. *parameters* connToken)) "capture")))
           
           save-btn (new PushButton wc 240 150 "Save" save)
           capture-btn (new PushButton wc 10 150 "Update capture" take-capture)]
