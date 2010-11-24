@@ -136,13 +136,16 @@ function las3rfl_code_raw_node($node) {
 // case 	Optional. Specifies whether or not to perform a case-sensitive compare. Default is FALSE (case-sensitive)
 
 function las3rfl_code_boot() {
-  // If the request is not for the usual site domain (defined in settings.php)
-  $site_domain = variable_get('site_domain', NULL);
-  if ($_SERVER['HTTP_HOST'] != $site_domain) {
-    // And it's not after raw code or files (file request bypass drupal altogether)
-    if (substr($_GET['q'], -4) != '/raw') {
-      header('HTTP/1.1 400 Bad Request');
-      exit('Las3rfl error: Wrong domain. The site domain is '. $site_domain .'.');
+  // If it's drush don't kill it.
+  if (php_sapi_name() != 'cli') {
+    // If the request is not for the usual site domain (defined in settings.php)
+    $site_domain = variable_get('site_domain', NULL);
+    if ($_SERVER['HTTP_HOST'] != $site_domain) {
+      // And it's not after raw code or files (file request bypass drupal altogether)
+      if (substr($_GET['q'], -4) != '/raw') {
+	header('HTTP/1.1 400 Bad Request');
+	exit('Las3rfl error: Wrong domain. The site domain is '. $site_domain .'.');
+      }
     }
   }
 }
