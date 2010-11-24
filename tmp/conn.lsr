@@ -1,7 +1,0 @@
-(def conn (new flash.net.LocalConnection))
-(def recv (new Object))
-(set! (. recv printToStdout) prn)
-(set! (. recv printToStderr) prn)
-(set! (. conn client) recv)
-(. conn (addEventListener "status" prn))
-(. conn (send "connection-" "eval" "asdasd"))
