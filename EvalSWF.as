@@ -16,6 +16,7 @@ package {
         private var sendConn:LocalConnection;
         private var output:TextField;
 		private var parameters:Object;
+		private var debug:Boolean;
 		private var connToken:String;
         
         public function EvalSWF() {
@@ -28,9 +29,10 @@ package {
 			stage.scaleMode = "noScale";
 			stage.align = "TL";
 			parameters = root.loaderInfo.parameters;
+			debug = parameters.debug;
 			connToken = (parameters.connToken || "");
-			
-            buildUI();
+
+			if(debug) buildUI();
             
 			// setup las3r
 			rt = new RT(stage, new OutputStream(stdout), new OutputStream(stderr));
@@ -46,24 +48,24 @@ package {
 			// setup local connections
             recvConn = new LocalConnection();
 			if(parameters.siteDomain) {
-				output.appendText("site domain: " + parameters.siteDomain);
+				if(debug) output.appendText("site domain: " + parameters.siteDomain);
 				recvConn.allowDomain(parameters.siteDomain);
 			} else {
-				output.appendText("no site domain");
+				if(debug) output.appendText("no site domain");
 			}
             sendConn = new LocalConnection();
 			recvConn.addEventListener("status", 
 				function(e:StatusEvent):void {
-					if(e.type != "status") output.appendText('\nrecv status: ' + e);
+					if(e.type != "status" && debug) output.appendText('\nrecv status: ' + e);
 				});
 			sendConn.addEventListener("status", 
 				function(e:StatusEvent):void {
-					if(e.type != "status") output.appendText('\nsend status: ' + e);
+					if(e.type != "status" && debug) output.appendText('\nsend status: ' + e);
 				});
             recvConn.client = this;
             try {
                 recvConn.connect("_eval-in-" + connToken);
-				output.text = "Listening on _eval-in-" + connToken;
+				if(debug) output.text = "Listening on _eval-in-" + connToken;
 				stdout("Evaluator ready.\n");
             } catch (error:ArgumentError) {
                 trace("Can't connect... _eval-in-" + connToken + " is already being used by another SWF");
@@ -84,7 +86,7 @@ package {
         
         public function eval(code:String):void {
 			rt.evalStr(code, stdoutLine, null, stderr);
-            output.appendText("eval: " + code + "\n");
+            if(debug) output.appendText("eval: " + code + "\n");
         }
 
 		public function capture():void {
@@ -103,8 +105,10 @@ package {
 			}
 			
 			if(quality > 4) {
-				output.appendText("jpeg quality: " + quality + "\n");
-				output.appendText("jpeg size: " + jpeg.length + "\n");
+				if(debug) {
+					output.appendText("jpeg quality: " + quality + "\n");
+					output.appendText("jpeg size: " + jpeg.length + "\n");
+				}
 				sendConn.send("_eval-out-" + connToken, "updateCapture", jpeg);
 			}
 		}
