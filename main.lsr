@@ -210,6 +210,7 @@
 
 (def *bracket-match-color* 0xAAAAAA)
 (def *bracket-mismatch-color* 0xFF0000)
+(def *current-sexp-color* 0x0000FF)
 (def *output-cmd-color* 0x808080)
 (def *output-color* 0x000000)
 (def *error-color* 0xC00000)
@@ -640,7 +641,13 @@ comment tokens."
   (let [parser (buffer :parser)
         tf (parser :textfield)
         pos (clipped-caret-idx tf)
-        g (. (buffer :overlay) graphics)]
+        g (. (buffer :overlay) graphics)
+	highlight-char! (fn [idx color alpha]
+                              (let [[x y] (char-xy tf idx)]
+				(doto g
+				  (beginFill color alpha)
+				  (drawRect x y *char-width* *char-height*)
+				  (endFill))))]
     (. g (clear))
     (when-let sexp-tokens (get-bracket-enclosed-tokens-at parser pos)
       (let [first-token (first sexp-tokens)
@@ -650,14 +657,15 @@ comment tokens."
             color (if (matching-brackets? (first-token :string)
                                           (last-token :string))
                     *bracket-match-color*
-                    *bracket-mismatch-color*)
-            highlight-char! (fn [idx]
-                              (let [[x y] (char-xy tf idx)]
-                                (. g (beginFill color 0.5))
-                                (. g (drawRect x y *char-width* *char-height*))
-                                (. g (endFill))))]
-        (highlight-char! l)
-        (highlight-char! r)))))
+                    *bracket-mismatch-color*)]
+        (highlight-char! l color 0.5)
+        (highlight-char! r color 0.5)))
+    (when-let sexp (get-sexp-at parser pos)
+      (let [l ((first sexp) :index)
+	    r (dec ((vlast sexp) :next-index))]
+	(highlight-char! l *current-sexp-color* 0.2)
+	(when-not (= l r)
+	  (highlight-char! r *current-sexp-color* 0.2))))))
 
 (defn attach-to-textfield-container
   "Returns an editor buffer. Container should have a readable textField property."
@@ -1096,9 +1104,9 @@ comment tokens."
     (. rt (evalStr s prn nil prn))))
 
 (def-command eval-current-sexp
-  {:doc "Evaluate the sexp at point and print the result."
+  {:doc "Evaluate the sexp at point and print the result. Unlike eval-in-remote-swf, this one works in the editor's runtime. Use this to customize the editor, define new commands, etc."
    :key "j"
-   :modifiers [:ctrl]
+   :modifiers [:alt]
    :tags #{:evaluation :sexps}}
   (if-let sexp (get-sexp-at parser (clipped-caret-idx tf))
     (let [s (apply str (map :string sexp))]
@@ -1150,7 +1158,7 @@ comment tokens."
 
 (def-command incremental-search
   {:doc "Incremental search."
-   :key "s"
+   :key "f"
    :modifiers [:ctrl]}
   (let [window (mset! (new Window *stage* (- (. *stage* stageWidth) 260) (- (. *stage* stageHeight) 100)
                            "Incremental search")
@@ -1259,8 +1267,8 @@ comment tokens."
   (. *send-connection* (send (str "eval-in-" (. *parameters* connToken)) "eval" code)))
 
 (def-command eval-in-remote-swf
-  {:doc "Evaluates current expression in remote SWF."
-   :key "n"
+  {:doc "Evaluates current expression (marked in blue) in remote SWF."
+   :key "j"
    :modifiers [:ctrl]}
   (save-to-lso!)
   (if-let sexp (get-sexp-at parser (clipped-caret-idx tf))
@@ -1366,7 +1374,7 @@ comment tokens."
   (def-command drupal-node-save
     {:doc "Saves code to server."
      :key "s"
-     :modifiers [:alt]}
+     :modifiers [:ctrl]}
     (let [sw (. *stage* stageWidth)
           sh (. *stage* stageHeight)
           ww 350
