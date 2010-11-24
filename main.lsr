@@ -708,11 +708,13 @@ comment tokens."
 (defn print-help
   "Like print-doc, with different formatting."
   [v]
-  (println (str (ns-name (get ^v :ns)) "/" (get ^v :name) 
-                (if (get ^v :macro) " - Macro" "")))
-  (prn (get ^v :arglists))
-  ;; eat up whitespace in docstring
-  (println "\n" (. (get ^v :doc) (replace #"\s+"g " "))))
+  (try
+   (println (str (ns-name (get ^v :ns)) "/" (get ^v :name) 
+		 (if (get ^v :macro) " - Macro" "")))
+   (prn (get ^v :arglists))
+   ;; eat up whitespace in docstring
+   (println "\n" (. (get ^v :doc) (replace #"\s+"g " ")))
+   (catch Error e nil)))
 
 ;; TODO: search all namespaces?
 (defn context-doc [buffer]
@@ -1105,8 +1107,8 @@ comment tokens."
 
 (def-command eval-current-sexp
   {:doc "Evaluate the sexp at point and print the result. Unlike eval-in-remote-swf, this one works in the editor's runtime. Use this to customize the editor, define new commands, etc."
-   :key "j"
-   :modifiers [:alt]
+   :key "n"
+   :modifiers [:ctrl]
    :tags #{:evaluation :sexps}}
   (if-let sexp (get-sexp-at parser (clipped-caret-idx tf))
     (let [s (apply str (map :string sexp))]
