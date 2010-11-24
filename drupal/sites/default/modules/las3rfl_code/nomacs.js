@@ -5,9 +5,7 @@ var modulePath = "";
 var token = (new Date).getTime() + "-" + Math.floor(Math.random() * 1e+16);
 
 // Reloads evaluator swf
-function resetEvalSWF() {
-  swfobject.embedSWF(modulePath + "EvalSWF.swf", "evaluatorSWF", "465", "465", "9.0.0", null, {connToken: token});
-}
+var resetEvalSWF;
 
 // Enables/disables a warning about unsaved changes when leaving the page.
 var _warnOnLeave = false;
@@ -19,6 +17,16 @@ $(function() {
     if($.browser.msie) {
       $("body").append('<div id="big-warning">The editor doesn\'t work in Internet Explorer. Sorry.</div>');
     }
+
+    resetEvalSWF = function() {
+      var evalVars = {
+	connToken: token,
+	siteDomain: Drupal.settings.siteDomain
+      };
+      var evalParams = {allowscriptaccess: "never", allowfullscreen: "true"};
+      var swfUrl = "http://" + Drupal.settings.editorVars.swfDomain + modulePath + "EvalSWF.swf";
+      swfobject.embedSWF(swfUrl, "evaluatorSWF", "465", "465", "9.0.0", false, evalVars, evalParams);
+    };
 
     function addMessageCloseBtn() {
       $(".messages").prepend('<a class="closeBtn" title="Close" href="#">X</a>');
@@ -83,10 +91,10 @@ $(function() {
       addMessageCloseBtn();
     }
 
-    var params = Drupal ? Drupal.settings.editorParams : {};
-    params.connToken = token;
+    var editorVars = Drupal ? Drupal.settings.editorVars : {};
+    editorVars.connToken = token;
     // Embed the editor
-    swfobject.embedSWF(modulePath + "Nomacs.swf", "editorSWF", "100%", "100%", "9.0.0", null, params);
+    swfobject.embedSWF(modulePath + "Nomacs.swf", "editorSWF", "100%", "100%", "9.0.0", false, editorVars);
     // Embed the evaluator
     resetEvalSWF();
 

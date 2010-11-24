@@ -5,10 +5,12 @@ global $user;
 $params = array('nid' => ($node ? $node->nid : 0),
 		'fork' => $fork,
 		'uid' => $user->uid,
+		'swfDomain' => variable_get('swf_domain', NULL),
 		);
 // Settings to be passed to js
 $settings = array('modulePath' => $module_path,
-		  'editorParams' => $params,
+		  'editorVars' => $params,
+		  'siteDomain' => variable_get('site_domain', NULL),
 		  );
 
 drupal_add_js($settings, 'setting');
