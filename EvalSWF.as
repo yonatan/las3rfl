@@ -45,6 +45,12 @@ package {
 
 			// setup local connections
             recvConn = new LocalConnection();
+			if(parameters.siteDomain) {
+				output.appendText("site domain: " + parameters.siteDomain);
+				recvConn.allowDomain(parameters.siteDomain);
+			} else {
+				output.appendText("no site domain");
+			}
             sendConn = new LocalConnection();
 			recvConn.addEventListener("status", 
 				function(e:StatusEvent):void {

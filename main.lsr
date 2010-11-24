@@ -1228,6 +1228,9 @@ comment tokens."
 (def *parameters* (.. *nomacs* root loaderInfo parameters))
 (def *send-connection* (new LocalConnection))
 (def *recv-connection* (new LocalConnection))
+(when-let domain (. *parameters* swfDomain)
+  (prn 'swf-domain domain)
+  (. *recv-connection* (allowDomain domain)))
 (def *captured-image* nil)
 
 (defn init-connections []
