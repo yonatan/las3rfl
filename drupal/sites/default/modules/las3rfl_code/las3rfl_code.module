@@ -149,3 +149,9 @@ function las3rfl_code_boot() {
     }
   }
 }
+
+function las3rfl_code_link_alter(&$links, $node, $comment = NULL) {
+  if ($node->type == 'code' && $comment) {
+    unset($links['comment_reply']);
+  }
+}

@@ -27,6 +27,10 @@ drupal_add_js($module_path .'/viewer.js');
       <div class="forked-from"><p>Forked from:<br/><?php print $node->field_forked_from[0]['view'] ?></p></div>
       <?php endif ?>
       <div class="clear-block"></div>
+      <?php if ($links): ?>
+      <div class="links"><?php print $links; ?></div>
+      <?php endif; ?>
+
       <div class="code-container">
 	<pre class="las3r-code"><?php print check_plain($raw_node->body) ?></pre>
 	<a class="raw-code-link" href="/node/<?php print $node->nid?>/raw">View raw code</a>
@@ -40,10 +44,6 @@ drupal_add_js($module_path .'/viewer.js');
 	<div class="terms"><?php print $terms ?></div>
 	<?php endif;?>
       </div>
-
-      <?php if ($links): ?>
-      <div class="links"><?php print $links; ?></div>
-      <?php endif; ?>
 
     </div>
   </div>
