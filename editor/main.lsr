@@ -1148,7 +1148,7 @@ comment tokens."
 (def-command kill-whitespace
   {:doc "Removes whitespace at point."
    :key "w"
-   :modifiers [:alt]}
+   :modifiers [:ctrl]}
   (when-let idx (char->token-index parser (. tf caretIndex))
     (let [token ((parser :tokens) idx)
           {idx :index} token]
@@ -1308,7 +1308,7 @@ comment tokens."
 (def-command restore-backup
   {:doc "Restores code saved to local storage (code is saved before every eval operation)."
    :key "r"
-   :modifiers [:alt]}
+   :modifiers [:ctrl :alt]}
   (set! (. tf text) (sanitize (read-lso))))
 
 (def-command toggle-stats
