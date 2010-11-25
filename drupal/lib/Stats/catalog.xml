@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding ="utf-8"?>
+<swc xmlns="http://www.adobe.com/flash/swccatalog/9">
+  <versions>
+    <swc version="1.2" />
+    <flex version="4.5.0" build="0" minimumSupportedVersion="3.0.0" />
+  </versions>
+  <features>
+    <feature-script-deps />
+    <feature-files />
+  </features>
+  <libraries>
+    <library path="library.swf">
+      <script name="_a567bddf6e2a18a24deff3eda29b42e154931b108c1ebd09d086ce54f5ddbab2_flash_display_Sprite" mod="1290708736226" signatureChecksum="1340767503" >
+        <def id="_a567bddf6e2a18a24deff3eda29b42e154931b108c1ebd09d086ce54f5ddbab2_flash_display_Sprite" /> 
+        <dep id="flash.system:Security" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.display:Sprite" type="i" /> 
+      </script>
+      <script name="net/hires/debug/Stats" mod="1290633125000" signatureChecksum="1952581459" >
+        <def id="net.hires.debug:Stats" /> 
+        <dep id="flash.text:StyleSheet" type="e" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.system:System" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="e" /> 
+        <dep id="flash.display:BitmapData" type="e" /> 
+        <dep id="flash.text:TextField" type="e" /> 
+        <dep id="flash.geom:Rectangle" type="e" /> 
+        <dep id="flash.geom:Matrix" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="flash.utils:getTimer" type="e" /> 
+        <dep id="flash.text:StyleSheet" type="s" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.events:MouseEvent" type="s" /> 
+        <dep id="flash.display:BitmapData" type="s" /> 
+        <dep id="flash.text:TextField" type="s" /> 
+        <dep id="flash.geom:Rectangle" type="s" /> 
+        <dep id="XML" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="flash.display:Sprite" type="i" /> 
+      </script>
+      <digests>
+        <digest type="SHA-256" signed="false" value="6807e1d1000977013d3a3212758414fc6bcadf7ca169e908613595aea6c611de"   />
+      </digests>
+    </library>
+  </libraries>
+  <files>
+  </files>
+</swc>
