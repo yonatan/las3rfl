@@ -20,7 +20,7 @@ $(function() {
     function play() {
       $("#playStop a").text("Stop").unbind().click(stop);
       $(".captured-image *").css("display", "none");
-      swfobject.embedSWF(viewerUrl, "viewer-swf", "465", "465", "9.0.0", false,	{url: codeUrl}, swfParams);
+      swfobject.embedSWF(viewerUrl, "viewer-swf", "465", "465", "10.0.0", false, {url: codeUrl}, swfParams);
     }
 
     function stop() {

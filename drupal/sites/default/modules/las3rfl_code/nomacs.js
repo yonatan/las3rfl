@@ -25,7 +25,7 @@ $(function() {
       };
       var evalParams = {allowscriptaccess: "never", allowfullscreen: "true"};
       var swfUrl = "http://" + Drupal.settings.editorVars.swfDomain + modulePath + "EvalSWF.swf";
-      swfobject.embedSWF(swfUrl, "evaluatorSWF", "465", "465", "9.0.0", false, evalVars, evalParams);
+      swfobject.embedSWF(swfUrl, "evaluatorSWF", "465", "465", "10.0.0", false, evalVars, evalParams);
     };
 
     function addMessageCloseBtn() {
@@ -94,7 +94,7 @@ $(function() {
     var editorVars = Drupal ? Drupal.settings.editorVars : {};
     editorVars.connToken = token;
     // Embed the editor
-    swfobject.embedSWF(modulePath + "Nomacs.swf", "editorSWF", "100%", "100%", "9.0.0", false, editorVars);
+    swfobject.embedSWF(modulePath + "Nomacs.swf", "editorSWF", "100%", "100%", "10.0.0", false, editorVars);
     // Embed the evaluator
     resetEvalSWF();
 
