@@ -1,4 +1,5 @@
-// $Id: flag.js,v 1.1.2.7.2.5 2010/05/08 23:48:54 quicksketch Exp $
+// $Id: flag.js,v 1.1.2.7.2.6 2010/05/10 04:05:28 quicksketch Exp $
+(function ($) {
 
 /**
  * Terminology:
@@ -216,3 +217,5 @@ Drupal.behaviors.flagLink = function(context) {
   // On load, bind the click behavior for all links on the page.
   Drupal.flagLink(context);
 };
+
+})(jQuery);

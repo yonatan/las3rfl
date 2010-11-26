@@ -4,9 +4,9 @@ description = Create customized flags that users can set on content.
 core = 6.x
 package = Flags
 
-; Information added by drupal.org packaging script on 2010-05-09
-version = "6.x-2.0-beta3"
+; Information added by drupal.org packaging script on 2010-11-25
+version = "6.x-2.0-beta4"
 core = "6.x"
 project = "flag"
-datestamp = "1273366506"
+datestamp = "1290699340"
 

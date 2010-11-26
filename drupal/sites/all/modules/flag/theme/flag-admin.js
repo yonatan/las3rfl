@@ -1,4 +1,5 @@
-// $Id: flag-admin.js,v 1.1.2.2 2010/05/08 20:46:06 quicksketch Exp $
+// $Id: flag-admin.js,v 1.1.2.5 2010/09/02 03:55:54 mooffie Exp $
+(function ($) {
 
 /**
  * Behavior to disable the "unflag" option if "flag" is not available.
@@ -25,7 +26,7 @@ Drupal.behaviors.flagRoles = function(context) {
   });
 
   $('#flag-roles input.unflag-access', context).change(function() {
-    if ($(this).parents('tr:first').find('input.unflag-access:checked:not(:disabled)').size() > 0) {
+    if ($(this).parents('table:first').find('input.unflag-access:enabled:not(:checked)').size() == 0) {
       $('#edit-unflag-denied-text-wrapper').slideUp();
     }
     else {
@@ -34,7 +35,7 @@ Drupal.behaviors.flagRoles = function(context) {
   });
 
   // Hide the link options by default if needed.
-  if ($('#flag-roles input.unflag-access:checked:not(:disabled)').size() > 0) {
+  if ($('#flag-roles input.unflag-access:enabled:not(:checked)').size() == 0) {
     $('#edit-unflag-denied-text-wrapper').css('display', 'none');
   }
 };
@@ -45,25 +46,24 @@ Drupal.behaviors.flagRoles = function(context) {
  */
 Drupal.behaviors.flagLinkOptions = function(context) {
   $('.flag-link-options input.form-radio', context).change(function() {
+    // Reveal only the fieldset whose ID is link-options-LINKTYPE,
+    // where LINKTYPE is the value of the selected radio button.
     var radioButton = this;
-    $('#link-options').slideUp(function() {
-      $('#link-options input').each(function() {
-        $(this).parents('.form-item:first').css('display', 'none');
-      });
-      var linkOptionFields = $(radioButton).attr('rel');
-      if (linkOptionFields) {
-        linkOptionFields = linkOptionFields.split(' ');
-        for (var n in linkOptionFields) {
-          $('#link-options input[name=' + linkOptionFields[n] + ']').parents('.form-item:first').css('display', 'block');
-        }
-        $('#link-options').slideDown();
-      }
-    });
-  });
+    var $relevant   = $('fieldset#link-options-' + radioButton.value);
+    var $irrelevant = $('fieldset[id^=link-options-]').not($relevant);
+
+    $relevant.show();
+    $irrelevant.hide();
+
+    if ($relevant.size()) {
+      $('#link-options-intro').show();
+    }
+    else {
+      $('#link-options-intro').hide();
+    }
+  })
   // Hide the link options by default if needed.
-  if (!$('.flag-link-options input.form-radio:checked').attr('rel')) {
-    $('#link-options').css('display', 'none');
-  }
+  .filter(':checked').trigger('change');
 };
 
 /**
@@ -73,10 +73,8 @@ Drupal.verticalTabs = Drupal.verticalTabs || {};
 
 Drupal.verticalTabs.flag = function() {
   var flags = [];
-  $('fieldset.vertical-tabs-flag input.form-checkbox').each(function() {
-    if (this.checked) {
-      flags.push(this.name.replace(/flag\[([a-z0-9]+)\]/, '$1'));
-    }
+  $('fieldset.vertical-tabs-flag input:checkbox:checked').each(function() {
+    flags.push(this.title);
   });
 
   if (flags.length) {
@@ -86,3 +84,5 @@ Drupal.verticalTabs.flag = function() {
     return Drupal.t('No flags');
   }
 }
+
+})(jQuery);

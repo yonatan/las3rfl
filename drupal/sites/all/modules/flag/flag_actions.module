@@ -1,5 +1,5 @@
 <?php
-// $Id: flag_actions.module,v 1.1.2.12.2.6 2010/05/08 01:29:36 quicksketch Exp $
+// $Id: flag_actions.module,v 1.1.2.12.2.8 2010/08/16 20:32:29 mooffie Exp $
 
 /**
  * @file
@@ -60,7 +60,7 @@ function flag_actions_menu() {
 function flag_actions_theme() {
   return array(
     'flag_actions_page' => array(
-      'arguments' => array('actions' => NULL),
+      'arguments' => array('actions' => NULL, 'form' => NULL),
     ),
     'flag_actions_add_form' => array(
       'arguments' => array('form' => NULL),
@@ -183,7 +183,7 @@ function flag_actions_do($event, $flag, $content_id, $account) {
   $flag_action->action = $event;
   $flag_action->count = $count = $flag->get_count($content_id);
   $relevant_objects = $flag->get_relevant_action_objects($content_id);
-  $node_changed = FALSE;
+  $object_changed = FALSE;
   foreach ($actions as $aid => $action) {
     if ($action->event == 'flag') {
       $at_threshold = ($count == $action->threshold);
@@ -223,15 +223,19 @@ function flag_actions_do($event, $flag, $content_id, $account) {
         }
       }
 
-      if (is_array($action->behavior) && in_array('changes_node_property', $action->behavior)) {
-        $node_changed = TRUE;
+      if (is_array($action->behavior) && in_array('changes_' . $action->type . '_property', $action->behavior)) {
+        $object_changed = TRUE;
       }
     }
   }
-  if ($node_changed) {
-    node_save_action($relevant_objects['node']);
-    // Remember this modified node for the next round, if there's any.
-    $flag->remember_content($content_id, $relevant_objects['node']);
+
+  // Actions by default do not save elements unless the save action is
+  // explicitly added. We run it automatically upon flagging.
+  if ($object_changed) {
+    $save_action = $action->type . '_save_action';
+    if (function_exists($save_action)) {
+      $save_action($relevant_objects[$action->type]);
+    }
   }
 }
 
@@ -514,10 +518,12 @@ function flag_actions_form_additions($callback, $edit) {
 function flag_actions_form_validate($form, &$form_state) {
   // Special validation handlers may be needed to save this form properly.
   // Try to load the action's validation routine if needed.
-  $callback = $form_state['values']['flag']['callback'];
-  $validate_function = $callback . '_validate';
-  if (function_exists($validate_function)) {
-    $validate_function($form, $form_state);
+  if (isset($form_state['values']['flag']['callback'])) {
+    $callback = $form_state['values']['flag']['callback'];
+    $validate_function = $callback . '_validate';
+    if (function_exists($validate_function)) {
+      $validate_function($form, $form_state);
+    }
   }
 }
 
@@ -653,14 +659,14 @@ function flag_actions_token_actions_send_email_action_form(&$form, &$flag, $cont
     '#collapsed' => TRUE,
   );
   $form['help']['basic'] = array(
-    '#value' => theme('flag_token_help', array('flag', 'flag-action')),
+    '#value' => theme('flag_tokens_browser', array('flag', 'flag-action')),
   );
 
   $form['help']['tokens'] = array(
     '#type' => 'fieldset',
     '#title' => t('More tokens'),
     '#description' => t("Depending on the type of the content being flagged, the following tokens can be used in the recipients, subject, or message. For example, if the content being flagged is a node, you can use any of the node tokens --but you can't use the comment tokens: they won't be recognized. Similarly, if the content being flagged is a user, you can use only the user tokens."),
-    '#value' => theme('flag_token_help', $flag->get_labels_token_types()),
+    '#value' => theme('flag_tokens_browser', $flag->get_labels_token_types()),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );

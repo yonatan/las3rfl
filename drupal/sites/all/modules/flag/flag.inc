@@ -1,5 +1,5 @@
 <?php
-// $Id: flag.inc,v 1.1.2.30.2.24 2010/05/08 23:48:54 quicksketch Exp $
+// $Id: flag.inc,v 1.1.2.30.2.29 2010/09/02 04:53:47 mooffie Exp $
 
 /**
  * @file
@@ -162,7 +162,7 @@ class flag_flag {
       $flag->$option = $value;
     }
 
-    if (is_array($config['locked'])) {
+    if (isset($config['locked']) && is_array($config['locked'])) {
       $flag->locked = drupal_map_assoc($config['locked']);
     }
 
@@ -208,7 +208,6 @@ class flag_flag {
     drupal_alter('flag_options', $options, $this);
     return $options;
   }
-
   /**
    * Provides a form for setting options.
    *
@@ -598,7 +597,7 @@ class flag_flag {
   }
 
   /**
-   * Returns TRUE if a certain user has flagged this content.
+   * Determines if a certain user has flagged this content.
    *
    * Thanks to using a cache, inquiring several different flags about the same
    * item results in only one SQL query.
@@ -606,18 +605,38 @@ class flag_flag {
    * @param $uid
    *   Optional. The user ID whose flags we're checking. If none given, the
    *   current user will be used.
+   *
+   * @return
+   *   TRUE if the content is flagged, FALSE otherwise.
    */
   function is_flagged($content_id, $uid = NULL, $sid = NULL) {
+    return (bool) $this->get_flagging_record($content_id, $uid, $sid);
+  }
+
+  /**
+   * Returns the flagging record.
+   *
+   * This method returns the "flagging record": the {flag_content} record that
+   * exists for each flagged item (for a certain user). If the item isn't
+   * flagged, returns NULL. This method could be useful, for example, when you
+   * want to find out the 'fcid' or 'timestamp' values.
+   *
+   * Thanks to using a cache, inquiring several different flags about the same
+   * item results in only one SQL query.
+   *
+   * Parameters are the same as is_flagged()'s.
+   */
+  function get_flagging_record($content_id, $uid = NULL, $sid = NULL) {
     $uid = $this->global ? 0 : (!isset($uid) ? $GLOBALS['user']->uid : $uid);
     $sid = $this->global ? 0 : (!isset($sid) ? flag_get_sid($uid) : $sid);
 
     // flag_get_user_flags() does caching.
     $user_flags = flag_get_user_flags($this->content_type, $content_id, $uid, $sid);
-    return isset($user_flags[$this->name]);
+    return isset($user_flags[$this->name]) ? $user_flags[$this->name] : NULL;
   }
 
   /**
-   * Returns TRUE if a certain user has flagged this content.
+   * Determines if a certain user has flagged this content.
    *
    * You probably shouldn't call this raw private method: call the
    * is_flagged() method instead.
@@ -626,10 +645,14 @@ class flag_flag {
    * doesn't do caching. Use it when you want to not affect the cache, or to
    * bypass it.
    *
+   * @return
+   *   If the content is flagged, returns the value of the 'fcid' column.
+   *   Else, returns FALSE.
+   *
    * @private
    */
   function _is_flagged($content_id, $uid, $sid) { 
-    return db_result(db_query("SELECT fid FROM {flag_content} WHERE fid = %d AND uid = %d AND sid = %d AND content_id = %d", $this->fid, $uid, $sid, $content_id));
+    return db_result(db_query("SELECT fcid FROM {flag_content} WHERE fid = %d AND uid = %d AND sid = %d AND content_id = %d", $this->fid, $uid, $sid, $content_id));
   }
 
   /**
@@ -637,6 +660,9 @@ class flag_flag {
    *
    * You probably shouldn't call this raw private method: call the flag()
    * function instead.
+   *
+   * @return
+   *   The 'fcid' column of the new {flag_content} record.
    *
    * @private
    */
@@ -652,6 +678,10 @@ class flag_flag {
    *
    * You probably shouldn't call this raw private method: call the flag()
    * function instead.
+   *
+   * @return
+   *   If the content was flagged, returns the value of the now deleted 'fcid'
+   *   column. Else, returns FALSE.
    *
    * @private
    */
@@ -814,7 +844,7 @@ class flag_flag {
   }
 
   /**
-   * Replaces tokens in a label. Only the 'global' token context is regognized
+   * Replaces tokens in a label. Only the 'global' token context is recognized
    * by default, so derived classes should override this method to add all
    * token contexts they understand.
    */
@@ -830,7 +860,7 @@ class flag_flag {
    * Derived classes should override this.
    */
   function get_labels_token_types() {
-    return array('global');
+    return array();
   }
 
   /**
@@ -1034,6 +1064,19 @@ class flag_flag {
   }
 
   /**
+   * Returns administrative menu path for carrying out some action.
+   */
+  function admin_path($action) {
+    if ($action == 'edit') {
+      // Since 'edit' is the default tab, we omit the action.
+      return FLAG_ADMIN_PATH . '/manage/' . $this->name;
+    }
+    else {
+      return FLAG_ADMIN_PATH . '/manage/' . $this->name . '/' . $action;
+    }
+  }
+
+  /**
    * Renders a flag/unflag link. This is a wrapper around theme('flag') that,
    * in Drupal 6, easily channels the call to the right template file.
    *
@@ -1199,13 +1242,15 @@ class flag_node extends flag_flag {
     return parent::flag($action, $content_id, $account, $skip_permission_check);
   }
 
-  function is_flagged($content_id, $uid = NULL, $sid = NULL) {
+  // Instead of overriding is_flagged() we override get_flagging_record(),
+  // which is the underlying method.
+  function get_flagging_record($content_id, $uid = NULL, $sid = NULL) {
     $content_id = $this->get_translation_id($content_id);
-    return parent::is_flagged($content_id, $uid, $sid);
+    return parent::get_flagging_record($content_id, $uid, $sid);
   }
 
   function get_labels_token_types() {
-    return array('node');
+    return array_merge(array('node'), parent::get_labels_token_types());
   }
 
   function replace_tokens($label, $contexts, $content_id) {
@@ -1353,7 +1398,7 @@ class flag_comment extends flag_flag  {
   }
 
   function get_labels_token_types() {
-    return array('comment', 'node');
+    return array_merge(array('comment', 'node'), parent::get_labels_token_types());
   }
 
   function replace_tokens($label, $contexts, $content_id) {
@@ -1457,7 +1502,7 @@ class flag_user extends flag_flag {
   }
 
   function _load_content($content_id) {
-    return user_load(array('uid' => $content_id));
+    return user_load($content_id);
   }
 
   function applies_to_content_object($user) {
@@ -1503,14 +1548,14 @@ class flag_user extends flag_flag {
   }
 
   function uses_hook_link($teaser) {
-    if ($this->show_on_profile){
+    if ($this->show_on_profile) {
       return TRUE;
     }
     return FALSE;
   }
 
   function get_labels_token_types() {
-    return array('user');
+    return array_merge(array('user'), parent::get_labels_token_types());
   }
 
   function replace_tokens($label, $contexts, $content_id) {

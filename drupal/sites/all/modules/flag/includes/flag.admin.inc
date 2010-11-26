@@ -1,5 +1,5 @@
 <?php
-// $Id: flag.admin.inc,v 1.1.4.2.2.11 2010/05/08 02:20:35 quicksketch Exp $
+// $Id: flag.admin.inc,v 1.1.4.2.2.16 2010/09/02 02:34:27 mooffie Exp $
 
 /**
  * @file
@@ -19,15 +19,15 @@ function flag_admin_page() {
  * Theme the output for the main flag administration page.
  */
 function theme_flag_admin_page($flags, $default_flags) {
-  $output = '<p>' . t('This page lists all the <em>flags</em> that are currently defined on this system. You may <a href="@add-url">add new flags</a>.', array('@add-url' => url('admin/build/flags/add'))) . '</p>';
+  $output = '';
 
   // Build out the list of normal, database flags.
   foreach ($flags as $flag) {
-    $ops = theme('links', array(
-      'flags_edit' =>  array('title' => t('edit'), 'href' => 'admin/build/flags/edit/' . $flag->name),
-      'flags_delete' =>  array('title' => t('delete'), 'href' => 'admin/build/flags/delete/' . $flag->name),
-      'flags_export' =>  array('title' => t('export'), 'href' => 'admin/build/flags/export/' . $flag->name),
-    ));
+    $ops = array(
+      'flags_edit' =>  array('title' => t('edit'), 'href' => $flag->admin_path('edit')),
+      'flags_delete' =>  array('title' => t('delete'), 'href' => $flag->admin_path('delete')),
+      'flags_export' =>  array('title' => t('export'), 'href' => $flag->admin_path('export')),
+    );
 
     $roles = array_flip(array_intersect(array_flip(user_roles()), $flag->roles['flag']));
     $rows[] = array(
@@ -36,7 +36,7 @@ function theme_flag_admin_page($flags, $default_flags) {
       empty($flag->roles['flag']) ? '<em>' . t('No roles') . '</em>' : implode(', ', $roles),
       $flag->types ? implode(', ', $flag->types) : '-',
       $flag->global ? t('Yes') : t('No'),
-      $ops,
+      theme('links', $ops),
     );
   }
   if (!$flags) {
@@ -52,16 +52,13 @@ function theme_flag_admin_page($flags, $default_flags) {
   $rows = array();
   foreach ($default_flags as $name => $flag) {
     if (!isset($flags[$name])) {
+      $ops = array();
       if ($flag->api_version < FLAG_API_VERSION) {
         $flag_updates_needed = TRUE;
-        $ops = theme('links', array(
-          'flags_update' => array('title' => '<strong>' . t('update code') . '</strong>', 'href' => 'admin/build/flags/update/' . $flag->name, 'html' => TRUE),
-        ));
+        $ops['flags_update'] = array('title' => '<strong>' . t('update code') . '</strong>', 'href' => $flag->admin_path('update'), 'html' => TRUE);
       }
       else {
-        $ops = theme('links', array(
-          'flags_enable' => array('title' => t('enable'), 'href' => 'admin/build/flags/edit/' . $flag->name),
-        ));
+        $ops['flags_enable'] = array('title' => t('enable'), 'href' => $flag->admin_path('edit'));
       }
       // $flag->roles['flag'] not exist on older flags.
       $roles = array_flip(array_intersect(array_flip(user_roles()), !empty($flag->roles['flag']) ? $flag->roles['flag'] : array()));
@@ -69,7 +66,7 @@ function theme_flag_admin_page($flags, $default_flags) {
         $flag->name,
         $flag->module,
         $flag->content_type,
-        $ops,
+        theme('links', $ops),
       );
     }
   }
@@ -119,8 +116,11 @@ function theme_flag_admin_page($flags, $default_flags) {
  * Menu callback for adding a new flag.
  */
 function flag_add_page($type = NULL, $name = NULL) {
+  drupal_set_title(t('Add new flag'));
   if (isset($type) && isset($name)) {
-    return drupal_get_form('flag_form', $name, $type);
+    $flag = flag_flag::factory_by_content_type($type);
+    $flag->name = $name;
+    return drupal_get_form('flag_form', $flag);
   }
   else {
     return drupal_get_form('flag_add_form');
@@ -181,29 +181,7 @@ function flag_add_form_submit($form, &$form_state) {
 /**
  * Add/Edit flag page.
  */
-function flag_form(&$form_state, $name, $type = NULL) {
-  if (isset($type)) {
-    // Adding a new flag.
-    $flag = flag_flag::factory_by_content_type($type);
-    $flag->name = $name;
-    drupal_set_title(t('Add new flag'));
-  }
-  else {
-    // Editing an existing flag.
-    $flag = flag_get_flag($name);
-    if (empty($flag)) {
-      // Check if we're overriding a default flag.
-      $default_flags = flag_get_default_flags(TRUE);
-      if (isset($default_flags[$name])) {
-        $flag = $default_flags[$name];
-      }
-      else {
-        drupal_goto('admin/build/flags');
-      }
-    }
-    drupal_set_title(t('Edit @title flag', array('@title' => $flag->get_title())));
-  }
-
+function flag_form(&$form_state, $flag) {
   $form['#flag'] = $flag;
 
   $form['name'] = array(
@@ -297,10 +275,18 @@ function flag_form(&$form_state, $name, $type = NULL) {
   );
 
   if (module_exists('token')) {
-    $form['messages']['token_help'] = array(
+    $form['messages']['tokens_help'] = array(
       '#title' => t('Token replacement'),
       '#type' => 'fieldset',
-      '#description' => t('The above six options may contain the following wildcard replacements. For example, "Mark Link" could be entered as "Add [title] to your flags" or "Add this [type-name] to your flags". These wildcards will be replaced with the appropriate field from the node.') . theme('flag_token_help', $flag->get_labels_token_types()),
+      '#description' =>
+        '<p>' . t('The above six texts may contain any of the tokens listed below. For example, <em>"Flag link text"</em> could be entered as:') . '</p>' .
+        theme('item_list', array(
+          t('Add &lt;em&gt;[title]&lt;/em&gt; to your favorites'),
+          t('Add this [type] to your favorites'),
+          t('Vote for this proposal ([flag-vote-count] people have already done so)'),
+        ), NULL, 'ul', array('class' => 'token-examples')) .
+        '<p>' . t('These tokens will be replaced with the appropriate fields from the node (or user, or comment).') . '</p>' .
+        theme('flag_tokens_browser', $flag->get_labels_token_types()),
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
     );
@@ -396,15 +382,23 @@ function flag_form(&$form_state, $name, $type = NULL) {
     '#access' => empty($flag->locked['link_type']),
   );
 
-  $form['link_options'] = array(
+  $form['display']['link_options_intro'] = array(
+    '#value' => '<p id="link-options-intro">' . t('The selected link type may require these additional settings:') . '</p>',
+    '#weight' => 20,
+  );
+
+  $form['display']['link_options_confirm'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Link options'),
-    '#description' => t('The selected link type may require these additional settings.'),
-    '#attributes' => array('id' => 'link-options'),
+    '#title' => t('Options for the "Confirmation form" link type'),
+    // Any "link type" provider module must put its settings fields inside
+    // a fieldset whose HTML ID is link-options-LINKTYPE, where LINKTYPE is
+    // the machine-name of the link type. This is necessary for the
+    // radiobutton's JavaScript dependency feature to work.
+    '#attributes' => array('id' => 'link-options-confirm'),
     '#weight' => 21,
   );
 
-  $form['link_options']['flag_confirmation'] = array(
+  $form['display']['link_options_confirm']['flag_confirmation'] = array(
     '#type' => 'textfield',
     '#title' => t('Flag confirmation message'),
     '#default_value' => isset($flag->flag_confirmation) ? $flag->flag_confirmation : '',
@@ -412,7 +406,7 @@ function flag_form(&$form_state, $name, $type = NULL) {
     '#access' => empty($flag->locked['flag_confirmation']),
   );
 
-  $form['link_options']['unflag_confirmation'] = array(
+  $form['display']['link_options_confirm']['unflag_confirmation'] = array(
     '#type' => 'textfield',
     '#title' => t('Unflag confirmation message'),
     '#default_value' => isset($flag->unflag_confirmation) ? $flag->unflag_confirmation : '',
@@ -505,12 +499,7 @@ function theme_flag_form_roles($element) {
 /**
  * Delete flag page.
  */
-function flag_delete_confirm(&$form_state, $name) {
-  $flag = flag_get_flag($name);
-  if (empty($flag)) {
-    drupal_goto('admin/build/flags');
-  }
-
+function flag_delete_confirm(&$form_state, $flag) {
   $form['fid'] = array('#type' => 'value', '#value' => $flag->fid);
 
   return confirm_form($form,
@@ -542,10 +531,6 @@ function flag_expand_link_option($element) {
     // Add a description to the link option.
     if (isset($element['#option_descriptions'][$key])) {
       $element[$key]['#description'] = $element['#option_descriptions'][$key];
-    }
-    // Add a list of fields dependent on this link type using the rel attribute.
-    if (isset($element['#flag_link_fields'][$key])) {
-      $element[$key]['#attributes']['rel'] = implode(' ', $element['#flag_link_fields'][$key]);
     }
   }
   $element['#attributes']['class'] = 'flag-link-options';
