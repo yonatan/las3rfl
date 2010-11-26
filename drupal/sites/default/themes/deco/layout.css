@@ -327,6 +327,6 @@ body #featured .region-content {
 }
 
 a:hover#play-button { opacity: 0.5; }
-.raw-code-link { float: right; font--size: 0.8em; }
+.raw-code-link { float: right; font-size: 0.8em; }
 
-.addthis_toolbox { float: right; margin-top: 5px; }
+.addthis_toolbox { float: right; margin-top: 5px; width: 160px; }
