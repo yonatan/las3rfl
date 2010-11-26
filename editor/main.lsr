@@ -1468,7 +1468,7 @@ comment tokens."
       (show-modal window)))  
 
     (def-command quit
-      {:doc "Quit editor and go to current code's view page."
+      {:doc "Quit editor and go to current code's view page (writes buffer to local storage before quitting)."
        :key "q"
        :modifiers [:ctrl]}
       (save-to-lso!) ;; just in case
