@@ -1,6 +1,6 @@
-### Source code for http://zozuar.org/las3rfl/
+Source code for http://zozuar.org/las3rfl/
 
-#### Made with bits and pieces from:
+Made with bits and pieces from:
 
 Aemon Cannon's Las3r
 https://github.com/aemoncannon/las3r
