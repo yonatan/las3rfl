@@ -19,13 +19,13 @@ $(function() {
     var swfParams = {allowscriptaccess: "never", allowfullscreen: "true"};
     function play() {
       $("#playStop a").text("Stop").unbind().click(stop);
-      $(".captured-image *").css("display", "none");
+      $(".node-page .captured-image *").css("display", "none");
       swfobject.embedSWF(viewerUrl, "viewer-swf", "465", "465", "10.0.0", false, {url: codeUrl}, swfParams);
     }
 
     function stop() {
       $("#playStop a").text("Play").unbind().click(play);
-      $(".captured-image *").css("display", "inherit");
+      $(".node-page .captured-image *").css("display", "inherit");
       $("#viewer-swf").css("display", "none");
     }
 
