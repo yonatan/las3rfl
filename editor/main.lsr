@@ -1334,7 +1334,7 @@ comment tokens."
 (def *drupal* nil)
 
 ;; init backend connection
-(when-not (nil? *nid*) ;; when there is a drupal backend to talk to
+(when (. *parameters* basePath) ;; when there is a drupal backend to talk to
   (defn serialize
     "Las3r structure serializer for rpc, recursively converts maps to objects, vectors to arrays and anything else to a string."
     [x]
