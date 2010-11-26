@@ -1,0 +1,1501 @@
+<?xml version="1.0" encoding ="utf-8"?>
+<swc xmlns="http://www.adobe.com/flash/swccatalog/9">
+  <versions>
+    <swc version="1.2" />
+    <flex version="4.0.0" build="14159" minimumSupportedVersion="3.0.0" />
+  </versions>
+  <features>
+    <feature-script-deps />
+    <feature-files />
+  </features>
+  <libraries>
+    <library path="library.swf">
+      <script name="org/si/sound/synthesizers/VoiceReference" mod="1271158352000" signatureChecksum="50310510" >
+        <def id="org.si.sound.synthesizers:VoiceReference" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="s" /> 
+        <dep id="org.si.sion:SiONVoice" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.synthesizers:_synthesizer_internal" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/synthesizers/BasicSynth" mod="1281333136000" signatureChecksum="3209151946" >
+        <def id="org.si.sound.synthesizers:BasicSynth" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="e" /> 
+        <dep id="org.si.sion:SiONVoice" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMChannelParam" type="s" /> 
+        <dep id="org.si.sion:SiONVoice" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.synthesizers:_synthesizer_internal" type="n" /> 
+        <dep id="org.si.sound.synthesizers:VoiceReference" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiEffectBase" mod="1267145980000" signatureChecksum="4200815500" >
+        <def id="org.si.sion.effector:SiEffectBase" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiFilterBase" mod="1243486010000" signatureChecksum="499087027" >
+        <def id="org.si.sion.effector:SiFilterBase" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.effector:SiEffectBase" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiFilterNotch" mod="1269411960000" signatureChecksum="2616351428" >
+        <def id="org.si.sion.effector:SiFilterNotch" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.effector:SiFilterBase" type="i" /> 
+      </script>
+      <script name="org/si/sound/SoundObject" mod="1282182196000" signatureChecksum="1348266796" >
+        <def id="org.si.sound:SoundObject" /> 
+        <dep id="org.si.sound.events:SoundObjectEvent" type="e" /> 
+        <dep id="org.si.sion.events:SiONTrackEvent" type="e" /> 
+        <dep id="org.si.sion.events:SiONEvent" type="e" /> 
+        <dep id="org.si.sion.utils:Fader" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="e" /> 
+        <dep id="org.si.sound.core:EffectChain" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="org.si.sound.synthesizers:VoiceReference" type="e" /> 
+        <dep id="org.si.sion:SiONDriver" type="e" /> 
+        <dep id="org.si.sound.events:SoundObjectEvent" type="s" /> 
+        <dep id="org.si.sound.patterns:Sequencer" type="s" /> 
+        <dep id="org.si.sion:SiONData" type="s" /> 
+        <dep id="org.si.sion.utils:Fader" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="s" /> 
+        <dep id="Error" type="s" /> 
+        <dep id="org.si.sion.events:SiONTrackEvent" type="s" /> 
+        <dep id="org.si.sion.events:SiONEvent" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sound:SoundObjectContainer" type="s" /> 
+        <dep id="org.si.sound.core:EffectChain" type="s" /> 
+        <dep id="org.si.sion:SiONDriver" type="s" /> 
+        <dep id="org.si.sound.synthesizers:VoiceReference" type="s" /> 
+        <dep id="org.si.sion:SiONVoice" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.namespaces:_sound_object_internal" type="n" /> 
+        <dep id="org.si.sion.namespaces:_sion_internal" type="n" /> 
+        <dep id="org.si.sound.synthesizers:_synthesizer_internal" type="n" /> 
+        <dep id="flash.events:EventDispatcher" type="i" /> 
+      </script>
+      <script name="org/si/sound/MMLPlayer" mod="1271827054000" signatureChecksum="254191128" >
+        <def id="org.si.sound:MMLPlayer" /> 
+        <dep id="org.si.sion:SiONData" type="e" /> 
+        <dep id="org.si.sion:SiONData" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound:SoundObject" type="i" /> 
+      </script>
+      <script name="org/si/sound/patterns/PMLParser" mod="1282180432000" signatureChecksum="2164665501" >
+        <def id="org.si.sound.patterns:PMLParser" /> 
+        <dep id="org.si.sound.patterns:Note" type="e" /> 
+        <dep id="org.si.sound.patterns:Note" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/MultiTrackSoundObject" mod="1271948582000" signatureChecksum="410593770" >
+        <def id="org.si.sound:MultiTrackSoundObject" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="s" /> 
+        <dep id="org.si.sound.synthesizers:VoiceReference" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.namespaces:_sound_object_internal" type="n" /> 
+        <dep id="org.si.sound:SoundObject" type="i" /> 
+      </script>
+      <script name="org/si/sound/DrumMachine" mod="1271859818000" signatureChecksum="1317951161" >
+        <def id="org.si.sound:DrumMachine" /> 
+        <dep id="org.si.sound.events:SoundObjectEvent" type="e" /> 
+        <dep id="org.si.sound.patterns:DrumMachinePresetPattern" type="e" /> 
+        <dep id="org.si.sound.patterns:Sequencer" type="e" /> 
+        <dep id="org.si.sion:SiONData" type="e" /> 
+        <dep id="org.si.sound.synthesizers:DrumMachinePresetVoice" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="org.si.sound.patterns:DrumMachinePresetPattern" type="s" /> 
+        <dep id="org.si.sound.patterns:Sequencer" type="s" /> 
+        <dep id="org.si.sion:SiONData" type="s" /> 
+        <dep id="org.si.sound.synthesizers:DrumMachinePresetVoice" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="s" /> 
+        <dep id="org.si.sound.patterns:Note" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.namespaces:_sound_object_internal" type="n" /> 
+        <dep id="org.si.sound:MultiTrackSoundObject" type="i" /> 
+      </script>
+      <script name="org/si/sion/sequencer/base/MMLExecutorConnector" mod="1262710766000" signatureChecksum="1478985433" >
+        <def id="org.si.sion.sequencer.base:MMLExecutorConnector" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelBase" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequenceGroup" type="s" /> 
+        <dep id="RegExp" type="s" /> 
+        <dep id="Error" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequence" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:_sion_sequencer_internal" type="n" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/events/FlashSoundPlayerEvent" mod="1271780040000" signatureChecksum="3222280896" >
+        <def id="org.si.sound.events:FlashSoundPlayerEvent" /> 
+        <dep id="flash.events:IOErrorEvent" type="e" /> 
+        <dep id="flash.media:Sound" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.namespaces:_sound_object_internal" type="n" /> 
+        <dep id="flash.events:Event" type="i" /> 
+      </script>
+      <script name="org/si/sound/smf/SMFTrack" mod="1267168376000" signatureChecksum="3973664976" >
+        <def id="org.si.sound.smf:SMFTrack" /> 
+        <dep id="flash.utils:ByteArray" type="e" /> 
+        <dep id="org.si.sound.smf:SMFEvent" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="org.si.sound.smf:SMFEvent" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sound.smf:SMFData" type="s" /> 
+        <dep id="Error" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/patterns/Scaler" mod="1270606726000" signatureChecksum="191988520" >
+        <def id="org.si.sound.patterns:Scaler" /> 
+        <dep id="org.si.sion.utils:Scale" type="e" /> 
+        <dep id="org.si.sound.patterns:Note" type="e" /> 
+        <dep id="org.si.sion.utils:Scale" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Array" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiEffectSpeakerSimulator" mod="1269411606000" signatureChecksum="598965973" >
+        <def id="org.si.sion.effector:SiEffectSpeakerSimulator" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.effector:SiEffectBase" type="i" /> 
+      </script>
+      <script name="org/si/sound/synthesizers/PMGuitarSynth" mod="1271765072000" signatureChecksum="314152507" >
+        <def id="org.si.sound.synthesizers:PMGuitarSynth" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.synthesizers:_synthesizer_internal" type="n" /> 
+        <dep id="org.si.sound.synthesizers:BasicSynth" type="i" /> 
+      </script>
+      <script name="org/si/sound/PolyphonicSynthesizer" mod="1271837650000" signatureChecksum="805287651" >
+        <def id="org.si.sound:PolyphonicSynthesizer" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="s" /> 
+        <dep id="org.si.sound.synthesizers:VoiceReference" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.namespaces:_sound_object_internal" type="n" /> 
+        <dep id="org.si.sound:MultiTrackSoundObject" type="i" /> 
+      </script>
+      <script name="org/si/sound/synthesizers/WaveTableSynth" mod="1271337896000" signatureChecksum="188114408" >
+        <def id="org.si.sound.synthesizers:WaveTableSynth" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelFM" type="e" /> 
+        <dep id="org.si.sion.utils:SiONUtil" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWaveTable" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelFM" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveTable" type="s" /> 
+        <dep id="Error" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.synthesizers:_synthesizer_internal" type="n" /> 
+        <dep id="org.si.sound.synthesizers:BasicSynth" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiEffectStereoChorus" mod="1270734594000" signatureChecksum="4002912107" >
+        <def id="org.si.sion.effector:SiEffectStereoChorus" /> 
+        <dep id="org.si.sion.effector:SiEffectTable" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.effector:SiEffectBase" type="i" /> 
+      </script>
+      <script name="org/si/sion/module/channels/SiOPMChannelBase" mod="1283302914000" signatureChecksum="1775571808" >
+        <def id="org.si.sion.module.channels:SiOPMChannelBase" /> 
+        <dep id="org.si.sion.module:SiOPMStream" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMStream" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveBase" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="s" /> 
+        <dep id="org.si.utils:SLLint" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMChannelParam" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/module/channels/SiOPMChannelFM" mod="1282295106000" signatureChecksum="2907980988" >
+        <def id="org.si.sion.module.channels:SiOPMChannelFM" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMData" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sion.module.channels:SiOPMOperator" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWaveTable" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="e" /> 
+        <dep id="org.si.utils:SLLint" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMTable" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMData" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveBase" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.module.channels:SiOPMOperator" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveTable" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="s" /> 
+        <dep id="org.si.utils:SLLint" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMChannelParam" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMTable" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.namespaces:_sion_internal" type="n" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelBase" type="i" /> 
+      </script>
+      <script name="org/si/sion/module/channels/SiOPMChannelKS" mod="1282201672000" signatureChecksum="2566152585" >
+        <def id="org.si.sion.module.channels:SiOPMChannelKS" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTable" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMStream" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLVoice" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="s" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelBase" type="s" /> 
+        <dep id="org.si.sion.module.channels:SiOPMOperator" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="s" /> 
+        <dep id="org.si.utils:SLLint" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMTable" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelFM" type="i" /> 
+      </script>
+      <script name="org/si/sound/nsf/CPU" mod="1268037812000" signatureChecksum="4145570229" >
+        <def id="org.si.sound.nsf:CPU" /> 
+        <dep id="org.si.sound.nsf:MMU" type="e" /> 
+        <dep id="org.si.sound.nsf:NES" type="e" /> 
+        <dep id="org.si.sound.nsf:MMU" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/sequencer/base/MMLExecutor" mod="1283341053515" signatureChecksum="2922540191" >
+        <def id="org.si.sion.sequencer.base:MMLExecutor" /> 
+        <dep id="org.si.sion.sequencer.base:MMLParser" type="e" /> 
+        <dep id="org.si.utils:SLLint" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="e" /> 
+        <dep id="org.si.utils:SLLint" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequence" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:_sion_sequencer_internal" type="n" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiCtrlFilterBase" mod="1270810444000" signatureChecksum="1432303930" >
+        <def id="org.si.sion.effector:SiCtrlFilterBase" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTable" type="e" /> 
+        <dep id="org.si.utils:SLLint" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTable" type="s" /> 
+        <dep id="org.si.utils:SLLint" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.effector:SiEffectBase" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiCtrlFilterHighPass" mod="1269413402000" signatureChecksum="2760591635" >
+        <def id="org.si.sion.effector:SiCtrlFilterHighPass" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.effector:SiCtrlFilterBase" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiFilterPeak" mod="1269411998000" signatureChecksum="4227817670" >
+        <def id="org.si.sion.effector:SiFilterPeak" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.effector:SiFilterBase" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiEffectAutoPan" mod="1269412744000" signatureChecksum="64138528" >
+        <def id="org.si.sion.effector:SiEffectAutoPan" /> 
+        <dep id="org.si.utils:SLLNumber" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="org.si.utils:SLLNumber" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.effector:SiEffectBase" type="i" /> 
+      </script>
+      <script name="org/si/sound/synthesizers/AnalogSynth" mod="1282300528000" signatureChecksum="2409710772" >
+        <def id="org.si.sound.synthesizers:AnalogSynth" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelFM" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMOperatorParam" type="s" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelFM" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.synthesizers:_synthesizer_internal" type="n" /> 
+        <dep id="org.si.sound.synthesizers:BasicSynth" type="i" /> 
+      </script>
+      <script name="org/si/sound/nsf/NES" mod="1268037816000" signatureChecksum="1268928174" >
+        <def id="org.si.sound.nsf:NES" /> 
+        <dep id="org.si.sound.nsf:PPU" type="e" /> 
+        <dep id="org.si.sound.nsf:PAD" type="e" /> 
+        <dep id="org.si.sound.nsf:CPU" type="e" /> 
+        <dep id="org.si.sound.nsf:APU" type="e" /> 
+        <dep id="org.si.sound.nsf:PPU" type="s" /> 
+        <dep id="org.si.sound.nsf:PAD" type="s" /> 
+        <dep id="org.si.sound.nsf:CPU" type="s" /> 
+        <dep id="org.si.sound.nsf:NESconfig" type="s" /> 
+        <dep id="org.si.sound.nsf:Mapper" type="s" /> 
+        <dep id="org.si.sound.nsf:ROM" type="s" /> 
+        <dep id="org.si.sound.nsf:APU" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/mdx/MDXExecutor" mod="1269796268000" signatureChecksum="1672564591" >
+        <def id="org.si.sound.mdx:MDXExecutor" /> 
+        <dep id="org.si.sound.mdx:MDXEvent" type="e" /> 
+        <dep id="org.si.sion:SiONDriver" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="e" /> 
+        <dep id="org.si.sound.mdx:MDXData" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLSequencer" type="s" /> 
+        <dep id="org.si.sound.mdx:MDXEvent" type="s" /> 
+        <dep id="org.si.sound.mdx:MDXTrack" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequence" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/utils/AbstructLoader" mod="1282277906000" signatureChecksum="2672140018" >
+        <def id="org.si.utils:AbstructLoader" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.events:ProgressEvent" type="e" /> 
+        <dep id="flash.events:IOErrorEvent" type="e" /> 
+        <dep id="flash.net:URLLoader" type="e" /> 
+        <dep id="flash.events:SecurityErrorEvent" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="flash.events:ErrorEvent" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.events:ProgressEvent" type="s" /> 
+        <dep id="flash.net:URLRequest" type="s" /> 
+        <dep id="flash.net:URLLoader" type="s" /> 
+        <dep id="flash.events:ErrorEvent" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.events:EventDispatcher" type="i" /> 
+      </script>
+      <script name="org/si/sion/sequencer/base/MMLEvent" mod="1282183640000" signatureChecksum="3055548252" >
+        <def id="org.si.sion.sequencer.base:MMLEvent" /> 
+        <dep id="org.si.sion.sequencer.base:MMLParser" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/smf/SMFEvent" mod="1266452206000" signatureChecksum="1871757092" >
+        <def id="org.si.sound.smf:SMFEvent" /> 
+        <dep id="flash.utils:ByteArray" type="e" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/synthesizers/FMSynth" mod="1271162220000" signatureChecksum="1684507797" >
+        <def id="org.si.sound.synthesizers:FMSynth" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sound.synthesizers:FMSynthOperator" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sound.synthesizers:FMSynthOperator" type="s" /> 
+        <dep id="org.si.sion:SiONVoice" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.synthesizers:_synthesizer_internal" type="n" /> 
+        <dep id="org.si.sound.synthesizers:BasicSynth" type="i" /> 
+      </script>
+      <script name="org/si/utils/SLLint" mod="1282278162000" signatureChecksum="674605919" >
+        <def id="org.si.utils:SLLint" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/patterns/Note" mod="1282203212000" signatureChecksum="2223535688" >
+        <def id="org.si.sound.patterns:Note" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/mdx/PDXDataStorage" mod="1269863930000" signatureChecksum="153906246" >
+        <def id="org.si.sound.mdx:PDXDataStorage" /> 
+        <dep id="org.si.sound.mdx:PDXData" type="e" /> 
+        <dep id="flash.net:URLRequest" type="s" /> 
+        <dep id="org.si.sound.mdx:PDXData" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/PatternSequencer" mod="1282180524000" signatureChecksum="3861610978" >
+        <def id="org.si.sound:PatternSequencer" /> 
+        <dep id="org.si.sound.patterns:Sequencer" type="e" /> 
+        <dep id="org.si.sion:SiONData" type="e" /> 
+        <dep id="org.si.sound.patterns:Sequencer" type="s" /> 
+        <dep id="org.si.sion:SiONData" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="s" /> 
+        <dep id="org.si.sound.synthesizers:VoiceReference" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.namespaces:_sound_object_internal" type="n" /> 
+        <dep id="org.si.sound:SoundObject" type="i" /> 
+      </script>
+      <script name="org/si/sound/FlashSoundPlayer" mod="1271766260000" signatureChecksum="253106025" >
+        <def id="org.si.sound:FlashSoundPlayer" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="org.si.sound.synthesizers:SamplerSynth" type="e" /> 
+        <dep id="flash.events:ProgressEvent" type="e" /> 
+        <dep id="flash.events:IOErrorEvent" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="org.si.sound.events:FlashSoundPlayerEvent" type="e" /> 
+        <dep id="flash.media:Sound" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="org.si.sound.synthesizers:SamplerSynth" type="s" /> 
+        <dep id="flash.events:ProgressEvent" type="s" /> 
+        <dep id="flash.net:URLRequest" type="s" /> 
+        <dep id="flash.media:SoundLoaderContext" type="s" /> 
+        <dep id="org.si.sound.events:FlashSoundPlayerEvent" type="s" /> 
+        <dep id="org.si.sion:SiONVoice" type="s" /> 
+        <dep id="org.si.sound.synthesizers:VoiceReference" type="s" /> 
+        <dep id="flash.media:Sound" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.namespaces:_sound_object_internal" type="n" /> 
+        <dep id="org.si.sound.synthesizers:_synthesizer_internal" type="n" /> 
+        <dep id="org.si.sound:PatternSequencer" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiFilterBandPass" mod="1269411948000" signatureChecksum="2992725220" >
+        <def id="org.si.sion.effector:SiFilterBandPass" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.effector:SiFilterBase" type="i" /> 
+      </script>
+      <script name="org/si/sion/utils/Scale" mod="1271639036000" signatureChecksum="2328838636" >
+        <def id="org.si.sion.utils:Scale" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="RegExp" type="s" /> 
+        <dep id="Error" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/synthesizers/IFlashSoundOperator" mod="1271746490000" signatureChecksum="1534216927" >
+        <def id="org.si.sound.synthesizers:IFlashSoundOperator" /> 
+        <dep id="flash.media:Sound" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.synthesizers:BasicSynth" type="i" /> 
+      </script>
+      <script name="org/si/sound/synthesizers/SamplerSynth" mod="1282181340000" signatureChecksum="1489492576" >
+        <def id="org.si.sound.synthesizers:SamplerSynth" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerData" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerTable" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerData" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerTable" type="s" /> 
+        <dep id="flash.media:Sound" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.synthesizers:_synthesizer_internal" type="n" /> 
+        <dep id="org.si.sound.synthesizers:IFlashSoundOperator" type="i" /> 
+      </script>
+      <script name="org/si/sion/sequencer/base/MMLData" mod="1282181150000" signatureChecksum="1713079696" >
+        <def id="org.si.sion.sequencer.base:MMLData" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequenceGroup" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:BeatPerMinutes" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWaveTable" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequence" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerTable" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMTable" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequenceGroup" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:BeatPerMinutes" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveTable" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequence" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerTable" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMTable" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:_sion_sequencer_internal" type="n" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.module:_siopm_module_internal" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/MonophonicSynthesizer" mod="1282202024000" signatureChecksum="606075860" >
+        <def id="org.si.sound:MonophonicSynthesizer" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sound.patterns:Note" type="e" /> 
+        <dep id="org.si.sound.patterns:Sequencer" type="s" /> 
+        <dep id="org.si.sound.synthesizers:VoiceReference" type="s" /> 
+        <dep id="org.si.sound.patterns:Note" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.namespaces:_sound_object_internal" type="n" /> 
+        <dep id="org.si.sound:PatternSequencer" type="i" /> 
+      </script>
+      <script name="org/si/sion/sequencer/SiMMLTrack" mod="1283342996718" signatureChecksum="1259301157" >
+        <def id="org.si.sion.sequencer:SiMMLTrack" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTable" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLExecutor" type="e" /> 
+        <dep id="org.si.utils:SLLint" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLData" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:BeatPerMinutes" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLEnvelopTable" type="s" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelBase" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTable" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLExecutor" type="s" /> 
+        <dep id="org.si.utils:SLLint" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLChannelSetting" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequence" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLData" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:_sion_sequencer_internal" type="n" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.namespaces:_sion_internal" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/mdx/PDXData" mod="1269859336000" signatureChecksum="3912993582" >
+        <def id="org.si.sound.mdx:PDXData" /> 
+        <dep id="flash.utils:ByteArray" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sion.utils:SiONUtil" type="e" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.utils:AbstructLoader" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiFilterLowPass" mod="1269412120000" signatureChecksum="3904002944" >
+        <def id="org.si.sion.effector:SiFilterLowPass" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.effector:SiFilterBase" type="i" /> 
+      </script>
+      <script name="org/si/sound/synthesizers/FMSynthOperator" mod="1271162230000" signatureChecksum="1237482050" >
+        <def id="org.si.sound.synthesizers:FMSynthOperator" /> 
+        <dep id="org.si.sion.module:SiOPMOperatorParam" type="s" /> 
+        <dep id="org.si.sound.synthesizers:FMSynth" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.synthesizers:_synthesizer_internal" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/nsf/PAD" mod="1268037570000" signatureChecksum="3666941555" >
+        <def id="org.si.sound.nsf:PAD" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/module/SiOPMWaveBase" mod="1262706440000" signatureChecksum="2125605015" >
+        <def id="org.si.sion.module:SiOPMWaveBase" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/sequencer/base/MMLSequenceGroup" mod="1278458840000" signatureChecksum="1289918866" >
+        <def id="org.si.sion.sequencer.base:MMLSequenceGroup" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequence" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLData" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequence" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:_sion_sequencer_internal" type="n" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/nsf/NESconfig" mod="1268037560000" signatureChecksum="1632803428" >
+        <def id="org.si.sound.nsf:NESconfig" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/namespaces/_sion_internal" mod="1256620392000" signatureChecksum="1739331950" >
+        <def id="org.si.sion.namespaces:_sion_internal" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/si/sound/nsf/Mapper" mod="1268037694000" signatureChecksum="374054748" >
+        <def id="org.si.sound.nsf:Mapper" /> 
+        <dep id="org.si.sound.nsf:MMU" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/BassSequencer" mod="1272013166000" signatureChecksum="2915749826" >
+        <def id="org.si.sound:BassSequencer" /> 
+        <dep id="org.si.sound.events:SoundObjectEvent" type="e" /> 
+        <dep id="org.si.sound.patterns:BassSequencerPresetPattern" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sound.patterns:Note" type="e" /> 
+        <dep id="org.si.sion.utils:Chord" type="e" /> 
+        <dep id="org.si.sound.patterns:Sequencer" type="s" /> 
+        <dep id="org.si.sound.patterns:BassSequencerPresetPattern" type="s" /> 
+        <dep id="org.si.sion.utils:Scale" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sound.patterns:Note" type="s" /> 
+        <dep id="org.si.sion.utils:Chord" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.namespaces:_sound_object_internal" type="n" /> 
+        <dep id="org.si.sound:PatternSequencer" type="i" /> 
+      </script>
+      <script name="org/si/sion/sequencer/base/_sion_sequencer_internal" mod="1265173674000" signatureChecksum="4118945548" >
+        <def id="org.si.sion.sequencer.base:_sion_sequencer_internal" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/si/sound/namespaces/_sound_object_internal" mod="1271158820000" signatureChecksum="1662328100" >
+        <def id="org.si.sound.namespaces:_sound_object_internal" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/si/sion/module/_siopm_module_internal" mod="1265183734000" signatureChecksum="3406109480" >
+        <def id="org.si.sion.module:_siopm_module_internal" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/si/sion/sequencer/SiMMLChannelSetting" mod="1271225134000" signatureChecksum="1389905923" >
+        <def id="org.si.sion.sequencer:SiMMLChannelSetting" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTable" type="e" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelManager" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLVoice" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="s" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelBase" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequence" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMTable" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/sequencer/SiMMLData" mod="1271226096000" signatureChecksum="2268058408" >
+        <def id="org.si.sion.sequencer:SiMMLData" /> 
+        <dep id="org.si.sion.sequencer:SiMMLVoice" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLEnvelopTable" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTable" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMChannelParam" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLVoice" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLEnvelopTable" type="s" /> 
+        <dep id="org.si.utils:SLLint" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMChannelParam" type="s" /> 
+        <dep id="Error" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.namespaces:_sion_internal" type="n" /> 
+        <dep id="org.si.sion.sequencer.base:MMLData" type="i" /> 
+      </script>
+      <script name="org/si/sion/SiONData" mod="1282180970000" signatureChecksum="3236887056" >
+        <def id="org.si.sion:SiONData" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMData" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="org.si.sion.utils:SiONUtil" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerData" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMTable" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMData" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerData" type="s" /> 
+        <dep id="flash.media:Sound" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.sequencer:SiMMLData" type="i" /> 
+      </script>
+      <script name="org/si/sion/utils/Fader" mod="1268642436000" signatureChecksum="3817563233" >
+        <def id="org.si.sion.utils:Fader" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/module/SiOPMModule" mod="1271222004000" signatureChecksum="3279155308" >
+        <def id="org.si.sion.module:SiOPMModule" /> 
+        <dep id="org.si.sion.module:SiOPMStream" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMOperatorParam" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.utils:SLLint" type="e" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelManager" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMStream" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMOperatorParam" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.utils:SLLint" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.namespaces:_sion_internal" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/module/channels/SiOPMOperator" mod="1283302940000" signatureChecksum="1455212838" >
+        <def id="org.si.sion.module.channels:SiOPMOperator" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="org.si.utils:SLLint" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMOperatorParam" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMData" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveTable" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="s" /> 
+        <dep id="org.si.utils:SLLint" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiEffectStream" mod="1282181916000" signatureChecksum="2846023132" >
+        <def id="org.si.sion.effector:SiEffectStream" /> 
+        <dep id="org.si.sion.module:SiOPMStream" type="e" /> 
+        <dep id="org.si.sion.effector:SiEffectBase" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sion.effector:SiEffectModule" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMStream" type="s" /> 
+        <dep id="org.si.sion.effector:SiEffectBase" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="RegExp" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/module/SiOPMOperatorParam" mod="1261734252000" signatureChecksum="3779907953" >
+        <def id="org.si.sion.module:SiOPMOperatorParam" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiEffectEqualiser" mod="1269411704000" signatureChecksum="4293039349" >
+        <def id="org.si.sion.effector:SiEffectEqualiser" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.effector:SiEffectBase" type="i" /> 
+      </script>
+      <script name="org/si/sound/patterns/BassSequencerPresetPattern" mod="1271636950000" signatureChecksum="1195194557" >
+        <def id="org.si.sound.patterns:BassSequencerPresetPattern" /> 
+        <dep id="org.si.sound.patterns:PMLParser" type="e" /> 
+        <dep id="org.si.sound.patterns:Note" type="e" /> 
+        <dep id="org.si.sound.patterns:PMLParser" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/synthesizers/PresetVoiceLoader" mod="1271242526000" signatureChecksum="2419359923" >
+        <def id="org.si.sound.synthesizers:PresetVoiceLoader" /> 
+        <dep id="org.si.sion.utils:SiONPresetVoice" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="org.si.sion.utils:SiONPresetVoice" type="s" /> 
+        <dep id="org.si.sion:SiONVoice" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.synthesizers:_synthesizer_internal" type="n" /> 
+        <dep id="org.si.sound.synthesizers:VoiceReference" type="i" /> 
+      </script>
+      <script name="org/si/sound/nsf/APU" mod="1268037566000" signatureChecksum="1261647717" >
+        <def id="org.si.sound.nsf:APU" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/mdx/MDXEvent" mod="1268876040000" signatureChecksum="253909078" >
+        <def id="org.si.sound.mdx:MDXEvent" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/sequencer/base/BeatPerMinutes" mod="1267104602000" signatureChecksum="3304223018" >
+        <def id="org.si.sion.sequencer.base:BeatPerMinutes" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequencer" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/sequencer/SiMMLEnvelopTable" mod="1256621660000" signatureChecksum="3428743319" >
+        <def id="org.si.sion.sequencer:SiMMLEnvelopTable" /> 
+        <dep id="org.si.utils:SLLint" type="e" /> 
+        <dep id="org.si.utils:SLLint" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.namespaces:_sion_internal" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/utils/SiONPresetVoice" mod="1271223432000" signatureChecksum="2428203413" >
+        <def id="org.si.sion.utils:SiONPresetVoice" /> 
+        <dep id="org.si.sion:SiONVoice" type="e" /> 
+        <dep id="org.si.sion:SiONVoice" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/sequencer/SiMMLVoice" mod="1286649535656" signatureChecksum="3598372482" >
+        <def id="org.si.sion.sequencer:SiMMLVoice" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMData" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLEnvelopTable" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTable" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWaveTable" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMChannelParam" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerTable" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMTable" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWaveBase" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLEnvelopTable" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMChannelParam" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.namespaces:_sion_internal" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/SiONVoice" mod="1283247960000" signatureChecksum="3453586144" >
+        <def id="org.si.sion:SiONVoice" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMData" type="e" /> 
+        <dep id="org.si.sion.utils:Translator" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="RegExp" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerData" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMOperatorParam" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMData" type="s" /> 
+        <dep id="RegExp" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerData" type="s" /> 
+        <dep id="flash.media:Sound" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.sequencer:SiMMLVoice" type="i" /> 
+      </script>
+      <script name="org/si/sound/events/SoundObjectEvent" mod="1282182642000" signatureChecksum="2446016521" >
+        <def id="org.si.sound.events:SoundObjectEvent" /> 
+        <dep id="org.si.sion.events:SiONTrackEvent" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="s" /> 
+        <dep id="org.si.sound:SoundObject" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.namespaces:_sound_object_internal" type="n" /> 
+        <dep id="flash.events:Event" type="i" /> 
+      </script>
+      <script name="org/si/sion/sequencer/base/MMLSequencer" mod="1269863790000" signatureChecksum="3668785235" >
+        <def id="org.si.sion.sequencer.base:MMLSequencer" /> 
+        <dep id="org.si.sion.sequencer.base:BeatPerMinutes" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLParser" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLExecutor" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLParserSetting" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequenceGroup" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:BeatPerMinutes" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLData" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLExecutor" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLParserSetting" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequence" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:_sion_sequencer_internal" type="n" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.namespaces:_sion_internal" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/sequencer/SiMMLSequencer" mod="1283327242000" signatureChecksum="3530741176" >
+        <def id="org.si.sion.sequencer:SiMMLSequencer" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="e" /> 
+        <dep id="RegExp" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTable" type="e" /> 
+        <dep id="org.si.utils:SLLint" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLExecutorConnector" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="org.si.sion.utils:Translator" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLParser" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLData" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequenceGroup" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLData" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="s" /> 
+        <dep id="RegExp" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTable" type="s" /> 
+        <dep id="org.si.utils:SLLint" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLExecutorConnector" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequence" type="s" /> 
+        <dep id="Error" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMChannelParam" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLData" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:_sion_sequencer_internal" type="n" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.namespaces:_sion_internal" type="n" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequencer" type="i" /> 
+      </script>
+      <script name="org/si/sound/nsf/MapperNSF" mod="1268037876000" signatureChecksum="1080385299" >
+        <def id="org.si.sound.nsf:MapperNSF" /> 
+        <dep id="org.si.sound.nsf:NSFData" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.nsf:Mapper" type="i" /> 
+      </script>
+      <script name="org/si/sion/module/SiOPMWavePCMTable" mod="1265245408000" signatureChecksum="1147766266" >
+        <def id="org.si.sion.module:SiOPMWavePCMTable" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMData" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTable" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMData" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.module:_siopm_module_internal" type="n" /> 
+        <dep id="org.si.sion.module:SiOPMWaveBase" type="i" /> 
+      </script>
+      <script name="org/si/sion/events/SiONEvent" mod="1282182618000" signatureChecksum="2359693510" >
+        <def id="org.si.sion.events:SiONEvent" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="org.si.sion:SiONData" type="s" /> 
+        <dep id="org.si.sion:SiONDriver" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.events:Event" type="i" /> 
+      </script>
+      <script name="org/si/sion/events/SiONTrackEvent" mod="1282182626000" signatureChecksum="419891489" >
+        <def id="org.si.sion.events:SiONTrackEvent" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="s" /> 
+        <dep id="org.si.sion:SiONDriver" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.namespaces:_sion_internal" type="n" /> 
+        <dep id="org.si.sion.events:SiONEvent" type="i" /> 
+      </script>
+      <script name="org/si/sound/mdx/MDXTrack" mod="1268934596000" signatureChecksum="1474657428" >
+        <def id="org.si.sound.mdx:MDXTrack" /> 
+        <dep id="org.si.sound.mdx:MDXEvent" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sound.mdx:MDXData" type="s" /> 
+        <dep id="org.si.sound.mdx:MDXEvent" type="s" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/synthesizers/PSGSynth" mod="1271162242000" signatureChecksum="701307284" >
+        <def id="org.si.sound.synthesizers:PSGSynth" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelFM" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMOperatorParam" type="s" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelFM" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.synthesizers:_synthesizer_internal" type="n" /> 
+        <dep id="org.si.sound.synthesizers:BasicSynth" type="i" /> 
+      </script>
+      <script name="org/si/sound/synthesizers/PCMSynth" mod="1282181322000" signatureChecksum="3949899086" >
+        <def id="org.si.sound.synthesizers:PCMSynth" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMData" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMTable" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMData" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMTable" type="s" /> 
+        <dep id="flash.media:Sound" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.synthesizers:_synthesizer_internal" type="n" /> 
+        <dep id="org.si.sound.synthesizers:IFlashSoundOperator" type="i" /> 
+      </script>
+      <script name="org/si/sound/nsf/PPU" mod="1268037556000" signatureChecksum="3698267827" >
+        <def id="org.si.sound.nsf:PPU" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/utils/timer" mod="1256117956000" signatureChecksum="3670241372" >
+        <def id="org.si.utils:timer" /> 
+        <dep id="flash.text:TextField" type="e" /> 
+        <dep id="flash.utils:getTimer" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.text:TextField" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/nsf/MMU" mod="1268037830000" signatureChecksum="3416249199" >
+        <def id="org.si.sound.nsf:MMU" /> 
+        <dep id="org.si.sound.nsf:NES" type="e" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/utils/Translator" mod="1283260934390" signatureChecksum="1457699011" >
+        <def id="org.si.sion.utils:Translator" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="RegExp" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTable" type="e" /> 
+        <dep id="org.si.sion.effector:SiEffectModule" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="org.si.sion:SiONVoice" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMOperatorParam" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLVoice" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="s" /> 
+        <dep id="org.si.sion.effector:SiEffectBase" type="s" /> 
+        <dep id="RegExp" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTable" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMChannelParam" type="s" /> 
+        <dep id="Error" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/Arpeggiator" mod="1271862150000" signatureChecksum="3488722059" >
+        <def id="org.si.sound:Arpeggiator" /> 
+        <dep id="org.si.sound.events:SoundObjectEvent" type="e" /> 
+        <dep id="org.si.sion.utils:Scale" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sound.patterns:Note" type="e" /> 
+        <dep id="org.si.sound.patterns:Sequencer" type="s" /> 
+        <dep id="org.si.sion.utils:Scale" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sound.patterns:Note" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.namespaces:_sound_object_internal" type="n" /> 
+        <dep id="org.si.sound:PatternSequencer" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiFilterHighPass" mod="1269412388000" signatureChecksum="2435210268" >
+        <def id="org.si.sion.effector:SiFilterHighPass" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.effector:SiFilterBase" type="i" /> 
+      </script>
+      <script name="org/si/sound/patterns/DrumMachinePresetPattern" mod="1271637618000" signatureChecksum="1566389999" >
+        <def id="org.si.sound.patterns:DrumMachinePresetPattern" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sound.patterns:PMLParser" type="e" /> 
+        <dep id="org.si.sound.patterns:Note" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sound.patterns:PMLParser" type="s" /> 
+        <dep id="org.si.sound.patterns:Note" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/smf/SMFData" mod="1267903926000" signatureChecksum="696294668" >
+        <def id="org.si.sound.smf:SMFData" /> 
+        <dep id="flash.utils:ByteArray" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sound.smf:SMFTrack" type="e" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sound.smf:SMFTrack" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/ChordPad" mod="1271897518000" signatureChecksum="398014568" >
+        <def id="org.si.sound:ChordPad" /> 
+        <dep id="org.si.sound.events:SoundObjectEvent" type="e" /> 
+        <dep id="org.si.sound.patterns:Sequencer" type="e" /> 
+        <dep id="org.si.sion:SiONData" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="org.si.sound.patterns:Note" type="e" /> 
+        <dep id="org.si.sion.utils:Chord" type="e" /> 
+        <dep id="org.si.sound.patterns:Sequencer" type="s" /> 
+        <dep id="org.si.sion:SiONData" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="s" /> 
+        <dep id="org.si.sound.patterns:Note" type="s" /> 
+        <dep id="org.si.sion.utils:Chord" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.namespaces:_sound_object_internal" type="n" /> 
+        <dep id="org.si.sound:MultiTrackSoundObject" type="i" /> 
+      </script>
+      <script name="org/si/sound/nsf/ROM" mod="1268037712000" signatureChecksum="3692238501" >
+        <def id="org.si.sound.nsf:ROM" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/utils/FFT" mod="1282183296000" signatureChecksum="3662932788" >
+        <def id="org.si.utils:FFT" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/module/SiOPMStream" mod="1282182096000" signatureChecksum="2762250128" >
+        <def id="org.si.sion.module:SiOPMStream" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="s" /> 
+        <dep id="org.si.utils:SLLint" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/sequencer/base/MMLParser" mod="1269824368000" signatureChecksum="3242036532" >
+        <def id="org.si.sion.sequencer.base:MMLParser" /> 
+        <dep id="flash.utils:getTimer" type="e" /> 
+        <dep id="RegExp" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="e" /> 
+        <dep id="RegExp" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLParserSetting" type="s" /> 
+        <dep id="Error" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequence" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/SoundObjectContainer" mod="1271855800000" signatureChecksum="1533047091" >
+        <def id="org.si.sound:SoundObjectContainer" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="org.si.sound.synthesizers:VoiceReference" type="s" /> 
+        <dep id="org.si.sion:SiONVoice" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.namespaces:_sound_object_internal" type="n" /> 
+        <dep id="org.si.sound:SoundObject" type="i" /> 
+      </script>
+      <script name="org/si/sound/synthesizers/_synthesizer_internal" mod="1269560758000" signatureChecksum="2569281032" >
+        <def id="org.si.sound.synthesizers:_synthesizer_internal" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/si/sion/effector/SiEffectStereoDelay" mod="1269411286000" signatureChecksum="2475003927" >
+        <def id="org.si.sion.effector:SiEffectStereoDelay" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.effector:SiEffectBase" type="i" /> 
+      </script>
+      <script name="org/si/sound/core/EffectChain" mod="1282182170000" signatureChecksum="697169229" >
+        <def id="org.si.sound.core:EffectChain" /> 
+        <dep id="org.si.sion.effector:SiEffectBase" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sion:SiONDriver" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMStream" type="s" /> 
+        <dep id="org.si.sion.effector:SiEffectStream" type="s" /> 
+        <dep id="org.si.sion:SiONDriver" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.namespaces:_sound_object_internal" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/SiONDriver" mod="1285692822437" signatureChecksum="3644376052" >
+        <def id="org.si.sion:SiONDriver" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLSequencer" type="e" /> 
+        <dep id="flash.utils:ByteArray" type="e" /> 
+        <dep id="org.si.sion:SiONData" type="e" /> 
+        <dep id="flash.media:SoundTransform" type="e" /> 
+        <dep id="org.si.sion.utils:Fader" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="e" /> 
+        <dep id="org.si.sion.effector:SiEffectModule" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTable" type="e" /> 
+        <dep id="flash.utils:getTimer" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="e" /> 
+        <dep id="org.si.utils:SLLint" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequence" type="e" /> 
+        <dep id="org.si.sion.events:SiONTrackEvent" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMData" type="e" /> 
+        <dep id="org.si.sion.events:SiONEvent" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLEnvelopTable" type="e" /> 
+        <dep id="org.si.sion.utils:SiONUtil" type="e" /> 
+        <dep id="flash.media:Sound" type="e" /> 
+        <dep id="flash.events:ErrorEvent" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLSequencer" type="s" /> 
+        <dep id="org.si.sion:SiONData" type="s" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="flash.media:SoundTransform" type="s" /> 
+        <dep id="org.si.sion.utils:Fader" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="s" /> 
+        <dep id="org.si.sion.effector:SiEffectModule" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="s" /> 
+        <dep id="org.si.utils:SLLint" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequence" type="s" /> 
+        <dep id="Error" type="s" /> 
+        <dep id="org.si.sion.events:SiONTrackEvent" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMData" type="s" /> 
+        <dep id="flash.media:SoundChannel" type="s" /> 
+        <dep id="org.si.sion.events:SiONEvent" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLEnvelopTable" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveTable" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerData" type="s" /> 
+        <dep id="org.si.sion:SiONVoice" type="s" /> 
+        <dep id="flash.events:SampleDataEvent" type="s" /> 
+        <dep id="flash.media:Sound" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:_sion_sequencer_internal" type="n" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.namespaces:_sion_internal" type="n" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="flash.display:Sprite" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiEffectWaveShaper" mod="1269411466000" signatureChecksum="2682683555" >
+        <def id="org.si.sion.effector:SiEffectWaveShaper" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.effector:SiEffectBase" type="i" /> 
+      </script>
+      <script name="org/si/sion/sequencer/base/MMLSequence" mod="1282182136000" signatureChecksum="2052966401" >
+        <def id="org.si.sion.sequencer.base:MMLSequence" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLParser" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequencer" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="e" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLData" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLExecutor" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:_sion_sequencer_internal" type="n" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/module/SiOPMWavePCMData" mod="1286654911953" signatureChecksum="3262688684" >
+        <def id="org.si.sion.module:SiOPMWavePCMData" /> 
+        <dep id="org.si.sion.utils:SiONUtil" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTable" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="flash.media:Sound" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.module:SiOPMWaveBase" type="i" /> 
+      </script>
+      <script name="org/si/sion/module/SiOPMWaveTable" mod="1271202468000" signatureChecksum="4008343778" >
+        <def id="org.si.sion.module:SiOPMWaveTable" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTable" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.module:SiOPMWaveBase" type="i" /> 
+      </script>
+      <script name="org/si/sion/module/SiOPMWaveSamplerTable" mod="1265245384000" signatureChecksum="2988216418" >
+        <def id="org.si.sion.module:SiOPMWaveSamplerTable" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTable" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerData" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerData" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.module:_siopm_module_internal" type="n" /> 
+        <dep id="org.si.sion.module:SiOPMWaveBase" type="i" /> 
+      </script>
+      <script name="org/si/sion/utils/Chord" mod="1271638688000" signatureChecksum="1974685269" >
+        <def id="org.si.sion.utils:Chord" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="RegExp" type="s" /> 
+        <dep id="Error" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.utils:Scale" type="i" /> 
+      </script>
+      <script name="org/si/sound/mdx/MDXData" mod="1269950876000" signatureChecksum="3207618063" >
+        <def id="org.si.sound.mdx:MDXData" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.utils:ByteArray" type="e" /> 
+        <dep id="flash.net:URLRequest" type="e" /> 
+        <dep id="org.si.sion:SiONData" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="org.si.sound.mdx:PDXDataStorage" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sound.mdx:MDXExecutor" type="e" /> 
+        <dep id="org.si.sound.mdx:MDXTrack" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="e" /> 
+        <dep id="org.si.sion:SiONDriver" type="e" /> 
+        <dep id="org.si.sion:SiONVoice" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMOperatorParam" type="s" /> 
+        <dep id="org.si.sion:SiONData" type="s" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="flash.net:URLRequest" type="s" /> 
+        <dep id="org.si.sound.mdx:MDXExecutor" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sound.mdx:PDXData" type="s" /> 
+        <dep id="org.si.sound.mdx:MDXTrack" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequence" type="s" /> 
+        <dep id="org.si.sion:SiONVoice" type="s" /> 
+        <dep id="org.si.sound.mdx:PDXDataStorage" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.utils:AbstructLoader" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiEffectModule" mod="1272012176000" signatureChecksum="1675187411" >
+        <def id="org.si.sion.effector:SiEffectModule" /> 
+        <dep id="org.si.sion.effector:SiFilterHighPass" type="e" /> 
+        <dep id="org.si.sion.effector:SiEffectWaveShaper" type="e" /> 
+        <dep id="org.si.sion.effector:SiFilterPeak" type="e" /> 
+        <dep id="org.si.sion.effector:SiEffectAutoPan" type="e" /> 
+        <dep id="org.si.sion.effector:SiEffectBase" type="e" /> 
+        <dep id="org.si.sion.effector:SiFilterNotch" type="e" /> 
+        <dep id="org.si.sion.effector:SiFilterBandPass" type="e" /> 
+        <dep id="org.si.sion.effector:SiFilterAllPass" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="e" /> 
+        <dep id="org.si.sion.effector:SiFilterLowPass" type="e" /> 
+        <dep id="org.si.sion.effector:SiEffectDownSampler" type="e" /> 
+        <dep id="org.si.sion.effector:SiEffectStereoChorus" type="e" /> 
+        <dep id="org.si.sion.effector:SiEffectStream" type="e" /> 
+        <dep id="org.si.sion.effector:SiEffectCompressor" type="e" /> 
+        <dep id="org.si.sion.effector:SiEffectEqualiser" type="e" /> 
+        <dep id="org.si.sion.effector:SiEffectTable" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sion.effector:SiCtrlFilterLowPass" type="e" /> 
+        <dep id="org.si.sion.effector:SiEffectStereoDelay" type="e" /> 
+        <dep id="org.si.sion.effector:SiCtrlFilterHighPass" type="e" /> 
+        <dep id="org.si.sion.effector:SiEffectSpeakerSimulator" type="e" /> 
+        <dep id="org.si.sion.effector:SiEffectStereoReverb" type="e" /> 
+        <dep id="org.si.sion.effector:SiEffectStream" type="s" /> 
+        <dep id="org.si.sion.effector:SiEffectTable" type="s" /> 
+        <dep id="org.si.sion.effector:SiEffectBase" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.namespaces:_sion_internal" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiFilterAllPass" mod="1269412410000" signatureChecksum="3478018894" >
+        <def id="org.si.sion.effector:SiFilterAllPass" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.effector:SiFilterBase" type="i" /> 
+      </script>
+      <script name="org/si/sion/utils/SoundClass" mod="1282181306000" signatureChecksum="936659311" >
+        <def id="org.si.sion.utils:SoundClass" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.utils:ByteArray" type="e" /> 
+        <dep id="flash.display:Loader" type="e" /> 
+        <dep id="flash.media:Sound" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="flash.display:Loader" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/module/SiOPMWaveSamplerData" mod="1282181138000" signatureChecksum="4142467897" >
+        <def id="org.si.sion.module:SiOPMWaveSamplerData" /> 
+        <dep id="org.si.sion.utils:SiONUtil" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTable" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="flash.media:Sound" type="e" /> 
+        <dep id="flash.media:Sound" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.module:SiOPMWaveBase" type="i" /> 
+      </script>
+      <script name="org/si/sion/sequencer/base/MMLParserSetting" mod="1282182120000" signatureChecksum="3696365551" >
+        <def id="org.si.sion.sequencer.base:MMLParserSetting" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiEffectStereoReverb" mod="1269410974000" signatureChecksum="3645804631" >
+        <def id="org.si.sion.effector:SiEffectStereoReverb" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.effector:SiEffectBase" type="i" /> 
+      </script>
+      <script name="org/si/sound/nsf/NSFData" mod="1268041612000" signatureChecksum="2962867667" >
+        <def id="org.si.sound.nsf:NSFData" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/utils/SLLNumber" mod="1282278190000" signatureChecksum="2566111390" >
+        <def id="org.si.utils:SLLNumber" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiEffectDownSampler" mod="1269411524000" signatureChecksum="3966140883" >
+        <def id="org.si.sion.effector:SiEffectDownSampler" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.effector:SiEffectBase" type="i" /> 
+      </script>
+      <script name="org/si/sion/module/channels/SiOPMChannelSampler" mod="1286649274421" signatureChecksum="2456923199" >
+        <def id="org.si.sion.module.channels:SiOPMChannelSampler" /> 
+        <dep id="flash.utils:ByteArray" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerData" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerTable" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMStream" type="s" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveBase" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerData" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMChannelParam" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerTable" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelBase" type="i" /> 
+      </script>
+      <script name="org/si/sound/synthesizers/NESSynth" mod="1271162234000" signatureChecksum="2133650717" >
+        <def id="org.si.sound.synthesizers:NESSynth" /> 
+        <dep id="org.si.sion.sequencer:SiMMLEnvelopTable" type="e" /> 
+        <dep id="org.si.utils:SLLint" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLEnvelopTable" type="s" /> 
+        <dep id="org.si.utils:SLLint" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.synthesizers:_synthesizer_internal" type="n" /> 
+        <dep id="org.si.sound.synthesizers:BasicSynth" type="i" /> 
+      </script>
+      <script name="_4a49b0a498089117d68dc481d3b3a95425383f9e47e58e8d20aafbc0500086ce_flash_display_Sprite" mod="1286698131265" signatureChecksum="3016063359" >
+        <def id="_4a49b0a498089117d68dc481d3b3a95425383f9e47e58e8d20aafbc0500086ce_flash_display_Sprite" /> 
+        <dep id="flash.system:Security" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.display:Sprite" type="i" /> 
+      </script>
+      <script name="org/si/sion/module/SiOPMTable" mod="1283756890000" signatureChecksum="3539472466" >
+        <def id="org.si.sion.module:SiOPMTable" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWaveTable" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerData" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerTable" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMTable" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveTable" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerData" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveSamplerTable" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWavePCMTable" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.namespaces:_sion_internal" type="n" /> 
+        <dep id="org.si.sion.module:_siopm_module_internal" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/utils/SiONUtil" mod="1286654850000" signatureChecksum="1819948555" >
+        <def id="org.si.sion.utils:SiONUtil" /> 
+        <dep id="flash.utils:ByteArray" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMWaveTable" type="s" /> 
+        <dep id="flash.media:Sound" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sound/patterns/Sequencer" mod="1271839354000" signatureChecksum="1168087609" >
+        <def id="org.si.sound.patterns:Sequencer" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="e" /> 
+        <dep id="org.si.sion:SiONDriver" type="e" /> 
+        <dep id="org.si.sion:SiONData" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLTrack" type="s" /> 
+        <dep id="org.si.sound:SoundObject" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequence" type="s" /> 
+        <dep id="org.si.sound.patterns:Note" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLEvent" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.namespaces:_sound_object_internal" type="n" /> 
+        <dep id="org.si.sound.synthesizers:_synthesizer_internal" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/sequencer/SiMMLTable" mod="1281333476000" signatureChecksum="2696683036" >
+        <def id="org.si.sion.sequencer:SiMMLTable" /> 
+        <dep id="org.si.sion.sequencer:SiMMLVoice" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLEnvelopTable" type="e" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelManager" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLChannelSetting" type="e" /> 
+        <dep id="org.si.sion.sequencer:SiMMLVoice" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLEnvelopTable" type="s" /> 
+        <dep id="org.si.sion.sequencer:SiMMLChannelSetting" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiEffectCompressor" mod="1270513592000" signatureChecksum="1037018509" >
+        <def id="org.si.sion.effector:SiEffectCompressor" /> 
+        <dep id="org.si.utils:SLLNumber" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="org.si.utils:SLLNumber" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.effector:SiEffectBase" type="i" /> 
+      </script>
+      <script name="org/si/sound/synthesizers/DrumMachinePresetVoice" mod="1271120156000" signatureChecksum="3507521877" >
+        <def id="org.si.sound.synthesizers:DrumMachinePresetVoice" /> 
+        <dep id="org.si.sion:SiONVoice" type="e" /> 
+        <dep id="org.si.sion:SiONVoice" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sound.synthesizers:_synthesizer_internal" type="n" /> 
+        <dep id="org.si.sound.synthesizers:VoiceReference" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiEffectTable" mod="1272012144000" signatureChecksum="1574320615" >
+        <def id="org.si.sion.effector:SiEffectTable" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/effector/SiCtrlFilterLowPass" mod="1269413414000" signatureChecksum="532105335" >
+        <def id="org.si.sion.effector:SiCtrlFilterLowPass" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.si.sion.effector:SiCtrlFilterBase" type="i" /> 
+      </script>
+      <script name="org/si/sion/module/SiOPMChannelParam" mod="1269793228000" signatureChecksum="723202939" >
+        <def id="org.si.sion.module:SiOPMChannelParam" /> 
+        <dep id="org.si.sion.module:SiOPMOperatorParam" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMTable" type="e" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequence" type="e" /> 
+        <dep id="org.si.sion.module:SiOPMOperatorParam" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.si.sion.sequencer.base:MMLSequence" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/sion/module/channels/SiOPMChannelManager" mod="1265195168000" signatureChecksum="3513303382" >
+        <def id="org.si.sion.module.channels:SiOPMChannelManager" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelSampler" type="e" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelKS" type="e" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelFM" type="e" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelBase" type="e" /> 
+        <dep id="org.si.sion.module.channels:SiOPMChannelBase" type="s" /> 
+        <dep id="org.si.sion.module:SiOPMModule" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="org/si/utils/FFT_original" mod="1256169700000" signatureChecksum="2193380022" >
+        <def id="org.si.utils:FFT_original" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <digests>
+        <digest type="SHA-256" signed="false" value="56effb028899cb192b9fee655f6ac0122e1bcf6f8b70c08578ef7ad928908203"   />
+      </digests>
+    </library>
+  </libraries>
+  <files>
+  </files>
+</swc>
