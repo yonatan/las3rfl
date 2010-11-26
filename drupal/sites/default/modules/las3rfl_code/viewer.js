@@ -4,11 +4,10 @@ $(function() {
       "http://" +
       Drupal.settings.swfDomain +
       modulePath +
-      "Viewer.swf?" + (new Date).getTime();
-      // TODO: remove cachebuster
+      "Viewer.swf";
 
     var viewerVars = {
-      codeUrl:
+      url:
 	"http://" +
 	Drupal.settings.swfDomain +
 	Drupal.settings.basePath +
