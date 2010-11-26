@@ -11,12 +11,13 @@ function las3rfl_code_content_default_fields() {
     'field_name' => 'field_capture',
     'type_name' => 'code',
     'display_settings' => array(
+      'weight' => '31',
+      'parent' => '',
       'label' => array(
         'format' => 'above',
-        'exclude' => 0,
       ),
       'teaser' => array(
-        'format' => 'image_plain',
+        'format' => '200x100_linked',
         'exclude' => 0,
       ),
       'full' => array(
@@ -39,12 +40,12 @@ function las3rfl_code_content_default_fields() {
     'description_field' => '0',
     'widget' => array(
       'file_extensions' => 'png gif jpg jpeg',
-      'file_path' => '',
+      'file_path' => 'capture',
       'progress_indicator' => 'bar',
-      'max_filesize_per_file' => '',
+      'max_filesize_per_file' => '200K',
       'max_filesize_per_node' => '',
-      'max_resolution' => '0',
-      'min_resolution' => '0',
+      'max_resolution' => '465x465',
+      'min_resolution' => '',
       'alt' => '',
       'custom_alt' => 0,
       'title' => '',
@@ -71,9 +72,64 @@ function las3rfl_code_content_default_fields() {
     ),
   );
 
+  // Exported field: field_forked_from
+  $fields['code-field_forked_from'] = array(
+    'field_name' => 'field_forked_from',
+    'type_name' => 'code',
+    'display_settings' => array(
+      'weight' => '32',
+      'parent' => '',
+      'label' => array(
+        'format' => 'above',
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'nodereference',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'nodereference',
+    'active' => '1',
+    'referenceable_types' => array(
+      'code' => 'code',
+      'forum' => 0,
+      'page' => 0,
+      'story' => 0,
+    ),
+    'advanced_view' => '--',
+    'advanced_view_args' => '',
+    'widget' => array(
+      'autocomplete_match' => 'contains',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'nid' => '',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Forked from',
+      'weight' => '32',
+      'description' => '',
+      'type' => 'nodereference_select',
+      'module' => 'nodereference',
+    ),
+  );
+
   // Translatables
   // Included for use with string extractors like potx.
   t('Captured image');
+  t('Forked from');
 
   return $fields;
 }
