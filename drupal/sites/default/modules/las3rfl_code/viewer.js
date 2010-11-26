@@ -7,13 +7,17 @@ $(function() {
       "Viewer.swf?" + (new Date).getTime();
       // TODO: remove cachebuster
 
-    var codeUrl =
-      "http://" +
-      Drupal.settings.swfDomain +
-      Drupal.settings.basePath +
-      "node/" +
-      Drupal.settings.nid +
-      "/raw";
+    var viewerVars = {
+      codeUrl:
+	"http://" +
+	Drupal.settings.swfDomain +
+	Drupal.settings.basePath +
+	"node/" +
+	Drupal.settings.nid +
+	"/raw",
+      basePath:
+	Drupal.settings.basePath
+    };
 
     $("ul.tabs.primary").append("<li id='playStop'><a href='javascript:void(0);'>Play</a></li>");
 

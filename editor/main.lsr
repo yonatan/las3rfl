@@ -1353,7 +1353,7 @@ comment tokens."
   (def *drupal* (new flash.net.NetConnection))
   (set! (. *drupal* objectEncoding) "amf3")
   ;; TODO: find endpoint url at runtime
-  (. *drupal* (connect "/services/amfphp")))
+  (. *drupal* (connect (str (. *parameters* basePath) "services/amfphp"))))
 
 (when *drupal* ;; define these only when a backend exists
   (def-command drupal-node-load 

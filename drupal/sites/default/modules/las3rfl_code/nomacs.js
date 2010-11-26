@@ -15,7 +15,8 @@ $(function() {
     resetEvalSWF = function() {
       var evalVars = {
 	connToken: token,
-	siteDomain: Drupal.settings.siteDomain
+	siteDomain: Drupal.settings.siteDomain,
+	basePath: Drupal.settings.basePath
       };
       var evalParams = {allowscriptaccess: "never", allowfullscreen: "true"};
       var swfUrl = "http://" + Drupal.settings.editorVars.swfDomain + modulePath + "EvalSWF.swf";
