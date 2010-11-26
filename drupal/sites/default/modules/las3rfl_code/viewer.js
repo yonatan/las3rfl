@@ -25,7 +25,7 @@ $(function() {
     function play() {
       $("#playStop a").text("Stop").unbind().click(stop);
       $(".node-page .captured-image *").css("display", "none");
-      swfobject.embedSWF(viewerUrl, "viewer-swf", "465", "465", "10.0.0", false, {url: codeUrl}, swfParams);
+      swfobject.embedSWF(viewerUrl, "viewer-swf", "465", "465", "10.0.0", false, viewerVars, swfParams);
     }
 
     function stop() {
