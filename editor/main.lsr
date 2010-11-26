@@ -1413,21 +1413,32 @@ comment tokens."
                 ;; update existing node
                 (mset! node [changed timestamp
                              nid *nid*]))
-   
-              (with-remote-response *drupal* (node.save node)
-                (if error?
-                  (do (status "Error while saving!")
-                      (println "Error while saving!")
-                      (prn-props response)) ;; debug
-                  (do (status "Saved")
-                      (when (or *fork* (zero? *nid*)) ;; don't create a new node next time
-                        (def *nid* (int response))
-                        (def *fork* false))
-                      (when quit?
-                        (let [nav (get-def "flash.net.navigateToURL")
-                              req (new flash.net.URLRequest (str (. *parameters* basePath) "node/" *nid*))]
-                          (try (nav req "_self")
-                               (catch Error e (prn e))))))))))
+
+	      (let [on-success (fn [response]
+				 (status "Saved")
+				 (when (or *fork* (zero? *nid*)) ;; don't create a new node next time
+				   (def *nid* (int response))
+				   (def *fork* false))
+				 (when quit?
+				   (let [nav (get-def "flash.net.navigateToURL")
+					 req (new flash.net.URLRequest (str (. *parameters* basePath) "node/" *nid*))]
+				     (try (nav req "_self")
+					  (catch Error e (prn e))))))
+		    on-error (fn [response]
+			       (status "Failed to save code!")
+			       (prn-props response))]
+
+		;; TODO: Ugly hack for dangling node refs, do this server-side instead?
+		(with-remote-response *drupal* (node.save node)
+                  (if error? ;; if parent node has been deleted we might get this:
+		    (when (= (. response description)  "<em>Forked from</em>: this post can't be referenced.")
+		      (status "Retrying")
+		      (set! (. node field_forked_from) (serialize [{"nid" 0}])) ;; zero reference field and retry
+		      (with-remote-response *drupal* (node.save node)
+			(if error?
+			  (on-error response)
+			  (on-success response))))
+		    (on-success response))))))
    
           save
           (fn [quit? & _]
