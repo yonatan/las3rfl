@@ -1499,9 +1499,9 @@ comment tokens."
 			 (set-out-color! color)
                          (let [tf (. out-pane textField)]
                            (. tf (appendText (sanitize s)))
-                           (set! (. tf scrollV) (. tf maxScrollV))
 			   (when add-newline?
-			     (. tf (appendText "\n"))))
+			     (. tf (appendText "\n")))
+			   (set! (. tf scrollV) (. tf maxScrollV)))
 			 (set-out-color! *output-color*)))]
     (doseq obj [code-pane help-pane out-pane parse-progress stats]
       (. editor (addChild obj)))
