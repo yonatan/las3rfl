@@ -10,7 +10,8 @@ $(function() {
     var codeUrl =
       "http://" +
       Drupal.settings.swfDomain +
-      "/node/" +
+      Drupal.settings.basePath +
+      "node/" +
       Drupal.settings.nid +
       "/raw";
 
