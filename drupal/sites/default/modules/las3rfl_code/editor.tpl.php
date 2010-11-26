@@ -41,7 +41,7 @@ drupal_add_css($module_path .'/nomacs.css');
 	  </ul>
 	</div>
       </div>
-      <p>In the event of a crash; reload the page and press Ctrl-Alt-R in the editor to recover the last version. Ctrl-Enter to run, Ctrl-H for help.</p>
+      <p>In the event of a crash; reload the page and press Ctrl-R in the editor to recover the last version. Ctrl-Enter to run, Ctrl-H for help.</p>
     </td>
   </tr>
 </table>

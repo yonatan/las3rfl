@@ -93,6 +93,8 @@ $(function() {
 
     var editorVars = Drupal ? Drupal.settings.editorVars : {};
     editorVars.connToken = token;
+    editorVars.basePath = Drupal.settings.basePath;
+
     // Embed the editor
     swfobject.embedSWF(modulePath + "Nomacs.swf", "editorSWF", "100%", "100%", "10.0.0", false, editorVars);
     // Embed the evaluator

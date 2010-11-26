@@ -1285,7 +1285,7 @@ comment tokens."
 (def-command reset-remote-swf
   {:doc "Resets remote SWF (via javascript)."
    :key "r"
-   :modifiers [:ctrl]}
+   :modifiers [:ctrl :alt]}
   (let [ei flash.external.ExternalInterface]
     (when (. ei available)
       ;; if we're already waiting for a reset, cancel the previous eval command
@@ -1308,7 +1308,7 @@ comment tokens."
 (def-command restore-backup
   {:doc "Restores code saved to local storage (code is saved before every eval operation)."
    :key "r"
-   :modifiers [:ctrl :alt]}
+   :modifiers [:ctrl]}
   (set! (. tf text) (sanitize (read-lso))))
 
 (def-command toggle-stats
@@ -1376,7 +1376,7 @@ comment tokens."
 	  ;; this happens after the function returns, so call change-handler to restart the parser
 	  (change-handler)))))
 
-  (def-command drupal-node-save
+    (def-command drupal-node-save
     {:doc "Saves code to server."
      :key "s"
      :modifiers [:ctrl]}
@@ -1395,7 +1395,7 @@ comment tokens."
           status (fn [s] (set! (. status-label text) s))
           
           save-node
-          (fn [image-file]
+          (fn [image-file quit?]
             (status "Saving...")
             (def *title* (. title text))
             (let [timestamp (. (new (get-def "Date")) (getTime))
@@ -1422,10 +1422,15 @@ comment tokens."
                   (do (status "Saved")
                       (when (or *fork* (zero? *nid*)) ;; don't create a new node next time
                         (def *nid* (int response))
-                        (def *fork* false)))))))
+                        (def *fork* false))
+                      (when quit?
+                        (let [nav (get-def "flash.net.navigateToURL")
+                              req (new flash.net.URLRequest (str (. *parameters* basePath) "node/" *nid*))]
+                          (try (nav req "_self")
+                               (catch Error e (prn e))))))))))
    
           save
-          (fn [& _]
+          (fn [quit? & _]
             (if *captured-image*
               (let [timestamp (/ (. (new (get-def "Date")) (getTime)) 1000) ;; secs, not millisecs
                     file {"file" (. Base64Encoder (encodeByteArray *captured-image*))
@@ -1438,9 +1443,9 @@ comment tokens."
                 (with-remote-response *drupal* (file.save (serialize file))
                   (prn-props response) 
                   (if error?
-                    (save-node nil)
-                    (save-node (assoc file "fid" (int response))))))
-              (save-node nil)))
+                    (save-node nil quit?)
+                    (save-node (assoc file "fid" (int response)) quit?))))
+              (save-node nil quit?)))
                   
           take-capture
           (fn [& _]
@@ -1452,7 +1457,8 @@ comment tokens."
                     (. ldr (loadBytes jpeg))))
             (. *send-connection* (send (str "_eval-in-" (. *parameters* connToken)) "capture")))
           
-          save-btn (new PushButton wc 240 150 "Save" save)
+          save-btn (new PushButton wc 240 150 "Save & Quit" (partial save true))
+          save-btn (new PushButton wc 125 150 "Save" (partial save false))
           capture-btn (new PushButton wc 10 150 "Update capture" take-capture)]
       (new Label wc 10 10 "Title:")
       (. wc (addChild ldr))
@@ -1461,6 +1467,15 @@ comment tokens."
         (take-capture))
       (show-modal window)))  
 
+    (def-command quit
+      {:doc "Quit editor and go to current code's view page."
+       :key "q"
+       :modifiers [:ctrl]}
+      (save-to-lso!) ;; just in case
+      (let [nav (get-def "flash.net.navigateToURL")
+	    req (new flash.net.URLRequest (str (. *parameters* basePath) "node/" *nid*))]
+	(try (nav req "_self")
+	     (catch Error e (prn e)))))
 )
   
 ;;;;
