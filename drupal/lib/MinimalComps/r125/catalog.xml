@@ -1,0 +1,876 @@
+<?xml version="1.0" encoding ="utf-8"?>
+<swc xmlns="http://www.adobe.com/flash/swccatalog/9">
+  <versions>
+    <swc version="1.2" />
+    <flex version="4.0.0" build="14159" minimumSupportedVersion="3.0.0" />
+  </versions>
+  <features>
+    <feature-script-deps />
+    <feature-files />
+  </features>
+  <libraries>
+    <library path="library.swf">
+      <script name="mx/core/IFlexAsset" mod="1262975721900" signatureChecksum="3016954274" >
+        <def id="mx.core:IFlexAsset" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="mx/core/FontAsset" mod="1262975722604" signatureChecksum="1280981255" >
+        <def id="mx.core:FontAsset" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="mx.core:mx_internal" type="n" /> 
+        <dep id="mx.core:IFlexAsset" type="i" /> 
+        <dep id="flash.text:Font" type="i" /> 
+      </script>
+      <script name="com/bit101/components/Component_Ronda" mod="1249519933000" signatureChecksum="3272066962" >
+        <def id="com.bit101.components:Component_Ronda" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="mx.core:FontAsset" type="i" /> 
+      </script>
+      <script name="com/bit101/components/Component" mod="1269610141000" signatureChecksum="3044767420" >
+        <def id="com.bit101.components:Component" /> 
+        <dep id="flash.display:StageScaleMode" type="e" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="com.bit101.components:Style" type="e" /> 
+        <dep id="com.bit101.components:Component_Ronda" type="e" /> 
+        <dep id="flash.filters:DropShadowFilter" type="e" /> 
+        <dep id="flash.display:StageAlign" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="flash.display:Stage" type="s" /> 
+        <dep id="flash.filters:DropShadowFilter" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.display:Sprite" type="i" /> 
+      </script>
+      <script name="com/bit101/components/Text" mod="1269610142000" signatureChecksum="2631409752" >
+        <def id="com.bit101.components:Text" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="com.bit101.components:Panel" type="e" /> 
+        <dep id="flash.text:TextFormat" type="e" /> 
+        <dep id="flash.text:TextFieldType" type="e" /> 
+        <dep id="flash.text:TextField" type="e" /> 
+        <dep id="com.bit101.components:Style" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="com.bit101.components:Panel" type="s" /> 
+        <dep id="flash.text:TextField" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/components/FPSMeter" mod="1269641083000" signatureChecksum="685680964" >
+        <def id="com.bit101.components:FPSMeter" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="flash.utils:getTimer" type="e" /> 
+        <dep id="com.bit101.components:Label" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="com.bit101.components:Label" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/components/Window" mod="1270062703000" signatureChecksum="902559545" >
+        <def id="com.bit101.components:Window" /> 
+        <dep id="com.bit101.components:PushButton" type="e" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="com.bit101.components:Panel" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="e" /> 
+        <dep id="com.bit101.components:Label" type="e" /> 
+        <dep id="flash.display:Sprite" type="e" /> 
+        <dep id="com.bit101.components:PushButton" type="s" /> 
+        <dep id="com.bit101.components:Panel" type="s" /> 
+        <dep id="flash.events:MouseEvent" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="com.bit101.components:Label" type="s" /> 
+        <dep id="flash.display:Sprite" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="mx/modules/IModuleInfo" mod="1262975753322" signatureChecksum="1214985598" >
+        <def id="mx.modules:IModuleInfo" /> 
+        <dep id="mx.events:ModuleEvent" type="e" /> 
+        <dep id="mx.core:IFlexModuleFactory" type="s" /> 
+        <dep id="flash.system:SecurityDomain" type="s" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="flash.system:ApplicationDomain" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.events:IEventDispatcher" type="i" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="mx/resources/IResourceManager" mod="1262975759150" signatureChecksum="1440815771" >
+        <def id="mx.resources:IResourceManager" /> 
+        <dep id="flash.system:SecurityDomain" type="s" /> 
+        <dep id="mx.resources:IResourceBundle" type="s" /> 
+        <dep id="flash.system:ApplicationDomain" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.events:IEventDispatcher" type="i" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="mx/resources/ResourceManagerImpl" mod="1262975759135" signatureChecksum="73853357" >
+        <def id="mx.resources:ResourceManagerImpl" /> 
+        <dep id="mx.resources:LocaleSorter" type="e" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="trace" type="e" /> 
+        <dep id="mx.utils:StringUtil" type="e" /> 
+        <dep id="mx.resources:ResourceBundle" type="e" /> 
+        <dep id="flash.system:ApplicationDomain" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="mx.modules:ModuleManager" type="e" /> 
+        <dep id="mx.events:ModuleEvent" type="e" /> 
+        <dep id="flash.system:Capabilities" type="e" /> 
+        <dep id="flash.utils:Timer" type="e" /> 
+        <dep id="mx.events:ResourceEvent" type="e" /> 
+        <dep id="flash.events:TimerEvent" type="e" /> 
+        <dep id="mx.events:FlexEvent" type="e" /> 
+        <dep id="mx.managers:SystemManagerGlobals" type="e" /> 
+        <dep id="mx.modules:IModuleInfo" type="s" /> 
+        <dep id="flash.system:SecurityDomain" type="s" /> 
+        <dep id="flash.events:IEventDispatcher" type="s" /> 
+        <dep id="mx.resources:IResourceModule" type="s" /> 
+        <dep id="mx.resources:IResourceBundle" type="s" /> 
+        <dep id="mx.events:ModuleEvent" type="s" /> 
+        <dep id="flash.utils:Timer" type="s" /> 
+        <dep id="mx.events:ResourceEvent" type="s" /> 
+        <dep id="flash.events:FocusEvent" type="s" /> 
+        <dep id="flash.events:TimerEvent" type="s" /> 
+        <dep id="mx.resources:ResourceBundle" type="s" /> 
+        <dep id="flash.system:ApplicationDomain" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="mx.core:mx_internal" type="n" /> 
+        <dep id="mx.resources:IResourceManager" type="i" /> 
+        <dep id="flash.events:EventDispatcher" type="i" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="mx/core/mx_internal" mod="1264592040000" signatureChecksum="642982261" >
+        <def id="mx.core:mx_internal" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="com/bit101/components/ComboBox" mod="1269610780000" signatureChecksum="1361479217" >
+        <def id="com.bit101.components:ComboBox" /> 
+        <dep id="com.bit101.components:List" type="e" /> 
+        <dep id="com.bit101.components:PushButton" type="e" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="e" /> 
+        <dep id="flash.geom:Rectangle" type="e" /> 
+        <dep id="flash.geom:Point" type="e" /> 
+        <dep id="com.bit101.components:List" type="s" /> 
+        <dep id="com.bit101.components:PushButton" type="s" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.events:MouseEvent" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="flash.display:Stage" type="s" /> 
+        <dep id="flash.geom:Point" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/components/RotarySelector" mod="1269610142000" signatureChecksum="1411984236" >
+        <def id="com.bit101.components:RotarySelector" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="com.bit101.components:Style" type="e" /> 
+        <dep id="com.bit101.components:Label" type="e" /> 
+        <dep id="flash.display:Sprite" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.events:MouseEvent" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="com.bit101.components:Label" type="s" /> 
+        <dep id="flash.display:Sprite" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="mx/core/IEmbeddedFontRegistry" mod="1262975720697" signatureChecksum="2062332989" >
+        <def id="mx.core:IEmbeddedFontRegistry" /> 
+        <dep id="mx.core:IFlexModuleFactory" type="s" /> 
+        <dep id="mx.core:EmbeddedFont" type="s" /> 
+        <dep id="mx.managers:ISystemManager" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="mx/core/EmbeddedFontRegistry" mod="1262975721979" signatureChecksum="2075351069" >
+        <def id="mx.core:EmbeddedFontRegistry" /> 
+        <dep id="mx.core:EmbeddedFont" type="e" /> 
+        <dep id="trace" type="e" /> 
+        <dep id="flash.text:FontStyle" type="e" /> 
+        <dep id="mx.resources:ResourceManager" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="mx.core:IFlexModuleFactory" type="e" /> 
+        <dep id="flash.utils:getQualifiedClassName" type="e" /> 
+        <dep id="flash.text.engine:FontDescription" type="e" /> 
+        <dep id="flash.text:TextFormat" type="e" /> 
+        <dep id="flash.text:TextField" type="e" /> 
+        <dep id="flash.system:Capabilities" type="e" /> 
+        <dep id="mx.core:Singleton" type="e" /> 
+        <dep id="flash.utils:Dictionary" type="e" /> 
+        <dep id="mx.resources:IResourceManager" type="s" /> 
+        <dep id="mx.core:IFlexModuleFactory" type="s" /> 
+        <dep id="mx.core:EmbeddedFont" type="s" /> 
+        <dep id="mx.managers:ISystemManager" type="s" /> 
+        <dep id="flash.text:TextFormat" type="s" /> 
+        <dep id="flash.utils:Dictionary" type="s" /> 
+        <dep id="Error" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="mx.core:mx_internal" type="n" /> 
+        <dep id="mx.core:IEmbeddedFontRegistry" type="i" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="com/bit101/components/RangeSlider" mod="1270251288000" signatureChecksum="718641667" >
+        <def id="com.bit101.components:RangeSlider" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="e" /> 
+        <dep id="flash.geom:Rectangle" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="com.bit101.components:Style" type="e" /> 
+        <dep id="com.bit101.components:Label" type="e" /> 
+        <dep id="flash.display:Sprite" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="com.bit101.components:Label" type="s" /> 
+        <dep id="flash.display:Sprite" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/components/ColorChooser" mod="1269610141000" signatureChecksum="1299929780" >
+        <def id="com.bit101.components:ColorChooser" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.display:BitmapData" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="flash.display:BlendMode" type="e" /> 
+        <dep id="flash.geom:Point" type="e" /> 
+        <dep id="com.bit101.components:InputText" type="e" /> 
+        <dep id="flash.display:GradientType" type="e" /> 
+        <dep id="flash.display:InterpolationMethod" type="e" /> 
+        <dep id="flash.display:SpreadMethod" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="e" /> 
+        <dep id="flash.geom:Matrix" type="e" /> 
+        <dep id="flash.display:Bitmap" type="e" /> 
+        <dep id="flash.display:Sprite" type="e" /> 
+        <dep id="com.bit101.components:InputText" type="s" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.events:MouseEvent" type="s" /> 
+        <dep id="flash.display:Graphics" type="s" /> 
+        <dep id="flash.display:BitmapData" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="flash.geom:Matrix" type="s" /> 
+        <dep id="flash.display:DisplayObject" type="s" /> 
+        <dep id="flash.display:Bitmap" type="s" /> 
+        <dep id="flash.display:Stage" type="s" /> 
+        <dep id="flash.geom:Point" type="s" /> 
+        <dep id="flash.display:Sprite" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="mx/events/ModuleEvent" mod="1262975748135" signatureChecksum="1903081975" >
+        <def id="mx.events:ModuleEvent" /> 
+        <dep id="mx.modules:IModuleInfo" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="mx.modules:IModuleInfo" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="mx.core:mx_internal" type="n" /> 
+        <dep id="flash.events:ProgressEvent" type="i" /> 
+      </script>
+      <script name="com/bit101/components/HBox" mod="1269610141000" signatureChecksum="4039018775" >
+        <def id="com.bit101.components:HBox" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="flash.display:DisplayObject" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/components/Label" mod="1270083670000" signatureChecksum="3175003368" >
+        <def id="com.bit101.components:Label" /> 
+        <dep id="flash.text:TextFieldAutoSize" type="e" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.text:TextFormat" type="e" /> 
+        <dep id="flash.text:TextField" type="e" /> 
+        <dep id="com.bit101.components:Style" type="e" /> 
+        <dep id="flash.text:TextField" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/components/Slider" mod="1270249602000" signatureChecksum="324510578" >
+        <def id="com.bit101.components:Slider" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="e" /> 
+        <dep id="flash.geom:Rectangle" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="com.bit101.components:Style" type="e" /> 
+        <dep id="flash.display:Sprite" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="flash.display:Sprite" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/components/ScrollBar" mod="1269995617000" signatureChecksum="3581134066" >
+        <def id="com.bit101.components:ScrollBar" /> 
+        <dep id="com.bit101.components:PushButton" type="e" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="e" /> 
+        <dep id="flash.geom:Rectangle" type="e" /> 
+        <dep id="flash.utils:Timer" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="com.bit101.components:Style" type="e" /> 
+        <dep id="flash.events:TimerEvent" type="e" /> 
+        <dep id="flash.display:Shape" type="e" /> 
+        <dep id="com.bit101.components:PushButton" type="s" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.events:MouseEvent" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="flash.utils:Timer" type="s" /> 
+        <dep id="flash.events:TimerEvent" type="s" /> 
+        <dep id="flash.display:Shape" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Slider" type="i" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/components/ListItem" mod="1269610141000" signatureChecksum="2998221920" >
+        <def id="com.bit101.components:ListItem" /> 
+        <dep id="flash.events:MouseEvent" type="e" /> 
+        <dep id="com.bit101.components:Label" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="com.bit101.components:Label" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/components/UISlider" mod="1269610142000" signatureChecksum="529281398" >
+        <def id="com.bit101.components:UISlider" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="com.bit101.components:Label" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="com.bit101.components:Slider" type="s" /> 
+        <dep id="com.bit101.components:Label" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/components/VUISlider" mod="1269388509000" signatureChecksum="3820715119" >
+        <def id="com.bit101.components:VUISlider" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="com.bit101.components:VSlider" type="e" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:UISlider" type="i" /> 
+      </script>
+      <script name="com/bit101/components/Knob" mod="1269610141000" signatureChecksum="516131917" >
+        <def id="com.bit101.components:Knob" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="com.bit101.components:Style" type="e" /> 
+        <dep id="com.bit101.components:Label" type="e" /> 
+        <dep id="flash.display:Sprite" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="com.bit101.components:Label" type="s" /> 
+        <dep id="flash.display:Sprite" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/charts/Chart" mod="1269462240000" signatureChecksum="3075967637" >
+        <def id="com.bit101.charts:Chart" /> 
+        <dep id="com.bit101.components:Panel" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="com.bit101.components:Label" type="e" /> 
+        <dep id="flash.display:Shape" type="e" /> 
+        <dep id="com.bit101.components:Panel" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="com.bit101.components:Label" type="s" /> 
+        <dep id="flash.display:Shape" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/charts/PieChart" mod="1268873337000" signatureChecksum="1954944827" >
+        <def id="com.bit101.charts:PieChart" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="com.bit101.components:Label" type="e" /> 
+        <dep id="flash.display:Sprite" type="e" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="com.bit101.components:Label" type="s" /> 
+        <dep id="flash.display:Sprite" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.charts:Chart" type="i" /> 
+      </script>
+      <script name="com/bit101/components/HUISlider" mod="1269388408000" signatureChecksum="3497357598" >
+        <def id="com.bit101.components:HUISlider" /> 
+        <dep id="com.bit101.components:HSlider" type="e" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:UISlider" type="i" /> 
+      </script>
+      <script name="com/bit101/components/VRangeSlider" mod="1270245001000" signatureChecksum="1732069121" >
+        <def id="com.bit101.components:VRangeSlider" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:RangeSlider" type="i" /> 
+      </script>
+      <script name="mx/core/IFlexModuleFactory" mod="1262975720869" signatureChecksum="206212051" >
+        <def id="mx.core:IFlexModuleFactory" /> 
+        <dep id="flash.utils:Dictionary" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="mx/core/IChildList" mod="1262975721604" signatureChecksum="2244530349" >
+        <def id="mx.core:IChildList" /> 
+        <dep id="flash.display:DisplayObject" type="s" /> 
+        <dep id="flash.geom:Point" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="mx/managers/ISystemManager" mod="1262975729447" signatureChecksum="916383738" >
+        <def id="mx.managers:ISystemManager" /> 
+        <dep id="flash.text:TextFormat" type="s" /> 
+        <dep id="flash.geom:Rectangle" type="s" /> 
+        <dep id="flash.display:DisplayObject" type="s" /> 
+        <dep id="flash.display:LoaderInfo" type="s" /> 
+        <dep id="flash.display:Stage" type="s" /> 
+        <dep id="flash.display:Sprite" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="mx.core:IFlexModuleFactory" type="i" /> 
+        <dep id="flash.events:IEventDispatcher" type="i" /> 
+        <dep id="mx.core:IChildList" type="i" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="mx/resources/IResourceModule" mod="1262975759135" signatureChecksum="3082692337" >
+        <def id="mx.resources:IResourceModule" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="flashx/textLayout/compose/ISWFContext" mod="1264794041603" signatureChecksum="4118883923" >
+        <def id="flashx.textLayout.compose:ISWFContext" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="com/bit101/components/VBox" mod="1269610142000" signatureChecksum="1399163187" >
+        <def id="com.bit101.components:VBox" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="flash.display:DisplayObject" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/components/HScrollBar" mod="1269388375000" signatureChecksum="2646426753" >
+        <def id="com.bit101.components:HScrollBar" /> 
+        <dep id="com.bit101.components:Slider" type="e" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:ScrollBar" type="i" /> 
+      </script>
+      <script name="com/bit101/components/HRangeSlider" mod="1270244995000" signatureChecksum="1563248357" >
+        <def id="com.bit101.components:HRangeSlider" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:RangeSlider" type="i" /> 
+      </script>
+      <script name="com/bit101/components/Accordion" mod="1270064366000" signatureChecksum="1615640244" >
+        <def id="com.bit101.components:Accordion" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="com.bit101.components:VBox" type="e" /> 
+        <dep id="com.bit101.components:Window" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="com.bit101.components:VBox" type="s" /> 
+        <dep id="com.bit101.components:Window" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/components/Style" mod="1269429240000" signatureChecksum="134710874" >
+        <def id="com.bit101.components:Style" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="com/bit101/components/VSlider" mod="1269388450000" signatureChecksum="794968378" >
+        <def id="com.bit101.components:VSlider" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Slider" type="i" /> 
+      </script>
+      <script name="com/bit101/components/CheckBox" mod="1269610142000" signatureChecksum="1198307907" >
+        <def id="com.bit101.components:CheckBox" /> 
+        <dep id="flash.events:MouseEvent" type="e" /> 
+        <dep id="com.bit101.components:Style" type="e" /> 
+        <dep id="com.bit101.components:Label" type="e" /> 
+        <dep id="flash.display:Sprite" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="com.bit101.components:Label" type="s" /> 
+        <dep id="flash.display:Sprite" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="mx/resources/LocaleSorter" mod="1262975759056" signatureChecksum="2240826049" >
+        <def id="mx.resources:LocaleSorter" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="mx.core:mx_internal" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="mx/resources/IResourceBundle" mod="1264592024000" signatureChecksum="470430384" >
+        <def id="mx.resources:IResourceBundle" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="com/bit101/components/Panel" mod="1269388408000" signatureChecksum="837720219" >
+        <def id="com.bit101.components:Panel" /> 
+        <dep id="com.bit101.components:Style" type="e" /> 
+        <dep id="flash.display:Shape" type="e" /> 
+        <dep id="flash.display:Sprite" type="e" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="flash.display:Shape" type="s" /> 
+        <dep id="flash.display:Sprite" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/components/Calendar" mod="1269610142000" signatureChecksum="484963226" >
+        <def id="com.bit101.components:Calendar" /> 
+        <dep id="com.bit101.components:PushButton" type="e" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="e" /> 
+        <dep id="Date" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="com.bit101.components:Label" type="e" /> 
+        <dep id="flash.display:Shape" type="e" /> 
+        <dep id="com.bit101.components:PushButton" type="s" /> 
+        <dep id="flash.events:MouseEvent" type="s" /> 
+        <dep id="Date" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="com.bit101.components:Label" type="s" /> 
+        <dep id="flash.display:Shape" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Panel" type="i" /> 
+      </script>
+      <script name="mx/managers/SystemManagerGlobals" mod="1262975729432" signatureChecksum="578982153" >
+        <def id="mx.managers:SystemManagerGlobals" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="com/bit101/components/List" mod="1270349582000" signatureChecksum="3175283301" >
+        <def id="com.bit101.components:List" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="com.bit101.components:Panel" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="e" /> 
+        <dep id="com.bit101.components:VScrollBar" type="e" /> 
+        <dep id="com.bit101.components:ListItem" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="flash.display:Sprite" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="com.bit101.components:Panel" type="s" /> 
+        <dep id="com.bit101.components:VScrollBar" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="com.bit101.components:ListItem" type="s" /> 
+        <dep id="flash.display:Sprite" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/components/IndicatorLight" mod="1269610141000" signatureChecksum="1593438412" >
+        <def id="com.bit101.components:IndicatorLight" /> 
+        <dep id="flash.display:GradientType" type="e" /> 
+        <dep id="flash.geom:Matrix" type="e" /> 
+        <dep id="flash.utils:Timer" type="e" /> 
+        <dep id="flash.events:TimerEvent" type="e" /> 
+        <dep id="com.bit101.components:Label" type="e" /> 
+        <dep id="flash.display:Shape" type="e" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="flash.geom:Matrix" type="s" /> 
+        <dep id="flash.utils:Timer" type="s" /> 
+        <dep id="flash.events:TimerEvent" type="s" /> 
+        <dep id="com.bit101.components:Label" type="s" /> 
+        <dep id="flash.display:Shape" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="mx/resources/ResourceManager" mod="1262975759119" signatureChecksum="1607192750" >
+        <def id="mx.resources:ResourceManager" /> 
+        <dep id="mx.resources:IResourceManager" type="e" /> 
+        <dep id="mx.resources:ResourceManagerImpl" type="e" /> 
+        <dep id="mx.core:Singleton" type="e" /> 
+        <dep id="flash.utils:getDefinitionByName" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="mx.resources:IResourceManager" type="s" /> 
+        <dep id="mx.resources:ResourceManagerImpl" type="s" /> 
+        <dep id="Error" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="mx.core:mx_internal" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="mx/events/Request" mod="1263605502111" signatureChecksum="946694535" >
+        <def id="mx.events:Request" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="mx.core:mx_internal" type="n" /> 
+        <dep id="flash.events:Event" type="i" /> 
+      </script>
+      <script name="com/bit101/components/RadioButton" mod="1269610187000" signatureChecksum="2472200009" >
+        <def id="com.bit101.components:RadioButton" /> 
+        <dep id="flash.events:MouseEvent" type="e" /> 
+        <dep id="com.bit101.components:Style" type="e" /> 
+        <dep id="com.bit101.components:Label" type="e" /> 
+        <dep id="flash.display:Sprite" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="com.bit101.components:Label" type="s" /> 
+        <dep id="flash.display:Sprite" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="mx/core/Singleton" mod="1262975722604" signatureChecksum="1299077134" >
+        <def id="mx.core:Singleton" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="mx.core:mx_internal" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="mx/events/FlexEvent" mod="1262975747760" signatureChecksum="140263430" >
+        <def id="mx.events:FlexEvent" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="mx.core:mx_internal" type="n" /> 
+        <dep id="flash.events:Event" type="i" /> 
+      </script>
+      <script name="com/bit101/components/WheelMenu" mod="1270083871000" signatureChecksum="696656918" >
+        <def id="com.bit101.components:WheelMenu" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="e" /> 
+        <dep id="flash.display:DisplayObject" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="com.bit101.components:Label" type="e" /> 
+        <dep id="flash.filters:DropShadowFilter" type="e" /> 
+        <dep id="flash.display:Shape" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.events:MouseEvent" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="flash.display:DisplayObject" type="s" /> 
+        <dep id="flash.display:Shape" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.display:Sprite" type="i" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/components/Meter" mod="1269610141000" signatureChecksum="2934256326" >
+        <def id="com.bit101.components:Meter" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="com.bit101.components:Style" type="e" /> 
+        <dep id="com.bit101.components:Label" type="e" /> 
+        <dep id="flash.filters:DropShadowFilter" type="e" /> 
+        <dep id="flash.display:Sprite" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="com.bit101.components:Label" type="s" /> 
+        <dep id="flash.display:Sprite" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/charts/BarChart" mod="1269388375000" signatureChecksum="347830915" >
+        <def id="com.bit101.charts:BarChart" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.charts:Chart" type="i" /> 
+      </script>
+      <script name="mx/core/EmbeddedFont" mod="1262975722244" signatureChecksum="338655147" >
+        <def id="mx.core:EmbeddedFont" /> 
+        <dep id="mx.core:EmbeddedFontRegistry" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="mx.core:mx_internal" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="com/bit101/charts/LineChart" mod="1269388528000" signatureChecksum="3549462168" >
+        <def id="com.bit101.charts:LineChart" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.charts:Chart" type="i" /> 
+      </script>
+      <script name="com/bit101/components/ProgressBar" mod="1269388408000" signatureChecksum="450992205" >
+        <def id="com.bit101.components:ProgressBar" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="com.bit101.components:Style" type="e" /> 
+        <dep id="flash.display:Sprite" type="e" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="flash.display:Sprite" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/components/InputText" mod="1269610142000" signatureChecksum="131396540" >
+        <def id="com.bit101.components:InputText" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.text:TextFormat" type="e" /> 
+        <dep id="flash.text:TextFieldType" type="e" /> 
+        <dep id="flash.text:TextField" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="com.bit101.components:Style" type="e" /> 
+        <dep id="flash.display:Sprite" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.text:TextField" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="flash.display:Sprite" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="mx/modules/ModuleManager" mod="1262975753306" signatureChecksum="1005873656" >
+        <def id="mx.modules:ModuleManager" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.system:Security" type="e" /> 
+        <dep id="flash.net:URLRequest" type="e" /> 
+        <dep id="flash.events:IOErrorEvent" type="e" /> 
+        <dep id="flash.display:Loader" type="e" /> 
+        <dep id="flash.system:ApplicationDomain" type="e" /> 
+        <dep id="flash.events:SecurityErrorEvent" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="mx.core:IFlexModuleFactory" type="e" /> 
+        <dep id="flash.utils:getQualifiedClassName" type="e" /> 
+        <dep id="mx.modules:ModuleManagerGlobals" type="e" /> 
+        <dep id="flash.system:SecurityDomain" type="e" /> 
+        <dep id="mx.events:Request" type="e" /> 
+        <dep id="flash.events:ProgressEvent" type="e" /> 
+        <dep id="mx.events:ModuleEvent" type="e" /> 
+        <dep id="flash.system:LoaderContext" type="e" /> 
+        <dep id="flash.utils:Dictionary" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.utils:ByteArray" type="s" /> 
+        <dep id="flash.net:URLRequest" type="s" /> 
+        <dep id="flash.display:Loader" type="s" /> 
+        <dep id="flash.system:ApplicationDomain" type="s" /> 
+        <dep id="Error" type="s" /> 
+        <dep id="mx.core:IFlexModuleFactory" type="s" /> 
+        <dep id="flash.system:SecurityDomain" type="s" /> 
+        <dep id="flash.events:ProgressEvent" type="s" /> 
+        <dep id="mx.events:Request" type="s" /> 
+        <dep id="mx.events:ModuleEvent" type="s" /> 
+        <dep id="flash.system:LoaderContext" type="s" /> 
+        <dep id="flash.utils:Dictionary" type="s" /> 
+        <dep id="flash.events:ErrorEvent" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="mx.core:mx_internal" type="n" /> 
+        <dep id="mx.modules:IModuleInfo" type="i" /> 
+        <dep id="flash.events:EventDispatcher" type="i" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="mx/modules/ModuleManagerGlobals" mod="1262975753306" signatureChecksum="2800494114" >
+        <def id="mx.modules:ModuleManagerGlobals" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="mx/events/ResourceEvent" mod="1262975747650" signatureChecksum="4003434466" >
+        <def id="mx.events:ResourceEvent" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="mx.core:mx_internal" type="n" /> 
+        <dep id="flash.events:ProgressEvent" type="i" /> 
+      </script>
+      <script name="com/bit101/components/NumericStepper" mod="1269995098000" signatureChecksum="1139864222" >
+        <def id="com.bit101.components:NumericStepper" /> 
+        <dep id="com.bit101.components:InputText" type="e" /> 
+        <dep id="com.bit101.components:PushButton" type="e" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="e" /> 
+        <dep id="flash.utils:Timer" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="flash.events:TimerEvent" type="e" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="com.bit101.components:InputText" type="s" /> 
+        <dep id="com.bit101.components:PushButton" type="s" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.events:MouseEvent" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="flash.utils:Timer" type="s" /> 
+        <dep id="flash.events:TimerEvent" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="_2fd7276c8eeb7a091c4e2426cbb9739e2ead21ecbc0d53b377419b607a818969_mx_core_FlexModuleFactory" mod="1270349583490" signatureChecksum="847813445" >
+        <def id="_2fd7276c8eeb7a091c4e2426cbb9739e2ead21ecbc0d53b377419b607a818969_mx_core_FlexModuleFactory" /> 
+        <dep id="mx.core:EmbeddedFontRegistry" type="e" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.system:Security" type="e" /> 
+        <dep id="mx.core:Singleton" type="e" /> 
+        <dep id="flash.utils:getDefinitionByName" type="e" /> 
+        <dep id="mx.core:IFlexModule" type="e" /> 
+        <dep id="flash.system:ApplicationDomain" type="e" /> 
+        <dep id="flash.utils:Dictionary" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.utils:Dictionary" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="mx.core:IFlexModuleFactory" type="i" /> 
+        <dep id="flashx.textLayout.compose:ISWFContext" type="i" /> 
+        <dep id="flash.display:Sprite" type="i" /> 
+      </script>
+      <script name="com/bit101/components/VScrollBar" mod="1269388375000" signatureChecksum="2807907485" >
+        <def id="com.bit101.components:VScrollBar" /> 
+        <dep id="com.bit101.components:Slider" type="e" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:ScrollBar" type="i" /> 
+      </script>
+      <script name="com/bit101/components/HSlider" mod="1269388407000" signatureChecksum="644497694" >
+        <def id="com.bit101.components:HSlider" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Slider" type="i" /> 
+      </script>
+      <script name="mx/utils/StringUtil" mod="1262975731385" signatureChecksum="2484897165" >
+        <def id="mx.utils:StringUtil" /> 
+        <dep id="RegExp" type="e" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="mx.core:mx_internal" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="com/bit101/components/PushButton" mod="1269610142000" signatureChecksum="1853242034" >
+        <def id="com.bit101.components:PushButton" /> 
+        <dep id="flash.events:MouseEvent" type="e" /> 
+        <dep id="com.bit101.components:Style" type="e" /> 
+        <dep id="com.bit101.components:Label" type="e" /> 
+        <dep id="flash.display:Sprite" type="e" /> 
+        <dep id="flash.events:MouseEvent" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="com.bit101.components:Label" type="s" /> 
+        <dep id="flash.display:Sprite" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Component" type="i" /> 
+      </script>
+      <script name="com/bit101/components/TextArea" mod="1269610142000" signatureChecksum="652390292" >
+        <def id="com.bit101.components:TextArea" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="com.bit101.components:VScrollBar" type="e" /> 
+        <dep id="Math" type="e" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="com.bit101.components:VScrollBar" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="com.bit101.components:Text" type="i" /> 
+      </script>
+      <script name="mx/resources/ResourceBundle" mod="1264592068000" signatureChecksum="1304346630" >
+        <def id="mx.resources:ResourceBundle" /> 
+        <dep id="Error" type="e" /> 
+        <dep id="flash.system:ApplicationDomain" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="mx.core:mx_internal" type="n" /> 
+        <dep id="mx.resources:IResourceBundle" type="i" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <script name="mx/core/IFlexModule" mod="1262975722213" signatureChecksum="4106695874" >
+        <def id="mx.core:IFlexModule" /> 
+        <dep id="mx.core:IFlexModuleFactory" type="s" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Object" type="i" /> 
+      </script>
+      <keep-as3-metadata>
+        <metadata name="Transient" />
+        <metadata name="Bindable" />
+        <metadata name="ChangeEvent" />
+        <metadata name="IMXMLObject" />
+        <metadata name="Managed" />
+        <metadata name="NonCommittingChangeEvent" />
+      </keep-as3-metadata>
+      <digests>
+        <digest type="SHA-256" signed="false" value="1001f4b52ccbc0ceb0a492a92a75456ffe6ffe92b0dad544e11c71a67035220b"   />
+      </digests>
+    </library>
+  </libraries>
+  <files>
+  </files>
+</swc>
