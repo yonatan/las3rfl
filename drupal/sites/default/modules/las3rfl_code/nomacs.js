@@ -7,12 +7,6 @@ var token = (new Date).getTime() + "-" + Math.floor(Math.random() * 1e+16);
 // Reloads evaluator swf
 var resetEvalSWF;
 
-// Enables/disables a warning about unsaved changes when leaving the page.
-var _warnOnLeave = false;
-function warnOnLeave(val) {
-  _warnOnLeave = val;
-}
-
 $(function() {
     if($.browser.msie) {
       $("body").append('<div id="big-warning">The editor doesn\'t work in Internet Explorer. Sorry.</div>');
@@ -77,11 +71,6 @@ $(function() {
     function resize() {
       $("#editor-container").css({ height: $(window).height() - $("#editor-container").position().top });
     }
-
-    $(window).bind('beforeunload',
-		   function() {
-		     if(_warnOnLeave) return 'You have unsaved changes.';
-		   });
 
     $("#fullscreenBtn").click(enterFullscreen);
     enterFullscreen();

@@ -292,6 +292,7 @@ body {
   margin-right: 25px;
 }
 
+.view-code-by-user .views-row,
 .view-latest-code .views-row { 
   display: inline-block;
   vertical-align: top;
