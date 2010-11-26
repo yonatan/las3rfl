@@ -1,0 +1,908 @@
+<?xml version="1.0" encoding ="utf-8"?>
+<swc xmlns="http://www.adobe.com/flash/swccatalog/9">
+  <versions>
+    <swc version="1.2" />
+    <flex version="3.3.0" build="4589" />
+  </versions>
+  <features>
+    <feature-script-deps />
+    <feature-files />
+  </features>
+  <libraries>
+    <library path="library.swf">
+      <script name="org/libspark/betweenas3/easing/Quadratic" mod="1250080465000" signatureChecksum="350345488" >
+        <def id="org.libspark.betweenas3.easing:Quadratic" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuadraticEaseOutIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuadraticEaseIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuadraticEaseInOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuadraticEaseOut" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/IEasing" mod="1250080467000" signatureChecksum="2472625769" >
+        <def id="org.libspark.betweenas3.core.easing:IEasing" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/SineEaseIn" mod="1250080467000" signatureChecksum="2107395122" >
+        <def id="org.libspark.betweenas3.core.easing:SineEaseIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/easing/Linear" mod="1250080465000" signatureChecksum="291744805" >
+        <def id="org.libspark.betweenas3.easing:Linear" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:EaseNone" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/IPhysicalEasing" mod="1250080467000" signatureChecksum="1736661910" >
+        <def id="org.libspark.betweenas3.core.easing:IPhysicalEasing" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/PhysicalExponential" mod="1250080467000" signatureChecksum="1096514456" >
+        <def id="org.libspark.betweenas3.core.easing:PhysicalExponential" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IPhysicalEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/BounceEaseIn" mod="1250080467000" signatureChecksum="689196287" >
+        <def id="org.libspark.betweenas3.core.easing:BounceEaseIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/easing/Quint" mod="1250080465000" signatureChecksum="729994367" >
+        <def id="org.libspark.betweenas3.easing:Quint" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuinticEaseIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuinticEaseInOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuinticEaseOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuinticEaseOutIn" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/ExponentialEaseOutIn" mod="1250080467000" signatureChecksum="4244459618" >
+        <def id="org.libspark.betweenas3.core.easing:ExponentialEaseOutIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/CubicEaseIn" mod="1250080467000" signatureChecksum="3423816841" >
+        <def id="org.libspark.betweenas3.core.easing:CubicEaseIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/CubicEaseOut" mod="1250080467000" signatureChecksum="756436234" >
+        <def id="org.libspark.betweenas3.core.easing:CubicEaseOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/QuadraticEaseInOut" mod="1250080467000" signatureChecksum="1030442873" >
+        <def id="org.libspark.betweenas3.core.easing:QuadraticEaseInOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/easing/Physical" mod="1250080465000" signatureChecksum="1951075061" >
+        <def id="org.libspark.betweenas3.easing:Physical" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IPhysicalEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:PhysicalUniform" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:PhysicalAccelerate" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:PhysicalExponential" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/BetweenAS3" mod="1250080468000" signatureChecksum="3203762636" >
+        <def id="org.libspark.betweenas3:BetweenAS3" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:ObjectTween" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:UpdaterFactory" type="s" /> 
+        <dep id="flash.display:DisplayObject" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="org.libspark.betweenas3.tweens:ITween" type="s" /> 
+        <dep id="org.libspark.betweenas3.tweens:ITweenGroup" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:PhysicalTween" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.ticker:ITicker" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IPhysicalEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.utils:ClassRegistry" type="s" /> 
+        <dep id="org.libspark.betweenas3.tweens:IObjectTween" type="s" /> 
+        <dep id="org.libspark.betweenas3.easing:Physical" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:TweenDecorator" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.tweens.actions:RemoveFromParentAction" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.tweens.decorators:ScaledTween" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.tweens.groups:SerialTween" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.tweens.decorators:SlicedTween" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.utils:ClassRegistry" type="e" /> 
+        <dep id="org.libspark.betweenas3.easing:Linear" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:ObjectTween" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:UpdaterFactory" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:ObjectUpdater" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.updaters.display:DisplayObjectUpdater" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.tweens.decorators:DelayedTween" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.tweens.actions:FunctionAction" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:PhysicalTween" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.updaters.display:MovieClipUpdater" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.tweens.actions:AddChildAction" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.tweens.groups:ParallelTween" type="e" /> 
+        <dep id="org.libspark.betweenas3.tickers:EnterFrameTicker" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.updaters.geom:PointUpdater" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.tweens.decorators:ReversedTween" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.tweens.decorators:RepeatedTween" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/updaters/IUpdater" mod="1250080468000" signatureChecksum="1174455075" >
+        <def id="org.libspark.betweenas3.core.updaters:IUpdater" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/updaters/AbstractUpdater" mod="1250080468000" signatureChecksum="1906843016" >
+        <def id="org.libspark.betweenas3.core.updaters:AbstractUpdater" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:IUpdater" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/updaters/display/DisplayObjectUpdater" mod="1250080467000" signatureChecksum="2318045289" >
+        <def id="org.libspark.betweenas3.core.updaters.display:DisplayObjectUpdater" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:AbstractUpdater" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.display:DisplayObject" type="s" /> 
+        <dep id="flash.filters:BitmapFilter" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.utils:ClassRegistry" type="s" /> 
+        <dep id="flash.filters:GradientGlowFilter" type="e" /> 
+        <dep id="flash.filters:ConvolutionFilter" type="e" /> 
+        <dep id="flash.display:DisplayObject" type="e" /> 
+        <dep id="flash.filters:BevelFilter" type="e" /> 
+        <dep id="flash.filters:DropShadowFilter" type="e" /> 
+        <dep id="flash.filters:GradientBevelFilter" type="e" /> 
+        <dep id="flash.filters:GlowFilter" type="e" /> 
+        <dep id="flash.filters:BitmapFilter" type="e" /> 
+        <dep id="flash.filters:ShaderFilter" type="e" /> 
+        <dep id="flash.filters:DisplacementMapFilter" type="e" /> 
+        <dep id="flash.filters:ColorMatrixFilter" type="e" /> 
+        <dep id="flash.filters:BlurFilter" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/ticker/TickerListener" mod="1250080465000" signatureChecksum="232611510" >
+        <def id="org.libspark.betweenas3.core.ticker:TickerListener" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/tweens/ITween" mod="1250080464000" signatureChecksum="612633603" >
+        <def id="org.libspark.betweenas3.tweens:ITween" /> 
+        <dep id="flash.events:IEventDispatcher" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/IITween" mod="1250080466000" signatureChecksum="3204616518" >
+        <def id="org.libspark.betweenas3.core.tweens:IITween" /> 
+        <dep id="org.libspark.betweenas3.tweens:ITween" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.ticker:ITicker" type="s" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/AbstractTween" mod="1250080466000" signatureChecksum="675879669" >
+        <def id="org.libspark.betweenas3.core.tweens:AbstractTween" /> 
+        <dep id="org.libspark.betweenas3.core.ticker:TickerListener" type="i" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.utils:ClonableEventDispatcher" type="s" /> 
+        <dep id="org.libspark.betweenas3.tweens:ITween" type="s" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.ticker:ITicker" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.utils:ClonableEventDispatcher" type="e" /> 
+        <dep id="org.libspark.betweenas3.events:TweenEvent" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/TweenDecorator" mod="1250080466000" signatureChecksum="2041760664" >
+        <def id="org.libspark.betweenas3.core.tweens:TweenDecorator" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:AbstractTween" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="s" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/decorators/DelayedTween" mod="1250080466000" signatureChecksum="1815730751" >
+        <def id="org.libspark.betweenas3.core.tweens.decorators:DelayedTween" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:TweenDecorator" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:AbstractTween" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/BackEaseIn" mod="1250080467000" signatureChecksum="2305974930" >
+        <def id="org.libspark.betweenas3.core.easing:BackEaseIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/QuinticEaseInOut" mod="1250080467000" signatureChecksum="2461028024" >
+        <def id="org.libspark.betweenas3.core.easing:QuinticEaseInOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/CircularEaseOutIn" mod="1250080467000" signatureChecksum="3821555472" >
+        <def id="org.libspark.betweenas3.core.easing:CircularEaseOutIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/BackEaseInOut" mod="1250080467000" signatureChecksum="960849154" >
+        <def id="org.libspark.betweenas3.core.easing:BackEaseInOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/tweens/ITweenGroup" mod="1250080464000" signatureChecksum="3170788686" >
+        <def id="org.libspark.betweenas3.tweens:ITweenGroup" /> 
+        <dep id="org.libspark.betweenas3.tweens:ITween" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/IITweenGroup" mod="1250080466000" signatureChecksum="2415807813" >
+        <def id="org.libspark.betweenas3.core.tweens:IITweenGroup" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="i" /> 
+        <dep id="org.libspark.betweenas3.tweens:ITweenGroup" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/groups/SerialTween" mod="1250080465000" signatureChecksum="3900249708" >
+        <def id="org.libspark.betweenas3.core.tweens.groups:SerialTween" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:AbstractTween" type="i" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITweenGroup" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.libspark.betweenas3.tweens:ITween" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.ticker:ITicker" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/BounceEaseInOut" mod="1250080467000" signatureChecksum="781667895" >
+        <def id="org.libspark.betweenas3.core.easing:BounceEaseInOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/updaters/ObjectUpdater" mod="1250080468000" signatureChecksum="1095862745" >
+        <def id="org.libspark.betweenas3.core.updaters:ObjectUpdater" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:AbstractUpdater" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.utils:Dictionary" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.utils:ClassRegistry" type="s" /> 
+        <dep id="flash.utils:Dictionary" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/QuinticEaseIn" mod="1250080467000" signatureChecksum="2343193984" >
+        <def id="org.libspark.betweenas3.core.easing:QuinticEaseIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/easing/Expo" mod="1250080465000" signatureChecksum="967432882" >
+        <def id="org.libspark.betweenas3.easing:Expo" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:ExponentialEaseOutIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:ExponentialEaseIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:ExponentialEaseOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:ExponentialEaseInOut" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/SineEaseOutIn" mod="1250080467000" signatureChecksum="2164477290" >
+        <def id="org.libspark.betweenas3.core.easing:SineEaseOutIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/updaters/display/MovieClipUpdater" mod="1250080467000" signatureChecksum="2377420882" >
+        <def id="org.libspark.betweenas3.core.updaters.display:MovieClipUpdater" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:AbstractUpdater" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.display:MovieClip" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.utils:ClassRegistry" type="s" /> 
+        <dep id="flash.display:MovieClip" type="e" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/ExponentialEaseOut" mod="1250080467000" signatureChecksum="1414680491" >
+        <def id="org.libspark.betweenas3.core.easing:ExponentialEaseOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/decorators/SlicedTween" mod="1250080466000" signatureChecksum="2506085832" >
+        <def id="org.libspark.betweenas3.core.tweens.decorators:SlicedTween" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:TweenDecorator" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:AbstractTween" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/ticker/ITicker" mod="1250080465000" signatureChecksum="3231613643" >
+        <def id="org.libspark.betweenas3.core.ticker:ITicker" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.ticker:TickerListener" type="s" /> 
+      </script>
+      <script name="org/libspark/betweenas3/easing/Quart" mod="1250080465000" signatureChecksum="315544683" >
+        <def id="org.libspark.betweenas3.easing:Quart" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuarticEaseOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuarticEaseIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuarticEaseInOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuarticEaseOutIn" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/IIActionTween" mod="1250080466000" signatureChecksum="4024382836" >
+        <def id="org.libspark.betweenas3.core.tweens:IIActionTween" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/AbstractActionTween" mod="1250080466000" signatureChecksum="3508443510" >
+        <def id="org.libspark.betweenas3.core.tweens:AbstractActionTween" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IIActionTween" type="i" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:AbstractTween" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.ticker:ITicker" type="s" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/actions/FunctionAction" mod="1250080465000" signatureChecksum="2020584626" >
+        <def id="org.libspark.betweenas3.core.tweens.actions:FunctionAction" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:AbstractActionTween" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.ticker:ITicker" type="s" /> 
+      </script>
+      <script name="org/libspark/betweenas3/tweens/IObjectTween" mod="1250080464000" signatureChecksum="4274930138" >
+        <def id="org.libspark.betweenas3.tweens:IObjectTween" /> 
+        <dep id="org.libspark.betweenas3.tweens:ITween" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/IIPhysicalTween" mod="1250080466000" signatureChecksum="3148255103" >
+        <def id="org.libspark.betweenas3.core.tweens:IIPhysicalTween" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="org.libspark.betweenas3.tweens:IObjectTween" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:IPhysicalUpdater" type="s" /> 
+      </script>
+      <script name="org/libspark/betweenas3/easing/Quad" mod="1250080465000" signatureChecksum="1721685757" >
+        <def id="org.libspark.betweenas3.easing:Quad" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuadraticEaseOutIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuadraticEaseIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuadraticEaseInOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuadraticEaseOut" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/PhysicalUniform" mod="1250080467000" signatureChecksum="598308245" >
+        <def id="org.libspark.betweenas3.core.easing:PhysicalUniform" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IPhysicalEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/BounceEaseOut" mod="1250080467000" signatureChecksum="2323533184" >
+        <def id="org.libspark.betweenas3.core.easing:BounceEaseOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/easing/Elastic" mod="1250080465000" signatureChecksum="2059875919" >
+        <def id="org.libspark.betweenas3.easing:Elastic" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:ElasticEaseIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:ElasticEaseOutIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:ElasticEaseOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:ElasticEaseInOut" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/QuadraticEaseIn" mod="1250080467000" signatureChecksum="874663489" >
+        <def id="org.libspark.betweenas3.core.easing:QuadraticEaseIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/actions/AddChildAction" mod="1250080465000" signatureChecksum="3061640508" >
+        <def id="org.libspark.betweenas3.core.tweens.actions:AddChildAction" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:AbstractActionTween" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.display:DisplayObject" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.ticker:ITicker" type="s" /> 
+      </script>
+      <script name="org/libspark/betweenas3/easing/Sine" mod="1250080465000" signatureChecksum="2489241285" >
+        <def id="org.libspark.betweenas3.easing:Sine" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:SineEaseIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:SineEaseOutIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:SineEaseOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:SineEaseInOut" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/ElasticEaseIn" mod="1250080467000" signatureChecksum="2933092553" >
+        <def id="org.libspark.betweenas3.core.easing:ElasticEaseIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/decorators/ScaledTween" mod="1250080466000" signatureChecksum="2737559484" >
+        <def id="org.libspark.betweenas3.core.tweens.decorators:ScaledTween" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:TweenDecorator" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:AbstractTween" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/utils/TimeUtil" mod="1250080464000" signatureChecksum="3797734543" >
+        <def id="org.libspark.betweenas3.utils:TimeUtil" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.display:MovieClip" type="s" /> 
+        <dep id="flash.display:FrameLabel" type="e" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/ElasticEaseOut" mod="1250080467000" signatureChecksum="3733090763" >
+        <def id="org.libspark.betweenas3.core.easing:ElasticEaseOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/updaters/IPhysicalUpdater" mod="1250080468000" signatureChecksum="1091601677" >
+        <def id="org.libspark.betweenas3.core.updaters:IPhysicalUpdater" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:IUpdater" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IPhysicalEasing" type="s" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/updaters/CompositePhysicalUpdater" mod="1250080468000" signatureChecksum="2611431520" >
+        <def id="org.libspark.betweenas3.core.updaters:CompositePhysicalUpdater" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:IPhysicalUpdater" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:IUpdater" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IPhysicalEasing" type="s" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/updaters/PhysicalUpdater" mod="1250080468000" signatureChecksum="501665493" >
+        <def id="org.libspark.betweenas3.core.updaters:PhysicalUpdater" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:IPhysicalUpdater" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.utils:Dictionary" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:IUpdater" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IPhysicalEasing" type="s" /> 
+        <dep id="flash.utils:Dictionary" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/SineEaseOut" mod="1250080467000" signatureChecksum="3728297139" >
+        <def id="org.libspark.betweenas3.core.easing:SineEaseOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/BounceEaseOutIn" mod="1250080467000" signatureChecksum="786583095" >
+        <def id="org.libspark.betweenas3.core.easing:BounceEaseOutIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/decorators/RepeatedTween" mod="1250080466000" signatureChecksum="1698159272" >
+        <def id="org.libspark.betweenas3.core.tweens.decorators:RepeatedTween" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:TweenDecorator" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:AbstractTween" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/easing/Circ" mod="1250080465000" signatureChecksum="3942045007" >
+        <def id="org.libspark.betweenas3.easing:Circ" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:CircularEaseOutIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:CircularEaseInOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:CircularEaseIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:CircularEaseOut" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/BackEaseOut" mod="1250080467000" signatureChecksum="2337432468" >
+        <def id="org.libspark.betweenas3.core.easing:BackEaseOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/CircularEaseInOut" mod="1250080467000" signatureChecksum="3816640272" >
+        <def id="org.libspark.betweenas3.core.easing:CircularEaseInOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/PhysicalAccelerate" mod="1250080467000" signatureChecksum="3600710236" >
+        <def id="org.libspark.betweenas3.core.easing:PhysicalAccelerate" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IPhysicalEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/events/TweenEvent" mod="1250080464000" signatureChecksum="669550400" >
+        <def id="org.libspark.betweenas3.events:TweenEvent" /> 
+        <dep id="flash.events:Event" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/PhysicalTween" mod="1250080466000" signatureChecksum="3276608996" >
+        <def id="org.libspark.betweenas3.core.tweens:PhysicalTween" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:AbstractTween" type="i" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IIPhysicalTween" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.ticker:ITicker" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:IPhysicalUpdater" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:IPhysicalUpdater" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/decorators/ReversedTween" mod="1250080466000" signatureChecksum="3207580697" >
+        <def id="org.libspark.betweenas3.core.tweens.decorators:ReversedTween" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:TweenDecorator" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:AbstractTween" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/updaters/geom/PointUpdater" mod="1250080468000" signatureChecksum="3542590464" >
+        <def id="org.libspark.betweenas3.core.updaters.geom:PointUpdater" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:AbstractUpdater" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.geom:Point" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.utils:ClassRegistry" type="s" /> 
+        <dep id="flash.geom:Point" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/ElasticEaseInOut" mod="1250080467000" signatureChecksum="3485627193" >
+        <def id="org.libspark.betweenas3.core.easing:ElasticEaseInOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/EaseNone" mod="1250080467000" signatureChecksum="3714534268" >
+        <def id="org.libspark.betweenas3.core.easing:EaseNone" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/easing/Cubic" mod="1250080465000" signatureChecksum="3930312824" >
+        <def id="org.libspark.betweenas3.easing:Cubic" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:CubicEaseOutIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:CubicEaseIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:CubicEaseOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:CubicEaseInOut" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/IIObjectTween" mod="1250080466000" signatureChecksum="1196348952" >
+        <def id="org.libspark.betweenas3.core.tweens:IIObjectTween" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="org.libspark.betweenas3.tweens:IObjectTween" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:IUpdater" type="s" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/ObjectTween" mod="1250080466000" signatureChecksum="3974324233" >
+        <def id="org.libspark.betweenas3.core.tweens:ObjectTween" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:AbstractTween" type="i" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IIObjectTween" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:IUpdater" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.ticker:ITicker" type="s" /> 
+      </script>
+      <script name="org/libspark/betweenas3/easing/Bounce" mod="1250080465000" signatureChecksum="4143043270" >
+        <def id="org.libspark.betweenas3.easing:Bounce" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:BounceEaseInOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:BounceEaseOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:BounceEaseOutIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:BounceEaseIn" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/QuinticEaseOut" mod="1250080467000" signatureChecksum="3985985025" >
+        <def id="org.libspark.betweenas3.core.easing:QuinticEaseOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/updaters/UpdaterLadder" mod="1250080468000" signatureChecksum="1749878284" >
+        <def id="org.libspark.betweenas3.core.updaters:UpdaterLadder" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:IUpdater" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/easing/Exponential" mod="1250080465000" signatureChecksum="3875331485" >
+        <def id="org.libspark.betweenas3.easing:Exponential" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:ExponentialEaseOutIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:ExponentialEaseIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:ExponentialEaseOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:ExponentialEaseInOut" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/CustomFunctionEasing" mod="1250080467000" signatureChecksum="2607574108" >
+        <def id="org.libspark.betweenas3.core.easing:CustomFunctionEasing" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/utils/ClassRegistry" mod="1250080465000" signatureChecksum="3465853896" >
+        <def id="org.libspark.betweenas3.core.utils:ClassRegistry" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.utils:Dictionary" type="s" /> 
+        <dep id="ReferenceError" type="s" /> 
+        <dep id="flash.utils:Dictionary" type="e" /> 
+        <dep id="ReferenceError" type="e" /> 
+        <dep id="flash.utils:getQualifiedSuperclassName" type="e" /> 
+        <dep id="flash.utils:getDefinitionByName" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/QuinticEaseOutIn" mod="1250080467000" signatureChecksum="2465943224" >
+        <def id="org.libspark.betweenas3.core.easing:QuinticEaseOutIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/ExponentialEaseIn" mod="1250080467000" signatureChecksum="4037955370" >
+        <def id="org.libspark.betweenas3.core.easing:ExponentialEaseIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/QuarticEaseIn" mod="1250080467000" signatureChecksum="2311998844" >
+        <def id="org.libspark.betweenas3.core.easing:QuarticEaseIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/BackEaseOutIn" mod="1250080467000" signatureChecksum="970679554" >
+        <def id="org.libspark.betweenas3.core.easing:BackEaseOutIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/updaters/BezierUpdater" mod="1250080468000" signatureChecksum="1514440851" >
+        <def id="org.libspark.betweenas3.core.updaters:BezierUpdater" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:AbstractUpdater" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.utils:Dictionary" type="s" /> 
+        <dep id="flash.utils:Dictionary" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/easing/Circular" mod="1250080465000" signatureChecksum="2873808643" >
+        <def id="org.libspark.betweenas3.easing:Circular" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:CircularEaseOutIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:CircularEaseInOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:CircularEaseIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:CircularEaseOut" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/actions/RemoveFromParentAction" mod="1250080465000" signatureChecksum="1026414250" >
+        <def id="org.libspark.betweenas3.core.tweens.actions:RemoveFromParentAction" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:AbstractActionTween" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.display:DisplayObject" type="s" /> 
+        <dep id="flash.display:DisplayObjectContainer" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.ticker:ITicker" type="s" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/CubicEaseInOut" mod="1250080467000" signatureChecksum="3493088705" >
+        <def id="org.libspark.betweenas3.core.easing:CubicEaseInOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/tickers/EnterFrameTicker" mod="1250080464000" signatureChecksum="3945000183" >
+        <def id="org.libspark.betweenas3.tickers:EnterFrameTicker" /> 
+        <dep id="org.libspark.betweenas3.core.ticker:ITicker" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.ticker:TickerListener" type="s" /> 
+        <dep id="flash.events:Event" type="s" /> 
+        <dep id="flash.display:Shape" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.ticker:TickerListener" type="e" /> 
+        <dep id="flash.utils:getTimer" type="e" /> 
+        <dep id="flash.events:Event" type="e" /> 
+        <dep id="flash.display:Shape" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/QuadraticEaseOut" mod="1250080467000" signatureChecksum="2530102978" >
+        <def id="org.libspark.betweenas3.core.easing:QuadraticEaseOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/updaters/PhysicalUpdaterLadder" mod="1250080468000" signatureChecksum="2034525939" >
+        <def id="org.libspark.betweenas3.core.updaters:PhysicalUpdaterLadder" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:IPhysicalUpdater" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:IUpdater" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IPhysicalEasing" type="s" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/utils/ClonableEventDispatcher" mod="1250080465000" signatureChecksum="3602767339" >
+        <def id="org.libspark.betweenas3.core.utils:ClonableEventDispatcher" /> 
+        <dep id="flash.events:EventDispatcher" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="flash.utils:Dictionary" type="s" /> 
+        <dep id="flash.events:IEventDispatcher" type="s" /> 
+        <dep id="flash.utils:Dictionary" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/QuarticEaseInOut" mod="1250080467000" signatureChecksum="2429046452" >
+        <def id="org.libspark.betweenas3.core.easing:QuarticEaseInOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/ElasticEaseOutIn" mod="1250080467000" signatureChecksum="3495457593" >
+        <def id="org.libspark.betweenas3.core.easing:ElasticEaseOutIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/updaters/UpdaterFactory" mod="1250080468000" signatureChecksum="3620727580" >
+        <def id="org.libspark.betweenas3.core.updaters:UpdaterFactory" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="flash.utils:Dictionary" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:PhysicalUpdater" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:BezierUpdater" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:IUpdater" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IPhysicalEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.utils:ClassRegistry" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:IPhysicalUpdater" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="flash.utils:Dictionary" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:PhysicalUpdater" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:CompositeUpdater" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:BezierUpdater" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:IUpdater" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:UpdaterLadder" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:IPhysicalUpdater" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:PhysicalUpdaterLadder" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:CompositePhysicalUpdater" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/CircularEaseIn" mod="1250080467000" signatureChecksum="3681504728" >
+        <def id="org.libspark.betweenas3.core.easing:CircularEaseIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/ExponentialEaseInOut" mod="1250080467000" signatureChecksum="4239544418" >
+        <def id="org.libspark.betweenas3.core.easing:ExponentialEaseInOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/CubicEaseOutIn" mod="1250080467000" signatureChecksum="3498003905" >
+        <def id="org.libspark.betweenas3.core.easing:CubicEaseOutIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/easing/Quartic" mod="1250080465000" signatureChecksum="3837056311" >
+        <def id="org.libspark.betweenas3.easing:Quartic" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuarticEaseOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuarticEaseIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuarticEaseInOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuarticEaseOutIn" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/QuarticEaseOut" mod="1250080467000" signatureChecksum="3954527741" >
+        <def id="org.libspark.betweenas3.core.easing:QuarticEaseOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/QuadraticEaseOutIn" mod="1250080467000" signatureChecksum="1035358073" >
+        <def id="org.libspark.betweenas3.core.easing:QuadraticEaseOutIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/easing/Back" mod="1250080465000" signatureChecksum="3257475515" >
+        <def id="org.libspark.betweenas3.easing:Back" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:BackEaseInOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:BackEaseOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:BackEaseOutIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:BackEaseIn" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/SineEaseInOut" mod="1250080467000" signatureChecksum="2159562090" >
+        <def id="org.libspark.betweenas3.core.easing:SineEaseInOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/tweens/groups/ParallelTween" mod="1250080465000" signatureChecksum="2734954502" >
+        <def id="org.libspark.betweenas3.core.tweens.groups:ParallelTween" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:AbstractTween" type="i" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITweenGroup" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="__AS3__.vec:Vector" type="s" /> 
+        <dep id="org.libspark.betweenas3.tweens:ITween" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.ticker:ITicker" type="s" /> 
+        <dep id="__AS3__.vec:Vector" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.tweens:IITween" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/updaters/CompositeUpdater" mod="1250080468000" signatureChecksum="3807964644" >
+        <def id="org.libspark.betweenas3.core.updaters:CompositeUpdater" /> 
+        <dep id="org.libspark.betweenas3.core.updaters:IUpdater" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <script name="org/libspark/betweenas3/easing/Quintic" mod="1250080465000" signatureChecksum="4254127435" >
+        <def id="org.libspark.betweenas3.easing:Quintic" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuinticEaseIn" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuinticEaseInOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuinticEaseOut" type="e" /> 
+        <dep id="org.libspark.betweenas3.core.easing:QuinticEaseOutIn" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/CircularEaseOut" mod="1250080467000" signatureChecksum="1036078681" >
+        <def id="org.libspark.betweenas3.core.easing:CircularEaseOut" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="Math" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/easing/Custom" mod="1250080465000" signatureChecksum="4228605951" >
+        <def id="org.libspark.betweenas3.easing:Custom" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="s" /> 
+        <dep id="org.libspark.betweenas3.core.easing:CustomFunctionEasing" type="e" /> 
+      </script>
+      <script name="org/libspark/betweenas3/core/easing/QuarticEaseOutIn" mod="1250080467000" signatureChecksum="2433961652" >
+        <def id="org.libspark.betweenas3.core.easing:QuarticEaseOutIn" /> 
+        <dep id="org.libspark.betweenas3.core.easing:IEasing" type="i" /> 
+        <dep id="Object" type="i" /> 
+        <dep id="AS3" type="n" /> 
+      </script>
+      <digests>
+        <digest type="SHA-256" signed="false" value="8c0e84b655c49310620e63493256b0c486c7cfd8d48573ad1bd274fdc10c8e2d"   />
+      </digests>
+    </library>
+  </libraries>
+  <files>
+  </files>
+</swc>
