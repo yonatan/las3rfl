@@ -45,6 +45,12 @@ function las3rfl_code_menu() {
     'access arguments' => array('access content'),
   );
 
+  $items['libraries'] = array(
+    'page callback' => 'las3rfl_code_list_libs',
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+  );
+
   return $items;
 }
 
@@ -125,16 +131,6 @@ function las3rfl_code_raw_node($node) {
  * for the real site.
  */
 
-
-// substr_compare(string1,string2,startpos,length,case)
-
-// Parameter 	Description
-// string1 	Required. Specifies the first string to compare
-// string2 	Required. Specifies the second string to compare
-// startpos 	Required. Specifies where to start comparing in string1
-// length 	Optional. Specifies how much of string1 to compare
-// case 	Optional. Specifies whether or not to perform a case-sensitive compare. Default is FALSE (case-sensitive)
-
 function las3rfl_code_boot() {
   // If it's drush don't kill it.
   if (php_sapi_name() != 'cli') {
@@ -150,8 +146,26 @@ function las3rfl_code_boot() {
   }
 }
 
+/*
+ * Implementation of hook_link_alter()
+ */
 function las3rfl_code_link_alter(&$links, $node, $comment = NULL) {
   if ($node->type == 'code' && $comment) {
     unset($links['comment_reply']);
   }
+}
+
+/*
+ * Library list callback
+ */
+function las3rfl_code_list_libs() {
+  drupal_set_title('Available AS3 libraries');
+  $files = file_scan_directory('./lib', '.*library.swf');
+  $output = '<ul>';
+  foreach ($files as $path => $whatever) {
+    $name = substr($path, 6, -12);
+    $output .= '<li>'. $name .'</li>';
+  }
+  $output .= '</ul>';
+  return $output;
 }
