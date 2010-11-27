@@ -50,7 +50,9 @@ drupal_add_js($module_path .'/viewer.js');
 
       <div class="code-container">
 	<pre class="las3r-code"><?php print check_plain($raw_node->body) ?></pre>
-	<a class="raw-code-link" href="/node/<?php print $node->nid?>/raw">View raw code</a>
+	<?php print l('View raw code', 
+	              'node/'. $node->nid .'/raw',
+	              array('attributes' => array('class' => 'raw-code-link'))) ?>
       </div>
     </div>
     <div class="hr"><span></span></div>
