@@ -82,34 +82,38 @@ function las3rfl_code_editor($node = NULL, $fork = FALSE) {
 }
 
 /*
- * Wrapper for las3rfl_code_editor, checks permissions and redirects to login
- * page if neccesary. Used by add and fork functions.
+ * Shows an access denied message to logged in users, 
+ * redirects anonymous ones to login page.
  */
-function las3rfl_code_check_perms_and_edit($node = NULL, $fork = FALSE) {
+function las3rfl_code_deny_access_or_redirect_to_login() {
   if(user_is_logged_in()) {
-    if(node_access('create', 'code')) {
-      return las3rfl_code_editor($node, $fork);
-    } else { // logged in, but no create code permission - should never happen
-      drupal_set_title('403 Access Denied');
-      return ('This is probably a bug, but you are not authorized to access this page.');
-    }
-  } else { // not logged in
+    drupal_set_title('403 Access Denied');
+    return ('You are not authorized to access this page.');
+  } else {
     drupal_goto('user', drupal_get_destination());
   }
 }
 
 function las3rfl_code_add_node() {
-  return las3rfl_code_check_perms_and_edit();
+  if(node_access('create', 'code')) {
+    return las3rfl_code_editor(NULL, FALSE);
+  } else {
+    return las3rfl_code_deny_access_or_redirect_to_login();
+  }
 }
 
 function las3rfl_code_fork_node($node) {
-  return las3rfl_code_check_perms_and_edit($node, TRUE);
+  if(node_access('create', 'code')) {
+    return las3rfl_code_editor($node, TRUE);
+  } else {
+    return las3rfl_code_deny_access_or_redirect_to_login();
+  }
 }
 
 function las3rfl_code_edit_node($node) {
   drupal_set_title(check_plain($node->title));
   if($node->type == 'code') {
-    return las3rfl_code_editor($node);
+    return las3rfl_code_editor($node, FALSE);
   } else {
     return drupal_get_form($node->type . '_node_form', $node);
   }
