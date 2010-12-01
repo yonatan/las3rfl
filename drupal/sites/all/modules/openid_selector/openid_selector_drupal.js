@@ -40,8 +40,8 @@ openid.getBoxHTML = function (box_id, provider, box_size, index) {
     if (box_size == 'small') {
       var style = box_size == 'small' ? '; background-size: 16px 16px;' : '';
 	  return '<a title="'+this.image_title.replace('{provider}', provider["name"])+'" href="javascript:openid.signin(\''+ box_id +'\');"' +
-        ' style="background: #FFF url(' + provider['image'] + ') no-repeat center center' + style + '" ' + 
-        'class="' + box_id + ' openid_' + box_size + '_btn"></a>';    
+        ' style="background: #FFF url(' + provider['image'] + ') no-repeat center center' + style + '" ' +
+        'class="' + box_id + ' openid_' + box_size + '_btn"></a>';
     } else {
       return '<a title="'+this.image_title.replace('{provider}', provider["name"])+'" href="javascript:openid.signin(\''+ box_id +'\');"' +
         'class="' + box_id + ' openid_' + box_size + '_btn">' + provider['name'] + '</a>';
@@ -57,7 +57,7 @@ openid.useInputBox = function(provider) {
     $('#openid_input_area')
       .empty()
      .append(this.username_html + this.password_html + '<input type="submit" style="position: absolute; visibility: hidden;"/>');
-   $('#edit-name').focus();
+   $('#content #edit-name').focus();
   } else {
     return this.useInputBox__drupal(provider);
   }
