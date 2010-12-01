@@ -1445,7 +1445,7 @@ comment tokens."
             (if *captured-image*
               (let [timestamp (/ (. (new (get-def "Date")) (getTime)) 1000) ;; secs, not millisecs
                     file {"file" (. Base64Encoder (encodeByteArray *captured-image*))
-                          "filepath"  "sites/default/files/capture/cap.jpg"
+                          "filepath" (str "sites/default/files/capture/cap-" (* 1000 timestamp) ".jpg")
                           "filesize" (. *captured-image* length)
                           "timestamp" timestamp
                           "uid" *uid*
