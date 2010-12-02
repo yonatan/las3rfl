@@ -1443,11 +1443,11 @@ comment tokens."
           save
           (fn [quit? & _]
             (if *captured-image*
-              (let [timestamp (/ (. (new (get-def "Date")) (getTime)) 1000) ;; secs, not millisecs
+              (let [timestamp-milli (. (new (get-def "Date")) (getTime))
                     file {"file" (. Base64Encoder (encodeByteArray *captured-image*))
-                          "filepath" (str "sites/default/files/capture/cap-" (* 1000 timestamp) ".jpg")
+                          "filepath" (str "sites/default/files/capture/cap-" timestamp-milli ".jpg")
                           "filesize" (. *captured-image* length)
-                          "timestamp" timestamp
+                          "timestamp" (int (/ timestamp-milli 1000)) ;; seconds
                           "uid" *uid*
                           "filemime" "image/jpeg"}]
                 (status "Saving captured image...")
