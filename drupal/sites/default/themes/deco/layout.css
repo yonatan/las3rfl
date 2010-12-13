@@ -279,6 +279,13 @@ body {
   vertical-align: top;
  }
 
+body.node-type-code.page-node .node-page .captured-image,
+#content .code-teaser .captured-image a img {
+  -moz-box-shadow: 0 0 10px #eee;
+  -webkit-box-shadow: 0 0 10px #eee;
+  box-shadow: 0 0 10px #eee;
+}
+
 #featured .code-teaser { 
   margin-bottom: 0;
 }
@@ -330,3 +337,4 @@ a:hover#play-button { opacity: 0.5; }
 .raw-code-link { float: right; font-size: 0.8em; }
 
 .addthis_toolbox { float: right; margin-top: 5px; width: 160px; }
+
