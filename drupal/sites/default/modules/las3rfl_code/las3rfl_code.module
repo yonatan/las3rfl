@@ -73,6 +73,10 @@ function las3rfl_code_is_forkable($node) {
  * Since this is a one-site single use module, there are no theming hooks.
  */
 function las3rfl_code_editor($node = NULL, $fork = FALSE) {
+  if(!user_is_logged_in()) {
+    drupal_set_message('You are not logged in. Code posted by anonymous users can be changed by others. If this bothers you '. l('log in', 'user') .'.', 'warning');
+  }
+
   ob_start();                      // Start output buffering
   include "editor.tpl.php";        // Include the template file
   $contents = ob_get_contents();   // Get the contents of the buffer
