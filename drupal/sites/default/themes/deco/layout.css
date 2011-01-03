@@ -281,9 +281,9 @@ body {
 
 body.node-type-code.page-node .node-page .captured-image,
 #content .code-teaser .captured-image a img {
-  -moz-box-shadow: 0 0 10px #eee;
-  -webkit-box-shadow: 0 0 10px #eee;
-  box-shadow: 0 0 10px #eee;
+  -moz-box-shadow: 0 0 8px #eee;
+  -webkit-box-shadow: 0 0 8px #eee;
+  box-shadow: 0 0 8px #eee;
 }
 
 #featured .code-teaser { 
