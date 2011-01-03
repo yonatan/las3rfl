@@ -1,0 +1,5 @@
+#!/bin/bash 
+
+mxmlc Nomacs.as
+mxmlc Viewer.as
+mxmlc EvalSWF.as
