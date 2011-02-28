@@ -20,7 +20,7 @@ $(function() {
 
     $("ul.tabs.primary").append("<li id='playStop'><a href='javascript:void(0);'>Play</a></li>");
 
-    var swfParams = {allowscriptaccess: "never", allowfullscreen: "true"};
+    var swfParams = {allowscriptaccess: "never", allowfullscreen: "true", wmode: "direct"};
     function play() {
       $("#playStop a").text("Stop").unbind().click(stop);
       $(".node-page .captured-image *").css("display", "none");

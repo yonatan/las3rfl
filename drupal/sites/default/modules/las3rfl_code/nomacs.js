@@ -18,7 +18,7 @@ $(function() {
 	siteDomain: Drupal.settings.siteDomain,
 	basePath: Drupal.settings.basePath
       };
-      var evalParams = {allowscriptaccess: "never", allowfullscreen: "true"};
+      var evalParams = {allowscriptaccess: "never", allowfullscreen: "true", wmode: "direct"};
       var swfUrl = "http://" + Drupal.settings.editorVars.swfDomain + modulePath + "EvalSWF.swf";
       swfobject.embedSWF(swfUrl, "evaluatorSWF", "465", "465", "10.0.0", false, evalVars, evalParams);
     };
