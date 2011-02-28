@@ -13,6 +13,8 @@
 
 <flex-config>
 
+  <target-player>11.0.0</target-player>
+  <swf-version>13</swf-version>
   <compiler>
     <source-path>
       <!-- <path-element>path/to/lib/</path-element> 
