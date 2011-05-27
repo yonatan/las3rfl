@@ -1,5 +1,4 @@
 <?php
-// $Id: system.module,v 1.585.2.54 2010/08/11 20:35:48 goba Exp $
 
 /**
  * @file
@@ -9,7 +8,7 @@
 /**
  * The current system version.
  */
-define('VERSION', '6.19');
+define('VERSION', '6.22');
 
 /**
  * Core API compatibility.
@@ -920,7 +919,13 @@ function _system_theme_data() {
     $themes_info = $themes;
   }
 
-  return $themes_info;
+  // To avoid side effects, we don't return the original objects.
+  $themes_info_cloned = array();
+  foreach ($themes_info as $key => $theme) {
+    $themes_info_cloned[$key] = drupal_clone($theme);
+  }
+
+  return $themes_info_cloned;
 }
 
 /**
@@ -1923,7 +1928,7 @@ function _system_zonelist() {
  */
 function system_check_http_request() {
   // Try to get the content of the front page via drupal_http_request().
-  $result = drupal_http_request(url('', array('absolute' => TRUE)));
+  $result = drupal_http_request(url('', array('absolute' => TRUE)), array(), 'GET', NULL, 0);
   // We only care that we get a http response - this means that Drupal
   // can make a http request.
   $works = isset($result->code) && ($result->code >= 100) && ($result->code < 600);

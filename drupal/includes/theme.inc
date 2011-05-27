@@ -1,5 +1,4 @@
 <?php
-// $Id: theme.inc,v 1.415.2.27 2010/03/01 10:02:01 goba Exp $
 
 /**
  * @file
@@ -12,14 +11,27 @@
  */
 
 /**
- * @name Content markers
+ * @defgroup content_flags Content markers
  * @{
  * Markers used by theme_mark() and node_mark() to designate content.
  * @see theme_mark(), node_mark()
  */
-define('MARK_READ',    0);
-define('MARK_NEW',     1);
+
+/**
+ * Mark content as read.
+ */
+define('MARK_READ', 0);
+
+/**
+ * Mark content as being new.
+ */
+define('MARK_NEW', 1);
+
+/**
+ * Mark content as being updated.
+ */
 define('MARK_UPDATED', 2);
+
 /**
  * @} End of "Content markers".
  */
@@ -1244,6 +1256,7 @@ function theme_links($links, $attributes = array('class' => 'links')) {
  *
  * @param $path
  *   Either the path of the image file (relative to base_path()) or a full URL.
+ *   If this is a full URL, $getsize must be set to FALSE or nothing will be returned.
  * @param $alt
  *   The alternative text for text-based browsers.
  * @param $title
@@ -1252,6 +1265,8 @@ function theme_links($links, $attributes = array('class' => 'links')) {
  *   Associative array of attributes to be placed in the img tag.
  * @param $getsize
  *   If set to TRUE, the image's dimension are fetched and added as width/height attributes.
+ *   Defaults to TRUE. Must be set to FALSE if $path is a full URL.
+ * 
  * @return
  *   A string containing the image tag.
  */

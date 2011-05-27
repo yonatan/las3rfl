@@ -1,5 +1,4 @@
 <?php
-// $Id: form.inc,v 1.265.2.34 2010/08/06 11:02:49 goba Exp $
 
 /**
  * @defgroup forms Form builder functions
@@ -62,7 +61,9 @@
  *   Any additional arguments are passed on to the functions called by
  *   drupal_get_form(), including the unique form constructor function.
  *   For example, the node_edit form requires that a node object be passed
- *   in here when it is called.
+ *   in here when it is called. These are available to implementations of
+ *   hook_form_alter() and hook_form_FORM_ID_alter() as the array
+ *   $form['#parameters'].
  * @return
  *   The rendered form.
  */

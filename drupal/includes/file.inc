@@ -1,5 +1,4 @@
 <?php
-// $Id: file.inc,v 1.121.2.13 2010/08/11 17:40:55 goba Exp $
 
 /**
  * @file
@@ -83,17 +82,28 @@ function file_create_path($dest = 0) {
 }
 
 /**
- * Check that the directory exists and is writable. Directories need to
- * have execute permissions to be considered a directory by FTP servers, etc.
+ * Checks whether a directory exists and is writable.
  *
- * @param $directory A string containing the name of a directory path.
- * @param $mode A Boolean value to indicate if the directory should be created
- *   if it does not exist or made writable if it is read-only.
- * @param $form_item An optional string containing the name of a form item that
- *   any errors will be attached to. This is useful for settings forms that
- *   require the user to specify a writable directory. If it can't be made to
- *   work, a form error will be set preventing them from saving the settings.
- * @return FALSE when directory not found, or TRUE when directory exists.
+ * Furthermore, the directory can optionally be created if it does not exist,
+ * and/or be set to writable if it is currently not. Directories need to have
+ * execute permission to be considered a directory by FTP servers.
+ *
+ * @param $directory
+ *   A string representing the directory path.
+ * @param $mode
+ *   An optional bitmask containing the actions, if any, to be carried out on
+ *   the directory. Any combination of the actions FILE_CREATE_DIRECTORY and
+ *   FILE_MODIFY_PERMISSIONS is allowed.
+ * @param $form_item
+ *   An optional string containing the name of a form item that any errors
+ *   will be attached to. Useful when the function validates a directory path
+ *   entered as a form value. An error will consequently prevent form submit
+ *   handlers from running, and instead display the form along with the
+ *   error messages.
+ *
+ * @return
+ *   FALSE if the directory does not exist or is not writable, even after
+ *   any optional actions have been carried out. Otherwise, TRUE is returned.
  */
 function file_check_directory(&$directory, $mode = 0, $form_item = NULL) {
   $directory = rtrim($directory, '/\\');
@@ -487,17 +497,17 @@ function file_space_used($uid = NULL) {
 }
 
 /**
- * Saves a file upload to a new location. The source file is validated as a
- * proper upload and handled as such.
+ * Saves a file upload to a new location.
  *
- * The file will be added to the files table as a temporary file. Temporary files
- * are periodically cleaned. To make the file permanent file call
+ * The source file is validated as a proper upload and handled as such.
+ * The file will be added to the files table as a temporary file. Temporary
+ * files are periodically cleaned. To make the file permanent file call
  * file_set_status() to change its status.
  *
  * @param $source
  *   A string specifying the name of the upload field to save.
  * @param $validators
- *   An optional, associative array of callback functions used to validate the
+ *   (optional) An associative array of callback functions used to validate the
  *   file. The keys are function names and the values arrays of callback
  *   parameters which will be passed in after the file object. The
  *   functions should return an array of error messages; an empty array
@@ -507,9 +517,12 @@ function file_space_used($uid = NULL) {
  *   A string containing the directory $source should be copied to. If this is
  *   not provided or is not writable, the temporary directory will be used.
  * @param $replace
- *   A boolean indicating whether an existing file of the same name in the
- *   destination directory should overwritten. A false value will generate a
- *   new, unique filename in the destination directory.
+ *   Replace behavior when the destination file already exists:
+ *   - FILE_EXISTS_REPLACE: Replace the existing file.
+ *   - FILE_EXISTS_RENAME: Append _{incrementing number} until the filename
+ *     is unique.
+ *   - FILE_EXISTS_ERROR: Do nothing and return FALSE.
+ *
  * @return
  *   An object containing the file information, or 0 in the event of an error.
  */
@@ -655,9 +668,12 @@ function file_validate_name_length($file) {
  * @param $file
  *   A Drupal file object.
  * @param $extensions
- *   A string with a space separated
+ *   A string with a space separated list of allowed file extensions, not
+ *   including the period. For example, 'bmp jpg gif png'.
+ *
  * @return
- *   An array. If the file extension is not allowed, it will contain an error message.
+ *   An array. If the file extension is not allowed, it will contain an error
+ *   message.
  */
 function file_validate_extensions($file, $extensions) {
   global $user;
@@ -837,6 +853,14 @@ function file_set_status(&$file, $status) {
 function file_transfer($source, $headers) {
   if (ob_get_level()) {
     ob_end_clean();
+  }
+  
+  // IE cannot download private files because it cannot store files downloaded
+  // over https in the browser cache. The problem can be solved by sending
+  // custom headers to IE. See http://support.microsoft.com/kb/323308/en-us
+  if (isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on')) {
+    drupal_set_header('Cache-Control: private');
+    drupal_set_header('Pragma: private');
   }
 
   foreach ($headers as $header) {
