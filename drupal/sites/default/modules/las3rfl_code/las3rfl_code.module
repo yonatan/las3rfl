@@ -45,6 +45,13 @@ function las3rfl_code_menu() {
     'access arguments' => array('access content'),
   );
 
+  $items['node/%node/diff'] = array(
+    'page callback' => 'las3rfl_code_diff',
+    'page arguments' => array(1),
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+  );
+
   $items['libraries'] = array(
     'page callback' => 'las3rfl_code_list_libs',
     'access callback' => 'user_access',
@@ -52,6 +59,27 @@ function las3rfl_code_menu() {
   );
 
   return $items;
+}
+
+/*
+ * Show a diff of between parent and forked code.
+ */
+function las3rfl_code_diff($node) {
+  if($node->type == 'code' && $node->field_forked_from[0]['nid']) {
+    drupal_add_js(drupal_get_path('module', 'las3rfl_code') .'/diff/diffview.js', 'module');
+    drupal_add_js(drupal_get_path('module', 'las3rfl_code') .'/diff/difflib.js', 'module');
+    drupal_add_js(drupal_get_path('module', 'las3rfl_code') .'/diff/diff.js', 'module');
+    drupal_add_css(drupal_get_path('module', 'las3rfl_code') .'/diff/diffview.css', 'module');
+    $parent = node_load($node->field_forked_from[0]['nid']);
+    $output .= '<h1 id="diff-left-title">'. check_plain($parent->title) .'</h1>';
+    $output .= '<pre id="diff-left">'. check_plain($parent->body) .'</pre>';
+    $output .= '<h1 id="diff-right-title">'. check_plain($node->title) .'</h1>';
+    $output .= '<pre id="diff-right">'. check_plain($node->body) .'</pre>';
+    return $output;
+  } else {
+    drupal_set_title('Sorry');
+    return('I can\'t show a diff for this one.');
+  }
 }
 
 /*

@@ -24,7 +24,12 @@ drupal_add_js($module_path .'/viewer.js');
       </div>
       <div class="submitted"><p>Posted by:<br/><?php print $submitted; ?></p></div>
       <?php if ($node->field_forked_from[0]['nid']): ?>
-      <div class="forked-from"><p>Forked from:<br/><?php print $node->field_forked_from[0]['view'] ?></p></div>
+      <div class="forked-from">
+	<p>Forked from:<br/>
+	 <?php print $node->field_forked_from[0]['view'] ?>
+	 <?php print l('[diff]', 'node/'. $node->nid .'/diff'); ?>
+	</p>
+      </div>
       <?php endif ?>
       <div class="clear-block"></div>
 
