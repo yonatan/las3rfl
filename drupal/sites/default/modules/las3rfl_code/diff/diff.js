@@ -4,8 +4,8 @@ $(function() {
     container.css("padding", "0");
     var a = difflib.stringAsLines($("#diff-left").text());
     var b = difflib.stringAsLines($("#diff-right").text());
-    var aTitle = $("#diff-left-title").text();
-    var bTitle = $("#diff-right-title").text();
+    var aTitle = $("#diff-left-title").html();
+    var bTitle = $("#diff-right-title").html();
     var sm = new difflib.SequenceMatcher(a, b);
     var opcodes = sm.get_opcodes();
     container.empty();

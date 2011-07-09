@@ -71,9 +71,9 @@ function las3rfl_code_diff($node) {
     drupal_add_js(drupal_get_path('module', 'las3rfl_code') .'/diff/diff.js', 'module');
     drupal_add_css(drupal_get_path('module', 'las3rfl_code') .'/diff/diffview.css', 'module');
     $parent = node_load($node->field_forked_from[0]['nid']);
-    $output .= '<h1 id="diff-left-title">'. check_plain($parent->title) .'</h1>';
+    $output .= '<h1 id="diff-left-title">'. l(check_plain($parent->title), 'node/'. $node->field_forked_from[0]['nid']) .'</h1>';
     $output .= '<pre id="diff-left">'. check_plain($parent->body) .'</pre>';
-    $output .= '<h1 id="diff-right-title">'. check_plain($node->title) .'</h1>';
+    $output .= '<h1 id="diff-right-title">'. l(check_plain($node->title), 'node/'. $node->nid) .'</h1>';
     $output .= '<pre id="diff-right">'. check_plain($node->body) .'</pre>';
     return $output;
   } else {
